@@ -1,6 +1,6 @@
 import { FieldKinds, SchemaAware, SchemaBuilder, ValueSchema } from "@fluid-experimental/tree2";
 
-const builder = new SchemaBuilder("felt app");
+const builder = new SchemaBuilder("Demo App");
 
 const boolean = builder.primitive("boolean", ValueSchema.Boolean);
 
