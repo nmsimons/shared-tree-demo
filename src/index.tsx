@@ -21,10 +21,7 @@ const App = (props: { tree: ISharedTree }) => {
 
 async function main() {
     const { container } = await loadFluidData();
-
     const fluidTree = container.initialObjects.tree as ISharedTree;
-    fluidTree.storedSchema.update(schema);
-
     ReactDOM.render(<App tree={fluidTree} />, document.body);
 }
 
