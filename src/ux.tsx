@@ -25,8 +25,7 @@ export function App(props: {
 }
 
 function Pile(props: {
-    pile: Pile,
-    app: App
+    pile: Pile    
 }): JSX.Element {
 
     return (
@@ -38,8 +37,7 @@ function Pile(props: {
                 onChange={event => props.pile.name = event.target.value}
             />
             <Notes pile={props.pile} />
-            <Button pile={props.pile} />
-            <Button2 pile={props.pile} pile2={props.app.piles[0]} />
+            <Button pile={props.pile} />            
         </div>
     )
 }
@@ -87,11 +85,10 @@ function Button(props: {
 }
 
 function Button2(props: {
-    pile: Pile,
-    pile2: Pile
+    pile: Pile,    
 }): JSX.Element {   
 
     return (
-        <button onClick={() => moveNote(props.pile.notes[props.pile.notes.length - 1], 0, props.pile2)}>Delete Note</button>
+        <button onClick={() => moveNote(props.pile.notes[props.pile.notes.length - 1], 0, props.pile)}>Delete Note</button>
     )
 }
