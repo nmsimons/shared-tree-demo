@@ -1,34 +1,51 @@
 import React from 'react';
 import { AllowedUpdateType, ISharedTree, cursorForTypedTreeData } from '@fluid-experimental/tree2';
 import { useTree } from '@fluid-experimental/tree-react-api';
-import { App, Pile, Note, schema, noteSchema } from './schema';
+import { App, Pile, Note, schema, noteSchema, pileSchema } from './schema';
+import Draggable, { DraggableEvent, DraggableData } from 'react-draggable';
 
 const schemaPolicy = {
-	schema,
-	initialTree: {
-		piles: [
+    schema,
+    initialTree: {
+        piles: [
             {
                 name: "default",
-                notes: []
+                notes: [{ text: "some text", author: "some author", users: [] }]
             }
         ]
-	},
-	allowedSchemaModifications: AllowedUpdateType.SchemaCompatible,
+    },
+    allowedSchemaModifications: AllowedUpdateType.SchemaCompatible,
 };
 
 export function App(props: {
     tree: ISharedTree
 }): JSX.Element {
     const data = useTree(props.tree, schemaPolicy);
-    const root = data[0] as App;    
+    const root = data[0] as App;
+
+    const pilesArray = [];
+    for(const p of root.piles) {
+        pilesArray.push(<Pile pile={p} />);
+    }
 
     return (
-    <div>
-        <Button pile={root.piles[0]} />
-        <h1>{root.piles[0].notes.length}</h1>
-        <Pile pile={root.piles[0]} />        
-    </div>
-    )
+        <div id="main">
+            <div id="piles">
+                {pilesArray}
+                <button id='addPile' onClick={addPile}>Add Pile</button>
+            </div>
+        </div>
+    );
+
+    function addPile() {
+        const pile = {
+            name: "New Pile",
+            notes: []
+        };
+    
+        const cursor = cursorForTypedTreeData(schema, pileSchema, pile);
+        root.piles.insertNodes(root.piles.length, cursor);
+    }
 }
 
 function Pile(props: {
@@ -36,9 +53,15 @@ function Pile(props: {
 }): JSX.Element {
 
     return (
-        <div>
-        <div>{props.pile.name}</div>
-        <Notes pile={props.pile} />
+        <div className="pile">
+            <input
+                className="pileTitle"
+                type="text"
+                value={props.pile.name}
+                onChange={event => props.pile.name = event.target.value}
+            />
+            <Notes pile={props.pile} />
+            <Button pile={props.pile} />
         </div>
     )
 }
@@ -58,7 +81,7 @@ function Notes(props: {
         <div>
             {notesArray}
         </div>
-    )    
+    )
 }
 
 function Note(props: {
@@ -66,7 +89,18 @@ function Note(props: {
 }): JSX.Element {
 
     return (
-        <div>{props.note.text}</div>
+        <Draggable
+            // key={props.note.text}
+        // onStop={(event, data) => handleNoteDrag(event, data, note.id)}
+        >
+            <div className="note">
+                <textarea
+                    value={props.note.text}
+                    onChange={event => props.note.text = event.target.value}
+                />
+                {/* <button onClick={() => deleteNote(note.id)}>X</button> */}
+            </div>
+        </Draggable>
     )
 }
 
@@ -86,6 +120,6 @@ function Button(props: {
     }
 
     return (
-        <button onClick={addNote}>Note</button>
+        <button onClick={addNote}>Add Note</button>
     )
 }
