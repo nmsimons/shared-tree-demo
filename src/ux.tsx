@@ -3,6 +3,7 @@ import { AllowedUpdateType, ISharedTree, cursorForTypedTreeData } from '@fluid-e
 import { useTree } from '@fluid-experimental/tree-react-api';
 import { App, Pile, Note, schema, noteSchema, pileSchema } from './schema';
 import Draggable, { DraggableEvent, DraggableData } from 'react-draggable';
+import './index.css';
 
 const schemaPolicy = {
     schema,
@@ -91,7 +92,7 @@ function Note(props: {
 }): JSX.Element {
 
     return (
-        <Draggable 
+        <Draggable
             // key={props.note.text}
         // onStop={(event, data) => handleNoteDrag(event, data, note.id)}
         >
