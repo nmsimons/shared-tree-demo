@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { loadFluidData } from './fluid';
-import { AllowedUpdateType, ISharedTree } from '@fluid-experimental/tree2';
+import { AllowedUpdateType } from '@fluid-experimental/tree2';
 import { App } from './ux';
 import { schema } from './schema';
 
@@ -18,7 +18,7 @@ async function main() {
             piles: [
                 {
                     name: "default",
-                    notes: [{ text: "some text", author: "some author", users: [] }]
+                    notes: []
                 }
             ]
         },

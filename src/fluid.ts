@@ -15,7 +15,7 @@ import {
 import { ContainerSchema, IFluidContainer } from 'fluid-framework';
 import { Signaler } from '@fluid-experimental/data-objects';
 import { SharedCounter } from '@fluidframework/counter';
-import { GlobalFieldSchema, ISharedTree, ISharedTreeView, SchemaAware, SchematizeConfiguration, SharedTreeFactory } from '@fluid-experimental/tree2';
+import { GlobalFieldSchema, ISharedTree, SchematizeConfiguration, SharedTreeFactory } from '@fluid-experimental/tree2';
 
 import axios from "axios";
 import React from 'react';
