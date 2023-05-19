@@ -15,9 +15,11 @@ import {
 import { ContainerSchema, IFluidContainer } from 'fluid-framework';
 import { Signaler } from '@fluid-experimental/data-objects';
 import { SharedCounter } from '@fluidframework/counter';
-import { SharedTreeFactory } from '@fluid-experimental/tree2';
+import { GlobalFieldSchema, ISharedTree, ISharedTreeView, SchemaAware, SchematizeConfiguration, SharedTreeFactory } from '@fluid-experimental/tree2';
 
 import axios from "axios";
+import React from 'react';
+import { App } from './schema';
 
 /**
  * Token Provider implementation for connecting to an Azure Function endpoint for
@@ -116,9 +118,9 @@ const containerSchema: ContainerSchema = {
     },
 };
 
-async function initializeNewContainer(container: IFluidContainer): Promise<void> {
-    // We don't have any additional configuration to do here. If we needed to initialize
-    // some of our Fluid data, we could do so here.
+async function initializeNewContainer<TRoot extends GlobalFieldSchema>(container: IFluidContainer, config: SchematizeConfiguration<TRoot>): Promise<void> {
+    const fluidTree = container.initialObjects.tree as ISharedTree;
+    fluidTree.schematize(config);
 }
 
 /**
@@ -127,8 +129,10 @@ async function initializeNewContainer(container: IFluidContainer): Promise<void>
  *
  * @returns The loaded container and container services.
  */
-export const loadFluidData = async (): Promise<{
-    container: any;
+export const loadFluidData = async <TRoot extends GlobalFieldSchema>(
+    config: SchematizeConfiguration<TRoot>,
+): Promise<{
+    data: SharedTree<App>;
     services: AzureContainerServices;
 }> => {
     let container: IFluidContainer;
@@ -143,7 +147,7 @@ export const loadFluidData = async (): Promise<{
         ({ container, services } = await client.createContainer(containerSchema));
 
         // Initialize our Fluid data -- set default values, establish relationships, etc.
-        await initializeNewContainer(container);
+        await initializeNewContainer(container, config);
 
         // If the app is in a `createNew` state, and the container is detached, we attach the container.
         // This uploads the container to the service and connects to the collaboration session.
@@ -157,6 +161,32 @@ export const loadFluidData = async (): Promise<{
         ({ container, services } = await client.getContainer(id, containerSchema));
     }
 
-    return { container, services };
+    const tree = container.initialObjects.tree as ISharedTree;
+    const data = new SharedTree<App>(tree, tree.root as any);
+
+    return { data, services };
 };
-    
+
+const treeSym = Symbol();
+
+export function useTree<TRoot>(tree: SharedTree<TRoot>): TRoot {
+	// This proof-of-concept implementation allocates a state variable this is modified
+	// when the tree changes to trigger re-render.
+	const [invalidations, setInvalidations] = React.useState(0);
+
+	// Register for tree deltas when the component mounts
+	React.useEffect(() => {
+		// Returns the cleanup function to be invoked when the component unmounts.
+		return tree[treeSym].events.on("afterBatch", () => {
+			setInvalidations(invalidations + 1);
+		});
+	});
+
+	return tree[treeSym].root as unknown as TRoot;
+}
+
+export class SharedTree<T> {
+    constructor (private readonly tree: ISharedTree, public readonly root: T) { }
+
+    public get [treeSym]() { return this.tree; }
+}

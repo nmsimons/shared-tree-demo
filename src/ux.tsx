@@ -1,27 +1,12 @@
 import React from 'react';
-import { AllowedUpdateType, ISharedTree, cursorForTypedTreeData } from '@fluid-experimental/tree2';
-import { useTree } from '@fluid-experimental/tree-react-api';
-import { App, Pile, Note, schema, noteSchema, pileSchema } from './schema';
+import { App, Pile, Note } from './schema';
 import './index.css';
-
-const schemaPolicy = {
-    schema,
-    initialTree: {
-        piles: [
-            {
-                name: "default",
-                notes: [{ text: "some text", author: "some author", users: [] }]
-            }
-        ]
-    },
-    allowedSchemaModifications: AllowedUpdateType.SchemaCompatible,
-};
+import { SharedTree, useTree } from './fluid';
 
 export function App(props: {
-    tree: ISharedTree
+    data: SharedTree<App>
 }): JSX.Element {
-    const data = useTree(props.tree, schemaPolicy);
-    const root = data[0] as App;
+    const root = useTree(props.data);
 
     const pilesArray = [];
     let index = 0;
@@ -44,8 +29,7 @@ export function App(props: {
             notes: []
         };
 
-        const cursor = cursorForTypedTreeData(schema, pileSchema, pile);
-        root.piles.insertNodes(root.piles.length, cursor);
+        root.piles.insertNodes(root.piles.length, [pile]);
     }
 }
 
@@ -114,8 +98,7 @@ function Button(props: {
             users: []
         };
 
-        const cursor = cursorForTypedTreeData(schema, noteSchema, note);
-        props.pile.notes.insertNodes(props.pile.notes.length, cursor);
+        props.pile.notes.insertNodes(props.pile.notes.length, [note]);
     }
 
     return (

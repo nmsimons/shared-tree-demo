@@ -1,8 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { loadFluidData } from './fluid';
-import { ISharedTree } from '@fluid-experimental/tree2';
+import { AllowedUpdateType, ISharedTree } from '@fluid-experimental/tree2';
 import { App } from './ux';
+import { schema } from './schema';
 
 async function main() {
 
@@ -11,9 +12,20 @@ async function main() {
     root.id = 'root';
     document.body.appendChild(root);
 
-    const { container } = await loadFluidData();
-    const fluidTree = container.initialObjects.tree as ISharedTree;
-    ReactDOM.render(<App tree={fluidTree} />, document.getElementById('root'));
+    const { data } = await loadFluidData({
+        schema,
+        initialTree: {
+            piles: [
+                {
+                    name: "default",
+                    notes: [{ text: "some text", author: "some author", users: [] }]
+                }
+            ]
+        },
+        allowedSchemaModifications: AllowedUpdateType.SchemaCompatible,
+    });
+
+    ReactDOM.render(<App data={data} />, document.getElementById('root'));
 }
 
 export default main();
