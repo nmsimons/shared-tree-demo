@@ -65,9 +65,7 @@ module.exports = {
             filename: 'css/mystyles.css'
         }),
         // Do not accumulate files in ./dist
-        new CleanWebpackPlugin(),
-        // Copy assets to serve them
-        new CopyPlugin([{ from: 'assets', to: 'assets' }]),
+        new CleanWebpackPlugin(),        
     ],
     devServer: {
         // webpack-dev-server configuration
