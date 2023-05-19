@@ -10,9 +10,8 @@ export function App(props: {
     const root = useTree(props.data);
 
     const pilesArray = [];
-    let index = 0;
     for (const p of root.piles) {
-        pilesArray.push(<Pile pile={p} key={index++} app={root} />);
+        pilesArray.push(<Pile pile={p} />);
     }
 
     return (
@@ -31,8 +30,6 @@ function Pile(props: {
 }): JSX.Element {
 
     return (
-
-
         <div className="pile">
             <input
                 className="pileTitle"
@@ -53,10 +50,9 @@ function Notes(props: {
 
     const notes = props.pile.notes;
 
-    let index = 0;
     const notesArray = [];
     for (const n of notes) {
-        notesArray.push(<Note note={n} key={index++} />);
+        notesArray.push(<Note note={n} />);
     }
 
     return (
