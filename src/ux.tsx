@@ -24,8 +24,9 @@ export function App(props: {
     const root = data[0] as App;
 
     const pilesArray = [];
+    let index=0;
     for(const p of root.piles) {
-        pilesArray.push(<Pile pile={p} />);
+        pilesArray.push(<Pile pile={p} key={index++} />);
     }
 
     return (
@@ -72,9 +73,10 @@ function Notes(props: {
 
     const notes = props.pile.notes;
 
+    let index=0;
     const notesArray = [];
     for(const n of notes) {
-        notesArray.push(<Note note={n} />);
+        notesArray.push(<Note note={n} key={index++} />);
     }
 
     return (
@@ -89,7 +91,7 @@ function Note(props: {
 }): JSX.Element {
 
     return (
-        <Draggable
+        <Draggable 
             // key={props.note.text}
         // onStop={(event, data) => handleNoteDrag(event, data, note.id)}
         >
