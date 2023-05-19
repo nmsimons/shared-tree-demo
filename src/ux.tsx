@@ -2,7 +2,6 @@ import React from 'react';
 import { AllowedUpdateType, ISharedTree, cursorForTypedTreeData } from '@fluid-experimental/tree2';
 import { useTree } from '@fluid-experimental/tree-react-api';
 import { App, Pile, Note, schema, noteSchema, pileSchema } from './schema';
-import Draggable, { DraggableEvent, DraggableData } from 'react-draggable';
 import './index.css';
 
 const schemaPolicy = {
@@ -25,8 +24,8 @@ export function App(props: {
     const root = data[0] as App;
 
     const pilesArray = [];
-    let index=0;
-    for(const p of root.piles) {
+    let index = 0;
+    for (const p of root.piles) {
         pilesArray.push(<Pile pile={p} key={index++} />);
     }
 
@@ -44,7 +43,7 @@ export function App(props: {
             name: "New Pile",
             notes: []
         };
-    
+
         const cursor = cursorForTypedTreeData(schema, pileSchema, pile);
         root.piles.insertNodes(root.piles.length, cursor);
     }
@@ -55,6 +54,8 @@ function Pile(props: {
 }): JSX.Element {
 
     return (
+
+
         <div className="pile">
             <input
                 className="pileTitle"
@@ -74,9 +75,9 @@ function Notes(props: {
 
     const notes = props.pile.notes;
 
-    let index=0;
+    let index = 0;
     const notesArray = [];
-    for(const n of notes) {
+    for (const n of notes) {
         notesArray.push(<Note note={n} key={index++} />);
     }
 
@@ -92,18 +93,13 @@ function Note(props: {
 }): JSX.Element {
 
     return (
-        <Draggable
-            // key={props.note.text}
-        // onStop={(event, data) => handleNoteDrag(event, data, note.id)}
-        >
-            <div className="note">
-                <textarea
-                    value={props.note.text}
-                    onChange={event => props.note.text = event.target.value}
-                />
-                {/* <button onClick={() => deleteNote(note.id)}>X</button> */}
-            </div>
-        </Draggable>
+        <div className="note">
+            <textarea
+                value={props.note.text}
+                onChange={event => props.note.text = event.target.value}
+            />
+            {/* <button onClick={() => deleteNote(note.id)}>X</button> */}
+        </div>
     )
 }
 
@@ -113,11 +109,11 @@ function Button(props: {
 
     function addNote() {
         const note = {
-            text: "THIS IS A NOTE!!!",
+            text: "New Note!",
             author: "",
             users: []
         };
-    
+
         const cursor = cursorForTypedTreeData(schema, noteSchema, note);
         props.pile.notes.insertNodes(props.pile.notes.length, cursor);
     }
