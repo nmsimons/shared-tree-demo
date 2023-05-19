@@ -1,7 +1,7 @@
 import React from 'react';
-import { AllowedUpdateType, ISharedTree } from '@fluid-experimental/tree2';
+import { AllowedUpdateType, ISharedTree, cursorForTypedTreeData } from '@fluid-experimental/tree2';
 import { useTree } from '@fluid-experimental/tree-react-api';
-import { App, Pile, Note, schema } from './schema';
+import { App, Pile, Note, schema, noteSchema } from './schema';
 
 const schemaPolicy = {
 	schema,
@@ -24,9 +24,9 @@ export function App(props: {
 
     return (
     <div>
-        <h1>{root.piles.length}</h1>
-        <Pile pile={root.piles[0]} />
         <Button pile={root.piles[0]} />
+        <h1>{root.piles[0].notes.length}</h1>
+        <Pile pile={root.piles[0]} />        
     </div>
     )
 }
@@ -49,9 +49,14 @@ function Notes(props: {
 
     const notes = props.pile.notes;
 
+    const notesArray = [];
+    for(const n of notes) {
+        notesArray.push(<Note note={n} />);
+    }
+
     return (
         <div>
-
+            {notesArray}
         </div>
     )    
 }
@@ -69,15 +74,18 @@ function Button(props: {
     pile: Pile
 }): JSX.Element {
 
-    function changeThing() {
-        if (props.pile.name == "default") {
-            props.pile.name = "NEW NAME!!!"
-        } else {
-            props.pile.name = "default"
-        }
+    function addNote() {
+        const note = {
+            text: "THIS IS A NOTE!!!",
+            author: "",
+            users: []
+        };
+    
+        const cursor = cursorForTypedTreeData(schema, noteSchema, note);
+        props.pile.notes.insertNodes(props.pile.notes.length, cursor);
     }
 
     return (
-        <button onClick={changeThing}>Change Thing</button>
+        <button onClick={addNote}>Note</button>
     )
 }
