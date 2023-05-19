@@ -17,7 +17,7 @@ import { Signaler } from '@fluid-experimental/data-objects';
 import { SharedCounter } from '@fluidframework/counter';
 import { GlobalFieldSchema, ISharedTree, SchematizeConfiguration, SharedTreeFactory } from '@fluid-experimental/tree2';
 
-import axios from "axios";
+import axios from 'axios';
 import React from 'react';
 import { App } from './schema';
 

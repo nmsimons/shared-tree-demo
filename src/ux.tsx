@@ -1,6 +1,6 @@
 import React from 'react';
 import { App, Pile, Note } from './schema';
-import './index.css';
+import './output.css';
 import { SharedTree, useTree } from './fluid';
 import { addNote, addPile, deleteNote, moveNote } from './helpers';
 
@@ -15,29 +15,28 @@ export function App(props: {
     }
 
     return (
-        <div id="main">
-            <div id="piles">
+        <div id="main" className='flex-row'>
+            <div id="piles" className='flex flex-row'>
                 {pilesArray}
-                <button id='addPile' onClick={() => addPile(root, "[new group]")}>Add Pile</button>
+                <button className='h-10 px-6 font-semibold rounded-md bg-black text-white' id='addPile' onClick={() => addPile(root, "[new group]")}>Add Pile</button>
             </div>
         </div>
-    );    
+    );
 }
 
 function Pile(props: {
-    pile: Pile    
+    pile: Pile
 }): JSX.Element {
-
     return (
-        <div className="pile">
+        <div>
             <input
-                className="pileTitle"
+                className="block mb-2 text-lg font-medium text-black"
                 type="text"
                 value={props.pile.name}
                 onChange={event => props.pile.name = event.target.value}
             />
             <Notes pile={props.pile} />
-            <Button pile={props.pile} />            
+            <Button pile={props.pile} />
         </div>
     )
 }
@@ -54,7 +53,7 @@ function Notes(props: {
     }
 
     return (
-        <div>
+        <div className="w-96 border-4 border-indigo-500/100 flex flex-col gap-8">
             {notesArray}
         </div>
     )
@@ -65,8 +64,9 @@ function Note(props: {
 }): JSX.Element {
 
     return (
-        <div className="note">
+        <div className='border-2 border-rose-500'>
             <textarea
+                className=''
                 value={props.note.text}
                 onChange={event => props.note.text = event.target.value}
             />
@@ -77,18 +77,22 @@ function Note(props: {
 
 function Button(props: {
     pile: Pile
-}): JSX.Element {   
+}): JSX.Element {
 
     return (
-        <button onClick={() => addNote(props.pile, "", "")}>Add Note</button>
+        <button
+            className='h-10 px-6 font-semibold rounded-md bg-black text-white'
+            onClick={() => addNote(props.pile, "", "")}>Add Note</button>
     )
 }
 
 function Button2(props: {
-    pile: Pile,    
-}): JSX.Element {   
+    pile: Pile,
+}): JSX.Element {
 
     return (
-        <button onClick={() => moveNote(props.pile.notes[props.pile.notes.length - 1], 0, props.pile)}>Delete Note</button>
+        <button
+            className='h-10 px-6 font-semibold rounded-md bg-black text-white'
+            onClick={() => moveNote(props.pile.notes[props.pile.notes.length - 1], 0, props.pile)}>Delete Note</button>
     )
 }
