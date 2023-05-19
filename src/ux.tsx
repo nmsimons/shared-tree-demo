@@ -2,6 +2,7 @@ import React from 'react';
 import { App, Pile, Note } from './schema';
 import './index.css';
 import { SharedTree, useTree } from './fluid';
+import { addNote, addPile, deleteNote } from './helpers';
 
 export function App(props: {
     data: SharedTree<App>
@@ -18,19 +19,10 @@ export function App(props: {
         <div id="main">
             <div id="piles">
                 {pilesArray}
-                <button id='addPile' onClick={addPile}>Add Pile</button>
+                <button id='addPile' onClick={() => addPile(root, "[new group]")}>Add Pile</button>
             </div>
         </div>
-    );
-
-    function addPile() {
-        const pile = {
-            name: "New Pile",
-            notes: []
-        };
-
-        root.piles.insertNodes(root.piles.length, [pile]);
-    }
+    );    
 }
 
 function Pile(props: {
@@ -49,6 +41,7 @@ function Pile(props: {
             />
             <Notes pile={props.pile} />
             <Button pile={props.pile} />
+            <Button2 pile={props.pile} />
         </div>
     )
 }
@@ -89,19 +82,18 @@ function Note(props: {
 
 function Button(props: {
     pile: Pile
-}): JSX.Element {
-
-    function addNote() {
-        const note = {
-            text: "New Note!",
-            author: "",
-            users: []
-        };
-
-        props.pile.notes.insertNodes(props.pile.notes.length, [note]);
-    }
+}): JSX.Element {   
 
     return (
-        <button onClick={addNote}>Add Note</button>
+        <button onClick={() => addNote(props.pile, "", undefined)}>Add Note</button>
+    )
+}
+
+function Button2(props: {
+    pile: Pile
+}): JSX.Element {   
+
+    return (
+        <button onClick={() => deleteNote(props.pile.notes[0])}>Delete Note</button>
     )
 }
