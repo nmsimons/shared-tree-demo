@@ -9,7 +9,7 @@ export const boolean = builder.primitive("boolean", ValueSchema.Boolean);
 export const noteSchema = builder.object("demo:note", {
 	local: {
 		text: SchemaBuilder.field(FieldKinds.value, string),
-		author: SchemaBuilder.field(FieldKinds.optional, string),
+		author: SchemaBuilder.field(FieldKinds.value, string),
         users: SchemaBuilder.field(FieldKinds.sequence, string)
 	},
 });

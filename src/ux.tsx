@@ -2,7 +2,7 @@ import React from 'react';
 import { App, Pile, Note } from './schema';
 import './output.css';
 import { SharedTree, useTree } from './fluid';
-import { addNote, addPile, deleteNote } from './helpers';
+import { addNote, addPile, deleteNote, moveNote } from './helpers';
 
 export function App(props: {
     data: SharedTree<App>
@@ -37,7 +37,6 @@ function Pile(props: {
             />
             <Notes pile={props.pile} />
             <Button pile={props.pile} />
-            <Button2 pile={props.pile} />
         </div>
     )
 }
@@ -81,15 +80,19 @@ function Button(props: {
 }): JSX.Element {
 
     return (
-        <button className='h-10 px-6 font-semibold rounded-md bg-black text-white' onClick={() => addNote(props.pile, "", undefined)}>Add Note</button>
+        <button
+            className='h-10 px-6 font-semibold rounded-md bg-black text-white'
+            onClick={() => addNote(props.pile, "", "")}>Add Note</button>
     )
 }
 
 function Button2(props: {
-    pile: Pile
+    pile: Pile,
 }): JSX.Element {
 
     return (
-        <button className='h-10 px-6 font-semibold rounded-md bg-black text-white' onClick={() => deleteNote(props.pile.notes[0])}>Delete Note</button>
+        <button
+            className='h-10 px-6 font-semibold rounded-md bg-black text-white'
+            onClick={() => moveNote(props.pile.notes[props.pile.notes.length - 1], 0, props.pile)}>Delete Note</button>
     )
 }
