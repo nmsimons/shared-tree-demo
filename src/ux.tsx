@@ -2,7 +2,7 @@ import React from 'react';
 import { App, Pile, Note } from './schema';
 import './index.css';
 import { SharedTree, useTree } from './fluid';
-import { addNote, addPile, deleteNote } from './helpers';
+import { addNote, addPile, deleteNote, moveNote } from './helpers';
 
 export function App(props: {
     data: SharedTree<App>
@@ -12,7 +12,7 @@ export function App(props: {
     const pilesArray = [];
     let index = 0;
     for (const p of root.piles) {
-        pilesArray.push(<Pile pile={p} key={index++} />);
+        pilesArray.push(<Pile pile={p} key={index++} app={root} />);
     }
 
     return (
@@ -26,7 +26,8 @@ export function App(props: {
 }
 
 function Pile(props: {
-    pile: Pile
+    pile: Pile,
+    app: App
 }): JSX.Element {
 
     return (
@@ -41,7 +42,7 @@ function Pile(props: {
             />
             <Notes pile={props.pile} />
             <Button pile={props.pile} />
-            <Button2 pile={props.pile} />
+            <Button2 pile={props.pile} pile2={props.app.piles[0]} />
         </div>
     )
 }
@@ -85,15 +86,16 @@ function Button(props: {
 }): JSX.Element {   
 
     return (
-        <button onClick={() => addNote(props.pile, "", undefined)}>Add Note</button>
+        <button onClick={() => addNote(props.pile, "", "")}>Add Note</button>
     )
 }
 
 function Button2(props: {
-    pile: Pile
+    pile: Pile,
+    pile2: Pile
 }): JSX.Element {   
 
     return (
-        <button onClick={() => deleteNote(props.pile.notes[0])}>Delete Note</button>
+        <button onClick={() => moveNote(props.pile.notes[props.pile.notes.length - 1], 0, props.pile2)}>Delete Note</button>
     )
 }
