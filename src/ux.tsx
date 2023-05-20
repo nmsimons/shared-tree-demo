@@ -66,7 +66,7 @@ function Note(props: {
     note: Note
 }): JSX.Element {
     return (
-        <div className={'bg-yellow-100 ' + props.note}>
+        <div className={'bg-yellow-100 '}>
             <textarea
                 className='p-2 bg-transparent h-44 w-full resize-none'
                 value={props.note.text}
@@ -81,10 +81,15 @@ function Button(props: {
     pile: Pile
 }): JSX.Element {
 
+    const author = {
+        name: "",
+        id: ""
+    }
+
     return (
         <button
             className='h-10 px-6 font-semibold rounded-md bg-black text-white'
-            onClick={() => addNote(props.pile, "", { name: "", id: "" })}>Add Note</button>
+            onClick={() => addNote(props.pile, "", author)}>Add Note</button>
     )
 }
 
