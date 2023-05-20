@@ -1,5 +1,5 @@
 import React from 'react';
-import { App, Pile, Note } from './schema';
+import { App, Pile, Note, noteSchema } from './schema';
 import './output.css';
 import { SharedTree, useTree } from './fluid';
 import { addNote, addPile, deleteNote, deletePile, moveNote, movePile } from './helpers';
@@ -15,8 +15,8 @@ export function App(props: {
     }
 
     return (
-        <div id="main" className='flex-row'>
-            <div id="piles" className='flex flex-row'>
+        <div id="main" className='flex-row p-4 bg-gray-300'>
+            <div id="piles" className='flex flex-row gap-2'>
                 {pilesArray}
                 <button className='h-10 px-6 font-semibold rounded-md bg-black text-white' id='addPile' onClick={() => addPile(root, "[new group]")}>Add Pile</button>
                 <button className='h-10 px-6 font-semibold rounded-md bg-black text-white' id='addPile' onClick={() => deletePile(root.piles[root.piles.length -1])}>Delete Pile</button>
@@ -28,10 +28,11 @@ export function App(props: {
 function Pile(props: {
     pile: Pile
 }): JSX.Element {
+
     return (
-        <div>
+        <div className='p-1'>
             <input
-                className="block mb-2 text-lg font-medium text-black"
+                className="block mb-2 w-full text-lg font-bold text-black"
                 type="text"
                 value={props.pile.name}
                 onChange={event => props.pile.name = event.target.value}
@@ -55,7 +56,7 @@ function Notes(props: {
     }
 
     return (
-        <div className="w-96 border-4 border-indigo-500/100 flex flex-col gap-8">
+        <div className="w-72 flex flex-col gap-8 p-2">
             {notesArray}
         </div>
     )
@@ -64,11 +65,10 @@ function Notes(props: {
 function Note(props: {
     note: Note
 }): JSX.Element {
-
     return (
-        <div className='border-2 border-rose-500'>
+        <div className={'bg-yellow-100 ' + props.note.rot}>
             <textarea
-                className=''
+                className='p-2 bg-transparent h-44 w-full resize-none'
                 value={props.note.text}
                 onChange={event => props.note.text = event.target.value}
             />
