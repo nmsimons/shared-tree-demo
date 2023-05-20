@@ -6,11 +6,18 @@ export const float64 = builder.primitive("number", ValueSchema.Number);
 export const string = builder.primitive("string", ValueSchema.String);
 export const boolean = builder.primitive("boolean", ValueSchema.Boolean);
 
+export const userSchema = builder.object("demo:user", {
+	local: {
+		name: SchemaBuilder.field(FieldKinds.value, string),
+		id: SchemaBuilder.field(FieldKinds.value, string)
+	},
+})
+
 export const noteSchema = builder.object("demo:note", {
 	local: {
 		text: SchemaBuilder.field(FieldKinds.value, string),
-		author: SchemaBuilder.field(FieldKinds.value, string),
-        users: SchemaBuilder.field(FieldKinds.sequence, string)
+		author: SchemaBuilder.field(FieldKinds.value, userSchema),
+        users: SchemaBuilder.field(FieldKinds.sequence, userSchema)
 	},
 });
 
@@ -33,3 +40,4 @@ export const schema = builder.intoDocumentSchema(rootField);
 export type App = SchemaAware.TypedNode<typeof appSchema>;
 export type Pile = SchemaAware.TypedNode<typeof pileSchema>;
 export type Note = SchemaAware.TypedNode<typeof noteSchema>;
+export type User = SchemaAware.TypedNode<typeof userSchema>;
