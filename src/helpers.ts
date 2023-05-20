@@ -5,10 +5,16 @@ export function addNote(pile: Pile, text: string, author: string | undefined) {
     const note = {
         text: text,
         author: author,
-        users: ["TEST"]
+        users: ["TEST"],
+        rot: getRandomRotation()
     };
 
     pile.notes.insertNodes(pile.notes.length, [note]);
+}
+
+const getRandomRotation = () => {
+    const rotationArray = ['rotate-1', 'rotate-2', 'rotate-3', '-rotate-1', '-rotate-2', '-rotate-3'];
+    return rotationArray[Math.floor(Math.random() * rotationArray.length)];
 }
 
 export function addPile(app: App, name: string) {
