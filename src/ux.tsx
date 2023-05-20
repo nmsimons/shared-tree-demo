@@ -57,9 +57,9 @@ function Pile(props: {
                 value={props.pile.name}
                 onChange={event => props.pile.name = event.target.value}
             />
-            <Button pile={props.pile} />
             <Notes pile={props.pile} />
-        </div>
+            <AddNoteButton pile={props.pile} />
+        </div >
     )
 }
 
@@ -99,28 +99,39 @@ function Note(props: {
 function NoteToolbar(props: {
     note: Note
 }): JSX.Element {
-    const tempUser = {
-        name: "kash",
-        id: "1"
-    }
-
     return (
         <div className='flex flex-row'>
-            <button
-                className='h-6 px-2 m-2 font-semibold rounded-md bg-red-400 text-white'
-                onClick={() => deleteNote(props.note)}>X</button>
-            <button
-                className='h-6 px-2 m-2 font-semibold rounded-md bg-orange-300 text-white'
-                onClick={() => addVote(props.note, tempUser)}>+</button>
-            <button
-                className='h-6 px-2 m-2 font-semibold rounded-md bg-orange-300 text-white'
-                onClick={() => removeVote(props.note, tempUser)}>-</button>
-            <div>{props.note.users.length}</div>
+            <DeleteNoteToolbarButton note={props.note} />
+            <VoteButton note={props.note} />
         </div>
     )
 }
 
-function Button(props: {
+function DeleteNoteToolbarButton(props: {
+    note: Note
+}): JSX.Element {
+    return (
+        <button
+            className='h-6 px-2 m-2 font-semibold rounded-md bg-red-400 text-white'
+            onClick={() => deleteNote(props.note)}>X</button>
+    )
+}
+
+function VoteButton(props: {
+    note: Note
+}): JSX.Element {
+    const tempUser = {
+        name: "kash",
+        id: "1"
+    }
+    return (
+        <button
+            className='h-6 px-2 m-2 font-semibold rounded-md bg-orange-300 text-white'
+            onClick={() => addVote(props.note, tempUser)}>+{props.note.users.length}</button>
+    )
+}
+
+function AddNoteButton(props: {
     pile: Pile
 }): JSX.Element {
 
@@ -133,16 +144,5 @@ function Button(props: {
         <button
             className='h-10 px-6 font-semibold rounded-md bg-black text-white'
             onClick={() => addNote(props.pile, "", author)}>Add Note</button>
-    )
-}
-
-function Button2(props: {
-    pile: Pile,
-}): JSX.Element {
-
-    return (
-        <button
-            className='h-10 px-6 font-semibold rounded-md bg-black text-white'
-            onClick={() => deleteNote(props.pile.notes[props.pile.notes.length - 1])}>Delete Note</button>
     )
 }
