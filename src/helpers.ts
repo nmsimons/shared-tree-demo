@@ -27,10 +27,10 @@ export function addPile(app: App, name: string) {
     app.piles.insertNodes(app.piles.length, [pile]);
 }
 
-export function deleteNote(note: Note) {
-    const parent = note[parentField].parent;
+export function deleteItem(item: Note | Pile) {
+    const parent = item[parentField].parent;
     assert(isSequence(parent));
-    parent.deleteNodes(note[parentField].index, 1);
+    parent.deleteNodes(item[parentField].index, 1);
 }
 
 export function moveNote(note: Note, destinationIndex: number, destinationPile: Pile) {
@@ -39,12 +39,6 @@ export function moveNote(note: Note, destinationIndex: number, destinationPile: 
     if (parent.length > destinationIndex) {
         parent.moveNodes(note[parentField].index, 1, destinationIndex, destinationPile.notes);
     }
-}
-
-export function deletePile(pile: Pile) {
-    const parent = pile[parentField].parent;
-    assert(isSequence(parent));
-    parent.deleteNodes(pile[parentField].index, 1);
 }
 
 export function movePile(pile: Pile, destinationIndex: number) {
