@@ -1,5 +1,5 @@
 import React from 'react';
-import { App, Pile, Note, noteSchema } from './schema';
+import { App, Pile, Note, User } from './schema';
 import './output.css';
 import { SharedTree, useTree } from './fluid';
 import { addNote, addPile, deleteNote, deletePile, moveNote, movePile } from './helpers';
@@ -66,7 +66,7 @@ function Note(props: {
     note: Note
 }): JSX.Element {
     return (
-        <div className={'bg-yellow-100 ' + props.note.rot}>
+        <div className={'bg-yellow-100 ' + props.note}>
             <textarea
                 className='p-2 bg-transparent h-44 w-full resize-none'
                 value={props.note.text}
