@@ -10,11 +10,17 @@ function isSequence(
 
 export function addNote(pile: Pile, text: string, author: {name: string, id: string}) {
 
+    const view = {
+        color: "",
+        rotation: getRandomRotation(),
+        selectedBy: []
+    }
+
     const note = {
         text,
         author,
         users: [],
-        rotation: getRandomRotation()
+        view
     };
 
     pile.notes.insertNodes(pile.notes.length, [note]);
@@ -73,7 +79,7 @@ export function addVote(note: Note, user: {name: string, id: string}) {
         }
     }   
 
-    note.users.insertNodes(note.users.length, user);
+    note.users.insertNodes(note.users.length, [user]);
 }
 
 export function removeVote(note: Note, user: {name: string, id: string}) {

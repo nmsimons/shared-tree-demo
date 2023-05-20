@@ -13,12 +13,20 @@ export const userSchema = builder.object("demo:user", {
 	},
 })
 
+export const viewSchema = builder.object("demo:view", {
+	local: {
+		color: SchemaBuilder.field(FieldKinds.value, string),
+		rotation: SchemaBuilder.field(FieldKinds.value, string),
+		selectedBy: SchemaBuilder.field(FieldKinds.sequence, userSchema)
+	},
+})
+
 export const noteSchema = builder.object("demo:note", {
 	local: {
 		text: SchemaBuilder.field(FieldKinds.value, string),
 		author: SchemaBuilder.field(FieldKinds.value, userSchema),
         users: SchemaBuilder.field(FieldKinds.sequence, userSchema),
-		rotation: SchemaBuilder.field(FieldKinds.value, string),
+		view: SchemaBuilder.field(FieldKinds.value, viewSchema),
 	},
 });
 

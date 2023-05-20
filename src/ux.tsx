@@ -72,7 +72,7 @@ function Note(props: {
     }
 
     return (
-        <div className={'bg-yellow-100 ' + props.note.rotation}>
+        <div className={'bg-yellow-100 ' + props.note.view.rotation}>
             <div className='flex flex-row'>
                 <button
                     className='h-6 px-2 m-2 font-semibold rounded-md bg-red-400 text-white'
@@ -83,6 +83,7 @@ function Note(props: {
                 <button
                     className='h-6 px-2 m-2 font-semibold rounded-md bg-orange-300 text-white'
                     onClick={() => removeVote(props.note, tempUser)}>-</button>
+
             </div>
             <textarea
                 className='p-2 bg-transparent h-44 w-full resize-none'
