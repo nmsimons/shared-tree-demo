@@ -12,7 +12,7 @@ async function main() {
     root.id = 'root';
     document.body.appendChild(root);
 
-    const { data } = await loadFluidData({
+    const { data, services } = await loadFluidData({
         schema,
         initialTree: {
             piles: [
@@ -25,7 +25,7 @@ async function main() {
         allowedSchemaModifications: AllowedUpdateType.SchemaCompatible,
     });
 
-    ReactDOM.render(<App data={data} />, document.getElementById('root'));
+    ReactDOM.render(<App data={data} services={services} />, document.getElementById('root'));
 }
 
 export default main();
