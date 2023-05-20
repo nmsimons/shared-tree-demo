@@ -13,7 +13,8 @@ export function addNote(pile: Pile, text: string, author: {name: string, id: str
     const note = {
         text,
         author,
-        users: []
+        users: [],
+        rotation: getRandomRotation()
     };
 
     pile.notes.insertNodes(pile.notes.length, [note]);
@@ -66,7 +67,6 @@ export function movePile(pile: Pile, destinationIndex: number) {
 }
 
 export function addVote(note: Note, user: {name: string, id: string}) {
-
     for (const u of note.users) {
         if (u.id == user.id) {
             return;

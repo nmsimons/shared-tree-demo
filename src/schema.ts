@@ -17,7 +17,8 @@ export const noteSchema = builder.object("demo:note", {
 	local: {
 		text: SchemaBuilder.field(FieldKinds.value, string),
 		author: SchemaBuilder.field(FieldKinds.value, userSchema),
-        users: SchemaBuilder.field(FieldKinds.sequence, userSchema)
+        users: SchemaBuilder.field(FieldKinds.sequence, userSchema),
+		rotation: SchemaBuilder.field(FieldKinds.value, string),
 	},
 });
 

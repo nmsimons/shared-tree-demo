@@ -2,7 +2,7 @@ import React from 'react';
 import { App, Pile, Note, User } from './schema';
 import './output.css';
 import { SharedTree, useTree } from './fluid';
-import { addNote, addPile, deleteNote, deletePile, moveNote, movePile } from './helpers';
+import { addNote, addPile, addVote, removeVote, deleteNote, deletePile, moveNote, movePile } from './helpers';
 
 export function App(props: {
     data: SharedTree<App>
@@ -15,11 +15,11 @@ export function App(props: {
     }
 
     return (
-        <div id="main" className='flex-row p-4 bg-gray-300'>
+        <div id="main" className='flex-row p-4 bg-gray-200'>
             <div id="piles" className='flex flex-row gap-2'>
                 {pilesArray}
                 <button className='h-10 px-6 font-semibold rounded-md bg-black text-white' id='addPile' onClick={() => addPile(root, "[new group]")}>Add Pile</button>
-                <button className='h-10 px-6 font-semibold rounded-md bg-black text-white' id='addPile' onClick={() => deletePile(root.piles[root.piles.length -1])}>Delete Pile</button>
+                <button className='h-10 px-6 font-semibold rounded-md bg-black text-white' id='deletePile' onClick={() => deletePile(root.piles[root.piles.length - 1])}>Delete Pile</button>
             </div>
         </div>
     );
@@ -30,7 +30,7 @@ function Pile(props: {
 }): JSX.Element {
 
     return (
-        <div className='p-1'>
+        <div className='p-1 bg-gray-300'>
             <input
                 className="block mb-2 w-full text-lg font-bold text-black"
                 type="text"
@@ -65,14 +65,30 @@ function Notes(props: {
 function Note(props: {
     note: Note
 }): JSX.Element {
+
+    const tempUser = {
+        name: "kash",
+        id: "1"
+    }
+
     return (
-        <div className={'bg-yellow-100 '}>
+        <div className={'bg-yellow-100 ' + props.note.rotation}>
+            <div className='flex flex-row'>
+                <button
+                    className='h-6 px-2 m-2 font-semibold rounded-md bg-red-400 text-white'
+                    onClick={() => deleteNote(props.note)}>X</button>
+                <button
+                    className='h-6 px-2 m-2 font-semibold rounded-md bg-orange-300 text-white'
+                    onClick={() => addVote(props.note, tempUser)}>+</button>
+                <button
+                    className='h-6 px-2 m-2 font-semibold rounded-md bg-orange-300 text-white'
+                    onClick={() => removeVote(props.note, tempUser)}>-</button>
+            </div>
             <textarea
                 className='p-2 bg-transparent h-44 w-full resize-none'
                 value={props.note.text}
                 onChange={event => props.note.text = event.target.value}
             />
-            {/* <button onClick={() => deleteNote(note.id)}>X</button> */}
         </div>
     )
 }
