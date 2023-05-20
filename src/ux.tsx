@@ -2,7 +2,7 @@ import React from 'react';
 import { App, Pile, Note, noteSchema } from './schema';
 import './output.css';
 import { SharedTree, useTree } from './fluid';
-import { addNote, addPile, deleteNote, moveNote } from './helpers';
+import { addNote, addPile, deleteItem, moveNote } from './helpers';
 
 export function App(props: {
     data: SharedTree<App>
