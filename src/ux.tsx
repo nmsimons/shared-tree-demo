@@ -65,31 +65,37 @@ function Notes(props: {
 function Note(props: {
     note: Note
 }): JSX.Element {
+    return (
+        <div className={'bg-yellow-100 ' + props.note.view.rotation}>
+            <NoteToolbar note={props.note} />
+            <textarea
+                className='p-2 bg-transparent h-44 w-full resize-none'
+                value={props.note.text}
+                onChange={event => props.note.text = event.target.value}
+            />
+        </div>
+    )
+}
 
+function NoteToolbar(props: {
+    note: Note
+}): JSX.Element {
     const tempUser = {
         name: "kash",
         id: "1"
     }
 
     return (
-        <div className={'bg-yellow-100 ' + props.note.view.rotation}>
-            <div className='flex flex-row'>
-                <button
-                    className='h-6 px-2 m-2 font-semibold rounded-md bg-red-400 text-white'
-                    onClick={() => deleteNote(props.note)}>X</button>
-                <button
-                    className='h-6 px-2 m-2 font-semibold rounded-md bg-orange-300 text-white'
-                    onClick={() => addVote(props.note, tempUser)}>+</button>
-                <button
-                    className='h-6 px-2 m-2 font-semibold rounded-md bg-orange-300 text-white'
-                    onClick={() => removeVote(props.note, tempUser)}>-</button>
-
-            </div>
-            <textarea
-                className='p-2 bg-transparent h-44 w-full resize-none'
-                value={props.note.text}
-                onChange={event => props.note.text = event.target.value}
-            />
+        <div className='flex flex-row'>
+            <button
+                className='h-6 px-2 m-2 font-semibold rounded-md bg-red-400 text-white'
+                onClick={() => deleteNote(props.note)}>X</button>
+            <button
+                className='h-6 px-2 m-2 font-semibold rounded-md bg-orange-300 text-white'
+                onClick={() => addVote(props.note, tempUser)}>+</button>
+            <button
+                className='h-6 px-2 m-2 font-semibold rounded-md bg-orange-300 text-white'
+                onClick={() => removeVote(props.note, tempUser)}>-</button>
         </div>
     )
 }
