@@ -26,7 +26,7 @@ export function App(props: {
         props.services.audience.on("membersChanged", updateMembers);
 
         return () => { props.services.audience.off("membersChanged", updateMembers) };
-    });
+    }, []);
 
     const pilesArray = [];
     for (const p of root.piles) {
