@@ -1,6 +1,7 @@
 import { EditableField, FieldKinds, SchemaAware, UntypedField, parentField } from "@fluid-experimental/tree2";
 import { App, Note, Pile, User } from "./schema";
 import assert from "assert";
+import { Guid } from 'guid-typescript';
 
 function isSequence(
     field: UntypedField | EditableField,
@@ -26,16 +27,20 @@ export function getRotation(note: Note, pile: Pile) {
 export function addNote(pile: Pile, text: string, author: {name: string, id: string}) {
     
     const note = {
+        id: Guid.create().toString(),
         text,
         author,
         users: []        
     };
+
+    console.log(note.id);
 
     pile.notes.insertNodes(pile.notes.length, [note]);
 }
 
 export function addPile(app: App, name: string) {
     const pile = {
+        id: Guid.create().toString(),
         name,
         notes: []
     };

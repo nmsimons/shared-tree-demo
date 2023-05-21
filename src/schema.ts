@@ -15,6 +15,7 @@ export const userSchema = builder.object("demo:user", {
 
 export const noteSchema = builder.object("demo:note", {
 	local: {
+		id: SchemaBuilder.field(FieldKinds.value, string),
 		text: SchemaBuilder.field(FieldKinds.value, string),
 		author: SchemaBuilder.field(FieldKinds.value, userSchema),
         users: SchemaBuilder.field(FieldKinds.sequence, userSchema)		
@@ -23,6 +24,7 @@ export const noteSchema = builder.object("demo:note", {
 
 export const pileSchema = builder.object("demo:pile", {
 	local: {
+		id: SchemaBuilder.field(FieldKinds.value, string),
 		name: SchemaBuilder.field(FieldKinds.value, string),
 		notes: SchemaBuilder.field(FieldKinds.sequence, noteSchema)
 	},

@@ -18,6 +18,7 @@ async function main() {
         initialTree: {
             piles: [
                 {
+                    id: "7301d9fc-f7ff-11ed-b67e-0242ac120002",
                     name: "default",
                     notes: []
                 }
