@@ -74,7 +74,7 @@ function Notes(props: {
 
     const notesArray = [];
     for (const n of notes) {
-        notesArray.push(<Note key={n.id} note={n} user={props.user} pile={props.pile} />);
+        notesArray.push(<Note key={n.id} note={n} user={props.user} />);
     }
 
     return (
@@ -86,11 +86,10 @@ function Notes(props: {
 
 function Note(props: {
     note: Note,
-    user: User,
-    pile: Pile
+    user: User,    
 }): JSX.Element {
     return (
-        <div className={'bg-yellow-100 ' + getRotation(props.note, props.pile)}>
+        <div className={'bg-yellow-100 ' + getRotation(props.note)}>
             <NoteToolbar note={props.note} user={props.user} />
             <textarea
                 className='p-2 bg-transparent h-44 w-full resize-none'
