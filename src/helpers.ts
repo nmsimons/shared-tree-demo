@@ -13,6 +13,16 @@ const getRandomRotation = () => {
     return rotationArray[Math.floor(Math.random() * rotationArray.length)];
 }
 
+export function getRotation(note: Note, pile: Pile) {
+    const noteIndex = note[parentField].index;
+    const pileIndex = pile[parentField].index;
+    const i = noteIndex + pileIndex;
+
+    const rotationArray = ['rotate-1', '-rotate-2', 'rotate-2', '-rotate-1', '-rotate-3', 'rotate-3'];
+
+    return rotationArray[i % rotationArray.length];    
+}
+
 export function addNote(pile: Pile, text: string, author: {name: string, id: string}) {
 
     const view = {

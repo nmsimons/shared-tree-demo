@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { App, Pile, Note, User } from './schema';
 import './output.css';
 import { SharedTree, useTree } from './fluid';
-import { addNote, addPile, toggleVote, deleteNote, deletePile, moveNote, movePile, isVoter } from './helpers';
+import { addNote, addPile, toggleVote, deleteNote, deletePile, moveNote, movePile, isVoter, getRotation } from './helpers';
 import { AzureContainerServices } from '@fluidframework/azure-client';
 
 export function App(props: {
@@ -74,7 +74,7 @@ function Notes(props: {
 
     const notesArray = [];
     for (const n of notes) {
-        notesArray.push(<Note note={n} user={props.user} />);
+        notesArray.push(<Note note={n} user={props.user} pile={props.pile} />);
     }
 
     return (
@@ -86,10 +86,11 @@ function Notes(props: {
 
 function Note(props: {
     note: Note,
-    user: User
+    user: User,
+    pile: Pile
 }): JSX.Element {
     return (
-        <div className={'bg-yellow-100 ' + props.note.view.rotation}>
+        <div className={'bg-yellow-100 ' + getRotation(props.note, props.pile)}>
             <NoteToolbar note={props.note} user={props.user} />
             <textarea
                 className='p-2 bg-transparent h-44 w-full resize-none'
