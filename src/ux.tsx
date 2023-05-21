@@ -35,12 +35,12 @@ export function App(props: {
     }
 
     return (
-        <div id="main" className='flex-row p-4 bg-gray-200'>
-            <div>{currentUser.name}</div>
+        <div id="main" className='flex-row p-4 bg-transparent'>                       
             <div id="piles" className='flex flex-row gap-2'>
-                {pilesArray}
-                <BigButton handleClick={() => addPile(root, "[new group]")}>Add Pile</BigButton>
-                <BigButton handleClick={() => deletePile(root.piles[root.piles.length - 1])}>Delete Pile</BigButton>
+                {pilesArray}                
+            </div>
+            <div className="flex flex-row flex-nowrap gap-8 p-2">            
+            <BigButton handleClick={() => addPile(root, "[new group]")}>Add Pile</BigButton> 
             </div>
         </div>
     );
@@ -52,17 +52,41 @@ function Pile(props: {
 }): JSX.Element {
 
     return (
-        <div className='p-1 bg-gray-300'>
-            <input
-                className="block mb-2 w-full text-lg font-bold text-black"
-                type="text"
-                value={props.pile.name}
-                onChange={event => props.pile.name = event.target.value}
-            />
+        <div className='p-2 bg-gray-300'>
+            <div className="flex flex-row flex-nowrap gap-8 p-0 bg-transparent">
+                <PileName pile={props.pile} />                
+            </div>            
             <Notes pile={props.pile} user={props.user} />
-            <AddNoteButton pile={props.pile} user={props.user}/>
+            <div className="flex flex-row flex-nowrap gap-8 p-0 bg-transparent">                
+                <DeletePileButton pile={props.pile} />
+            </div>            
         </div >
     )
+}
+
+function PileName(props: {
+    pile:Pile
+}): JSX.Element {
+    return (        
+        <input
+            className="block mb-2 w-full text-lg font-bold text-black"
+            type="text"
+            value={props.pile.name}
+            onChange={event => props.pile.name = event.target.value}
+        />
+    )
+}
+
+function DeletePileButton(props: {
+    pile:Pile
+}): JSX.Element {
+    if (props.pile.notes.length == 0) {
+        return (
+            <BigButton handleClick={() => deletePile(props.pile)}>Delete</BigButton>
+        );
+    } else {
+        return <div />;
+    }
 }
 
 function Notes(props: {
@@ -77,8 +101,10 @@ function Notes(props: {
         notesArray.push(<Note key={n.id} note={n} user={props.user} />);
     }
 
+    notesArray.push(<AddNoteButton pile={props.pile} user={props.user}/>)
+
     return (
-        <div className="w-72 flex flex-col gap-8 p-2">
+        <div className="flex flex-row flex-wrap gap-8 p-2">
             {notesArray}
         </div>
     )
@@ -89,10 +115,10 @@ function Note(props: {
     user: User,    
 }): JSX.Element {
     return (
-        <div className={'bg-yellow-100 ' + getRotation(props.note)}>
+        <div className={'flex flex-col bg-yellow-100 h-48 w-48 shadow-md ' + getRotation(props.note)}>
             <NoteToolbar note={props.note} user={props.user} />
             <textarea
-                className='p-2 bg-transparent h-44 w-full resize-none'
+                className='p-2 bg-transparent h-full w-full resize-none'
                 value={props.note.text}
                 onChange={event => props.note.text = event.target.value}
             />
@@ -147,8 +173,10 @@ function AddNoteButton(props: {
     user: User
 }): JSX.Element {
     return (
-        <BigButton            
+        <div className={'flex flex-col bg-transparent border-dashed border-8 h-48 w-48 p-4'}>
+            <BigButton            
         handleClick={() => addNote(props.pile, "", props.user)}>Add Note</BigButton>
+        </div>        
     )
 }
 
