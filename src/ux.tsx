@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { App, Pile, Note, User } from './schema';
 import './output.css';
 import { SharedTree, useTree } from './fluid';
-import { addNote, addPile, toggleVote, deleteNote, deletePile, moveNote, movePile } from './helpers';
+import { addNote, addPile, toggleVote, deleteNote, deletePile, moveNote, movePile, isVoter } from './helpers';
 import { AzureContainerServices } from '@fluidframework/azure-client';
 
 export function App(props: {
@@ -116,20 +116,29 @@ function DeleteNoteToolbarButton(props: {
     note: Note
 }): JSX.Element {
     return (
-        <button
-            className='h-6 px-2 m-2 font-semibold rounded-md bg-red-400 text-white'
-            onClick={() => deleteNote(props.note)}>X</button>
+        <LittleButton
+            color="bg-red-400"
+            handleClick={() => deleteNote(props.note)}>X</LittleButton>
     )
 }
 
 function VoteButton(props: {
     note: Note,
     user: User
-}): JSX.Element {    
+}): JSX.Element {
+    
+    const setColor = () => {
+        if (isVoter(props.note, props.user)) {
+            return "bg-red-400"            
+        } else {
+            return "bg-orange-300"
+        }
+    }
+
     return (
-        <button
-            className='h-6 px-2 m-2 font-semibold rounded-md bg-orange-300 text-white'
-            onClick={() => toggleVote(props.note, props.user)}>+{props.note.users.length}</button>
+        <LittleButton
+            color={setColor()}
+            handleClick={() => toggleVote(props.note, props.user)}>+{props.note.users.length}</LittleButton>
     )
 }
 
@@ -145,11 +154,26 @@ function AddNoteButton(props: {
 
 function BigButton(props: {
     handleClick: any;
-    children: React.ReactNode;
+    children: React.ReactNode;    
 }): JSX.Element {
     return (
         <button
             className="h-10 px-6 font-semibold rounded-md bg-black text-white"
+            onClick={props.handleClick}
+        >
+            {props.children}
+        </button>
+    );
+}
+
+function LittleButton(props: {
+    handleClick: any;
+    children: React.ReactNode;
+    color: string;
+}): JSX.Element {
+    return (
+        <button
+            className={"h-6 px-2 m-2 font-semibold rounded-md text-white " + props.color}            
             onClick={props.handleClick}
         >
             {props.children}
