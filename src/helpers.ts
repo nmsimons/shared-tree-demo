@@ -8,6 +8,11 @@ function isSequence(
     return field.fieldSchema.kind.identifier === FieldKinds.sequence.identifier;
 }
 
+const getRandomRotation = () => {
+    const rotationArray = ['rotate-1', 'rotate-2', 'rotate-3', '-rotate-1', '-rotate-2', '-rotate-3'];
+    return rotationArray[Math.floor(Math.random() * rotationArray.length)];
+}
+
 export function addNote(pile: Pile, text: string, author: {name: string, id: string}) {
 
     const view = {
@@ -24,11 +29,6 @@ export function addNote(pile: Pile, text: string, author: {name: string, id: str
     };
 
     pile.notes.insertNodes(pile.notes.length, [note]);
-}
-
-const getRandomRotation = () => {
-    const rotationArray = ['rotate-1', 'rotate-2', 'rotate-3', '-rotate-1', '-rotate-2', '-rotate-3'];
-    return rotationArray[Math.floor(Math.random() * rotationArray.length)];
 }
 
 export function addPile(app: App, name: string) {
@@ -72,20 +72,20 @@ export function movePile(pile: Pile, destinationIndex: number) {
     }
 }
 
-export function addVote(note: Note, user: {name: string, id: string}) {
+export function isVoter(note: Note, user: {name: string, id: string}) {
     for (const u of note.users) {
-        if (u.id == user.id) {
-            return;
-        }
-    }   
-
-    note.users.insertNodes(note.users.length, [user]);
-}
-
-export function removeVote(note: Note, user: {name: string, id: string}) {
-    for (const u of note.users) {
-        if (u.id == user.id) {
-            deleteItem(u);
+        if (u.id == user.id) {           
+            return u;
         }
     }
+    return undefined;   
+}
+
+export function toggleVote(note: Note, user: {name: string, id: string}) {
+    const voter = isVoter(note, user);    
+    if (voter) {
+        deleteItem(voter);
+    } else {
+        note.users.insertNodes(note.users.length, [user]);
+    }     
 }

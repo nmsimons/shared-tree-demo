@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { App, Pile, Note, User } from './schema';
 import './output.css';
 import { SharedTree, useTree } from './fluid';
-import { addNote, addPile, addVote, removeVote, deleteNote, deletePile, moveNote, movePile } from './helpers';
+import { addNote, addPile, toggleVote, deleteNote, deletePile, moveNote, movePile } from './helpers';
 import { AzureContainerServices } from '@fluidframework/azure-client';
 import { unescape } from 'querystring';
 
@@ -127,7 +127,7 @@ function VoteButton(props: {
     return (
         <button
             className='h-6 px-2 m-2 font-semibold rounded-md bg-orange-300 text-white'
-            onClick={() => addVote(props.note, tempUser)}>+{props.note.users.length}</button>
+            onClick={() => toggleVote(props.note, tempUser)}>+{props.note.users.length}</button>
     )
 }
 
