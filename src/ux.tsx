@@ -31,7 +31,7 @@ export function App(props: {
 
     const pilesArray = [];
     for (const p of root.piles) {
-        pilesArray.push(<Pile pile={p} user={currentUser} />);
+        pilesArray.push(<Pile key={p.id} pile={p} user={currentUser} />);
     }
 
     return (
@@ -74,7 +74,7 @@ function Notes(props: {
 
     const notesArray = [];
     for (const n of notes) {
-        notesArray.push(<Note note={n} user={props.user} pile={props.pile} />);
+        notesArray.push(<Note key={n.id} note={n} user={props.user} pile={props.pile} />);
     }
 
     return (
