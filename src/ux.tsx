@@ -115,7 +115,7 @@ function Note(props: {
     user: User,    
 }): JSX.Element {
     return (
-        <div className={'flex flex-col bg-yellow-100 h-48 w-48 shadow-md ' + getRotation(props.note)}>
+        <div className={'flex flex-col bg-yellow-100 h-48 w-48 shadow-md hover:shadow-lg hover:rotate-0 ' + getRotation(props.note)}>
             <NoteToolbar note={props.note} user={props.user} />
             <textarea
                 className='p-2 bg-transparent h-full w-full resize-none'
@@ -173,11 +173,15 @@ function AddNoteButton(props: {
     user: User
 }): JSX.Element {
     return (
-        <div className={'flex flex-col bg-transparent border-white border-dashed border-8 h-48 w-48 p-4'}>
-            <BigButton            
-        handleClick={() => addNote(props.pile, "", props.user)}>Add Note</BigButton>
-        </div>        
-    )
+        <div
+            className={
+                'text-2xl font-bold flex flex-col text-center cursor-pointer bg-transparent border-white border-dashed border-8 h-48 w-48 p-4 hover:border-black'
+            }
+            onClick={() => addNote(props.pile, '', props.user)}
+        >
+            Add Note
+        </div>
+    );
 }
 
 function BigButton(props: {
@@ -186,7 +190,7 @@ function BigButton(props: {
 }): JSX.Element {
     return (
         <button
-            className="h-10 px-6 font-semibold rounded-md bg-black text-white"
+            className="h-10 px-6 font-semibold rounded-md bg-black text-white w-full m-2"
             onClick={props.handleClick}
         >
             {props.children}
