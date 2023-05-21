@@ -35,12 +35,12 @@ export function App(props: {
     }
 
     return (
-        <div id="main" className='flex-row p-4 bg-transparent'>                       
-            <div id="piles" className='flex flex-row gap-2'>
+        <div id="main" className='flex-row p-4 bg-white h-full'>                       
+            <div id="piles" className='flex flex-row gap-4'>
                 {pilesArray}                
             </div>
             <div className="flex flex-row flex-nowrap gap-8 p-2">            
-            <BigButton handleClick={() => addPile(root, "[new group]")}>Add Pile</BigButton> 
+                <BigButton handleClick={() => addPile(root, "[new group]")}>Add Pile</BigButton> 
             </div>
         </div>
     );
@@ -52,7 +52,7 @@ function Pile(props: {
 }): JSX.Element {
 
     return (
-        <div className='p-2 bg-gray-300'>
+        <div className='p-2 bg-gray-200 '>
             <div className="flex flex-row flex-nowrap gap-8 p-0 bg-transparent">
                 <PileName pile={props.pile} />                
             </div>            
@@ -69,7 +69,7 @@ function PileName(props: {
 }): JSX.Element {
     return (        
         <input
-            className="block mb-2 w-full text-lg font-bold text-black"
+            className="block mb-2 w-full text-lg font-bold text-black bg-transparent"
             type="text"
             value={props.pile.name}
             onChange={event => props.pile.name = event.target.value}
@@ -173,7 +173,7 @@ function AddNoteButton(props: {
     user: User
 }): JSX.Element {
     return (
-        <div className={'flex flex-col bg-transparent border-dashed border-8 h-48 w-48 p-4'}>
+        <div className={'flex flex-col bg-transparent border-white border-dashed border-8 h-48 w-48 p-4'}>
             <BigButton            
         handleClick={() => addNote(props.pile, "", props.user)}>Add Note</BigButton>
         </div>        
