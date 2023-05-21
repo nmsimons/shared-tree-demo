@@ -4,6 +4,7 @@ import { loadFluidData } from './fluid';
 import { AllowedUpdateType } from '@fluid-experimental/tree2';
 import { App } from './ux';
 import { schema } from './schema';
+import { ConnectionState } from 'fluid-framework';
 
 async function main() {
 
@@ -12,7 +13,7 @@ async function main() {
     root.id = 'root';
     document.body.appendChild(root);
 
-    const { data, services } = await loadFluidData({
+    const { data, services, container } = await loadFluidData({
         schema,
         initialTree: {
             piles: [
@@ -24,6 +25,15 @@ async function main() {
         },
         allowedSchemaModifications: AllowedUpdateType.SchemaCompatible,
     });
+
+    //Don't do anything until we are properly connected.
+    if (container.connectionState !== ConnectionState.Connected) {
+		await new Promise<void>((resolve) => {
+			container.once("connected", () => {
+				resolve();
+			});
+		});
+	}
 
     ReactDOM.render(<App data={data} services={services} />, document.getElementById('root'));
 }

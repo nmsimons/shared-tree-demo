@@ -134,6 +134,7 @@ export const loadFluidData = async <TRoot extends GlobalFieldSchema>(
 ): Promise<{
     data: SharedTree<App>;
     services: AzureContainerServices;
+    container: IFluidContainer
 }> => {
     let container: IFluidContainer;
     let services: AzureContainerServices;
@@ -164,7 +165,7 @@ export const loadFluidData = async <TRoot extends GlobalFieldSchema>(
     const tree = container.initialObjects.tree as ISharedTree;
     const data = new SharedTree<App>(tree, tree.root as any);
 
-    return { data, services };
+    return { data, services, container };
 };
 
 const treeSym = Symbol();
