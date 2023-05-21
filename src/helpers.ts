@@ -40,10 +40,12 @@ export function addPile(app: App, name: string) {
     app.piles.insertNodes(app.piles.length, [pile]);
 }
 
-export function deletePile(pile: Pile) {
+export function deletePile(pile: Pile):boolean {
     if (pile.notes.length == 0) {
         deleteItem(pile);
+        return true;
     }
+    return false;
 }
 
 export function deleteNote(note: Note) {    
