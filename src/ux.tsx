@@ -114,28 +114,49 @@ function Note(props: {
     note: Note,
     user: User,    
 }): JSX.Element {
-    return (
-        <div className={'flex flex-col bg-yellow-100 h-48 w-48 shadow-md hover:shadow-lg hover:rotate-0 ' + getRotation(props.note)}>
+
+    if (props.note.author.id !== props.user.id) {
+        return (
+            <div className={'flex flex-col bg-yellow-100 h-48 w-48 shadow-md hover:shadow-lg hover:rotate-0 ' + getRotation(props.note)}>
             <NoteToolbar note={props.note} user={props.user} />
-            <textarea
+            <textarea readOnly
                 className='p-2 bg-transparent h-full w-full resize-none'
-                value={props.note.text}
-                onChange={event => props.note.text = event.target.value}
+                value={props.note.text}                
             />
-        </div>
-    )
+            </div>
+        )
+    } else {
+        return (
+            <div className={'flex flex-col bg-green-200 h-48 w-48 shadow-md hover:shadow-lg hover:rotate-0 ' + getRotation(props.note)}>
+                <NoteToolbar note={props.note} user={props.user} />
+                <textarea 
+                    className='p-2 bg-transparent h-full w-full resize-none'
+                    value={props.note.text}
+                    onChange={event => props.note.text = event.target.value}
+                />
+            </div>
+        )
+    }
 }
 
 function NoteToolbar(props: {
     note: Note,
     user: User
 }): JSX.Element {
-    return (
-        <div className='flex flex-row'>
-            <DeleteNoteToolbarButton note={props.note} />
-            <VoteButton note={props.note} user={props.user} />
-        </div>
-    )
+    if (props.note.author.id == props.user.id) {
+        return (
+            <div className="flex flex-row">
+                <DeleteNoteToolbarButton note={props.note} />
+                <VoteButton note={props.note} user={props.user} />
+            </div>
+        );
+    } else {
+        return (
+            <div className="flex flex-row">
+                <VoteButton note={props.note} user={props.user} />
+            </div>
+        );
+    }
 }
 
 function DeleteNoteToolbarButton(props: {
