@@ -54,7 +54,7 @@ module.exports = {
     plugins: [
         // No need to write a index.html
         new HtmlWebpackPlugin({
-            title: 'Felt',
+            title: 'Shared-Tree-Demo',
             favicon: 'favicon.ico',
         }),
         // Load environment variables during webpack bundle
