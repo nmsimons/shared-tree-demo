@@ -24,18 +24,11 @@ export function getRotation(note: Note, pile: Pile) {
 }
 
 export function addNote(pile: Pile, text: string, author: {name: string, id: string}) {
-
-    const view = {
-        color: "",
-        rotation: getRandomRotation(),
-        selectedBy: []
-    }
-
+    
     const note = {
         text,
         author,
-        users: [],
-        view
+        users: []        
     };
 
     pile.notes.insertNodes(pile.notes.length, [note]);
