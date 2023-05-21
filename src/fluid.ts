@@ -13,8 +13,6 @@ import {
     InsecureTokenProvider,
 } from '@fluidframework/test-client-utils';
 import { ContainerSchema, IFluidContainer } from 'fluid-framework';
-import { Signaler } from '@fluid-experimental/data-objects';
-import { SharedCounter } from '@fluidframework/counter';
 import { GlobalFieldSchema, ISharedTree, SchematizeConfiguration, SharedTreeFactory } from '@fluid-experimental/tree2';
 
 import axios from 'axios';

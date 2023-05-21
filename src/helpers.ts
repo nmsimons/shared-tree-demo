@@ -2,17 +2,11 @@ import { EditableField, FieldKinds, SchemaAware, UntypedField, parentField } fro
 import { App, Note, Pile, User } from "./schema";
 import assert from "assert";
 import { Guid } from 'guid-typescript';
-import { createHash } from "crypto";
 
 function isSequence(
     field: UntypedField | EditableField,
 ): field is SchemaAware.InternalTypes.UntypedSequenceField {
     return field.fieldSchema.kind.identifier === FieldKinds.sequence.identifier;
-}
-
-const getRandomRotation = () => {
-    const rotationArray = ['rotate-1', 'rotate-2', 'rotate-3', '-rotate-1', '-rotate-2', '-rotate-3'];
-    return rotationArray[Math.floor(Math.random() * rotationArray.length)];
 }
 
 export function getRotation(note: Note) {    
