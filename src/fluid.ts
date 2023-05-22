@@ -6,14 +6,19 @@ import {
     AzureClientProps,
     AzureMember,
     ITokenProvider,
-    ITokenResponse
+    ITokenResponse,
 } from '@fluidframework/azure-client';
 import {
     generateTestUser,
     InsecureTokenProvider,
 } from '@fluidframework/test-client-utils';
 import { ContainerSchema, IFluidContainer } from 'fluid-framework';
-import { GlobalFieldSchema, ISharedTree, SchematizeConfiguration, SharedTreeFactory } from '@fluid-experimental/tree2';
+import {
+    GlobalFieldSchema,
+    ISharedTree,
+    SchematizeConfiguration,
+    SharedTreeFactory,
+} from '@fluid-experimental/tree2';
 
 import axios from 'axios';
 import React from 'react';
@@ -31,22 +36,34 @@ export class AzureFunctionTokenProvider implements ITokenProvider {
      */
     constructor(
         private readonly azFunctionUrl: string,
-        private readonly user?: Pick<AzureMember, "userId" | "userName" | "additionalDetails">,
-    ) { }
+        private readonly user?: Pick<
+            AzureMember,
+            'userId' | 'userName' | 'additionalDetails'
+        >
+    ) {}
 
-    public async fetchOrdererToken(tenantId: string, documentId?: string): Promise<ITokenResponse> {
+    public async fetchOrdererToken(
+        tenantId: string,
+        documentId?: string
+    ): Promise<ITokenResponse> {
         return {
             jwt: await this.getToken(tenantId, documentId),
         };
     }
 
-    public async fetchStorageToken(tenantId: string, documentId: string): Promise<ITokenResponse> {
+    public async fetchStorageToken(
+        tenantId: string,
+        documentId: string
+    ): Promise<ITokenResponse> {
         return {
             jwt: await this.getToken(tenantId, documentId),
         };
     }
 
-    private async getToken(tenantId: string, documentId: string | undefined): Promise<string> {
+    private async getToken(
+        tenantId: string,
+        documentId: string | undefined
+    ): Promise<string> {
         const response = await axios.get(this.azFunctionUrl, {
             params: {
                 tenantId,
@@ -95,9 +112,8 @@ const localConnectionConfig: AzureLocalConnectionConfig = {
     endpoint: 'http://localhost:7070',
 };
 
-const connectionConfig: AzureRemoteConnectionConfig | AzureLocalConnectionConfig = useAzure
-    ? remoteConnectionConfig
-    : localConnectionConfig;
+const connectionConfig: AzureRemoteConnectionConfig | AzureLocalConnectionConfig =
+    useAzure ? remoteConnectionConfig : localConnectionConfig;
 
 const clientProps: AzureClientProps = {
     connection: connectionConfig,
@@ -109,12 +125,15 @@ const client = new AzureClient(clientProps);
 // that we want to create dynamically and any
 // initial DataObjects we want created when the container is first created.
 const containerSchema: ContainerSchema = {
-    initialObjects: {        
-        tree: MySharedTree
+    initialObjects: {
+        tree: MySharedTree,
     },
 };
 
-async function initializeNewContainer<TRoot extends GlobalFieldSchema>(container: IFluidContainer, config: SchematizeConfiguration<TRoot>): Promise<void> {
+async function initializeNewContainer<TRoot extends GlobalFieldSchema>(
+    container: IFluidContainer,
+    config: SchematizeConfiguration<TRoot>
+): Promise<void> {
     const fluidTree = container.initialObjects.tree as ISharedTree;
     fluidTree.schematize(config);
 }
@@ -126,11 +145,11 @@ async function initializeNewContainer<TRoot extends GlobalFieldSchema>(container
  * @returns The loaded container and container services.
  */
 export const loadFluidData = async <TRoot extends GlobalFieldSchema>(
-    config: SchematizeConfiguration<TRoot>,
+    config: SchematizeConfiguration<TRoot>
 ): Promise<{
     data: SharedTree<App>;
     services: AzureContainerServices;
-    container: IFluidContainer
+    container: IFluidContainer;
 }> => {
     let container: IFluidContainer;
     let services: AzureContainerServices;
@@ -167,23 +186,25 @@ export const loadFluidData = async <TRoot extends GlobalFieldSchema>(
 const treeSym = Symbol();
 
 export function useTree<TRoot>(tree: SharedTree<TRoot>): TRoot {
-	// This proof-of-concept implementation allocates a state variable this is modified
-	// when the tree changes to trigger re-render.
-	const [invalidations, setInvalidations] = React.useState(0);
+    // This proof-of-concept implementation allocates a state variable this is modified
+    // when the tree changes to trigger re-render.
+    const [invalidations, setInvalidations] = React.useState(0);
 
-	// Register for tree deltas when the component mounts
-	React.useEffect(() => {
-		// Returns the cleanup function to be invoked when the component unmounts.
-		return tree[treeSym].events.on("afterBatch", () => {
-			setInvalidations(invalidations + 1);
-		});
-	});
+    // Register for tree deltas when the component mounts
+    React.useEffect(() => {
+        // Returns the cleanup function to be invoked when the component unmounts.
+        return tree[treeSym].events.on('afterBatch', () => {
+            setInvalidations(invalidations + 1);
+        });
+    });
 
-	return tree[treeSym].root as unknown as TRoot;
+    return tree[treeSym].root as unknown as TRoot;
 }
 
 export class SharedTree<T> {
-    constructor (private readonly tree: ISharedTree, public readonly root: T) { }
+    constructor(private readonly tree: ISharedTree, public readonly root: T) {}
 
-    public get [treeSym]() { return this.tree; }
+    public get [treeSym]() {
+        return this.tree;
+    }
 }

@@ -9,7 +9,6 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
 async function main() {
-
     // create the root element for React
     const root = document.createElement('div');
     root.id = 'root';
@@ -20,25 +19,32 @@ async function main() {
         initialTree: {
             piles: [
                 {
-                    id: "7301d9fc-f7ff-11ed-b67e-0242ac120002",
-                    name: "Ideas...",
-                    notes: []
-                }
-            ]
+                    id: '7301d9fc-f7ff-11ed-b67e-0242ac120002',
+                    name: 'Ideas...',
+                    notes: [],
+                },
+            ],
         },
         allowedSchemaModifications: AllowedUpdateType.SchemaCompatible,
     });
 
     //Don't do anything until we are properly connected.
     if (container.connectionState !== ConnectionState.Connected) {
-		await new Promise<void>((resolve) => {
-			container.once("connected", () => {
-				resolve();
-			});
-		});
-	}
+        await new Promise<void>((resolve) => {
+            container.once('connected', () => {
+                resolve();
+            });
+        });
+    }
 
-    ReactDOM.render([<DndProvider backend={HTML5Backend}>,<App data={data} services={services} />,</DndProvider>], document.getElementById('root'));
+    ReactDOM.render(
+        [
+            <DndProvider backend={HTML5Backend}>
+                ,<App data={data} services={services} />,
+            </DndProvider>,
+        ],
+        document.getElementById('root')
+    );
 }
 
 export default main();

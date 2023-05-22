@@ -1,20 +1,35 @@
-import { EditableField, FieldKinds, SchemaAware, UntypedField, UntypedTree, UntypedTreeCore, parentField } from "@fluid-experimental/tree2";
-import { App, Note, Pile, User } from "./schema";
-import assert from "assert";
+import {
+    EditableField,
+    FieldKinds,
+    SchemaAware,
+    UntypedField,
+    UntypedTree,
+    UntypedTreeCore,
+    parentField,
+} from '@fluid-experimental/tree2';
+import { App, Note, Pile, User } from './schema';
+import assert from 'assert';
 import { Guid } from 'guid-typescript';
 
 function isSequence(
-    field: UntypedField | EditableField,
+    field: UntypedField | EditableField
 ): field is SchemaAware.InternalTypes.UntypedSequenceField {
     return field.fieldSchema.kind.identifier === FieldKinds.sequence.identifier;
 }
 
-export function getRotation(note: Note) {    
+export function getRotation(note: Note) {
     const i = hashCode(note.id);
 
-    const rotationArray = ['rotate-1', '-rotate-2', 'rotate-2', '-rotate-1', '-rotate-3', 'rotate-3'];
+    const rotationArray = [
+        'rotate-1',
+        '-rotate-2',
+        'rotate-2',
+        '-rotate-1',
+        '-rotate-3',
+        'rotate-3',
+    ];
 
-    return rotationArray[i % rotationArray.length];    
+    return rotationArray[i % rotationArray.length];
 }
 
 export function hashCode(str: string): number {
@@ -22,16 +37,19 @@ export function hashCode(str: string): number {
     for (let i = 0; i < str.length; i++) {
         h = 31 * h + str.charCodeAt(i);
     }
-    return h; 
+    return h;
 }
 
-export function addNote(pile: Pile, text: string, author: {name: string, id: string}) {
-    
+export function addNote(
+    pile: Pile,
+    text: string,
+    author: { name: string; id: string }
+) {
     const note = {
         id: Guid.create().toString(),
         text,
         author,
-        users: []        
+        users: [],
     };
 
     pile.notes.insertNodes(pile.notes.length, [note]);
@@ -41,13 +59,13 @@ export function addPile(app: App, name: string) {
     const pile = {
         id: Guid.create().toString(),
         name,
-        notes: []
+        notes: [],
     };
 
     app.piles.insertNodes(app.piles.length, [pile]);
 }
 
-export function deletePile(pile: Pile):boolean {
+export function deletePile(pile: Pile): boolean {
     if (pile.notes.length == 0) {
         deleteItem(pile);
         return true;
@@ -55,7 +73,7 @@ export function deletePile(pile: Pile):boolean {
     return false;
 }
 
-export function deleteNote(note: Note) {    
+export function deleteNote(note: Note) {
     deleteItem(note);
 }
 
@@ -66,17 +84,34 @@ function deleteItem(item: Note | Pile | User) {
 }
 
 export function moveNoteToEnd(note: Note, destinationPile: Pile) {
-    const parent = note[parentField].parent;    
-    const destinationIsParent = (parent.parent === destinationPile as UntypedTreeCore);
-    assert(isSequence(parent))
-    const desinationIndex = () => {if (destinationIsParent) {return destinationPile.notes.length - 1} else {return destinationPile.notes.length}}
-    parent.moveNodes(note[parentField].index, 1, desinationIndex(), destinationPile.notes);    
+    const parent = note[parentField].parent;
+    const destinationIsParent =
+        parent.parent === (destinationPile as UntypedTreeCore);
+    assert(isSequence(parent));
+    const desinationIndex = () => {
+        if (destinationIsParent) {
+            return destinationPile.notes.length - 1;
+        } else {
+            return destinationPile.notes.length;
+        }
+    };
+    parent.moveNodes(
+        note[parentField].index,
+        1,
+        desinationIndex(),
+        destinationPile.notes
+    );
 }
 
 export function moveNoteBefore(note: Note, beforeNote: Note) {
-    const parent = note[parentField].parent;    
+    const parent = note[parentField].parent;
     assert(isSequence(parent));
-    parent.moveNodes(note[parentField].index, 1, beforeNote[parentField].index, beforeNote[parentField].parent);    
+    parent.moveNodes(
+        note[parentField].index,
+        1,
+        beforeNote[parentField].index,
+        beforeNote[parentField].parent
+    );
 }
 
 export function movePileBefore(pile: Pile, beforePile: Pile) {
@@ -85,20 +120,20 @@ export function movePileBefore(pile: Pile, beforePile: Pile) {
     parent.moveNodes(pile[parentField].index, 1, beforePile[parentField].index);
 }
 
-export function isVoter(note: Note, user: {name: string, id: string}) {
+export function isVoter(note: Note, user: { name: string; id: string }) {
     for (const u of note.users) {
-        if (u.id == user.id) {           
+        if (u.id == user.id) {
             return u;
         }
     }
-    return undefined;   
+    return undefined;
 }
 
-export function toggleVote(note: Note, user: {name: string, id: string}) {
-    const voter = isVoter(note, user);    
+export function toggleVote(note: Note, user: { name: string; id: string }) {
+    const voter = isVoter(note, user);
     if (voter) {
         deleteItem(voter);
     } else {
         note.users.insertNodes(note.users.length, [user]);
-    }     
+    }
 }

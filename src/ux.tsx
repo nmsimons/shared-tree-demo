@@ -2,20 +2,30 @@ import React, { useState } from 'react';
 import { App, Pile, Note, User } from './schema';
 import './output.css';
 import { SharedTree, useTree } from './fluid';
-import { addNote, addPile, toggleVote, deleteNote, deletePile, isVoter, getRotation, moveNoteBefore, moveNoteToEnd } from './helpers';
+import {
+    addNote,
+    addPile,
+    toggleVote,
+    deleteNote,
+    deletePile,
+    isVoter,
+    getRotation,
+    moveNoteBefore,
+    moveNoteToEnd,
+} from './helpers';
 import { AzureContainerServices } from '@fluidframework/azure-client';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 
 export function App(props: {
-    data: SharedTree<App>,
-    services: AzureContainerServices
+    data: SharedTree<App>;
+    services: AzureContainerServices;
 }): JSX.Element {
     const root = useTree(props.data);
 
-    const [currentUser, ] = useState({
+    const [currentUser] = useState({
         name: props.services.audience.getMyself()?.userName,
-        id: props.services.audience.getMyself()?.userId
-    } as User);    
+        id: props.services.audience.getMyself()?.userId,
+    } as User);
 
     const pilesArray = [];
     for (const p of root.piles) {
@@ -25,10 +35,10 @@ export function App(props: {
     pilesArray.push(<NewPile root={root} />);
 
     return (
-        <div id="main" className='flex-row p-4 bg-white h-full'>                       
-            <div id="piles" className='flex flex-row gap-4'>
-                {pilesArray}                
-            </div>                        
+        <div id="main" className="flex-row p-4 bg-white h-full">
+            <div id="piles" className="flex flex-row gap-4">
+                {pilesArray}
+            </div>
         </div>
     );
 }
@@ -38,7 +48,9 @@ function NewPile(props: { root: App }): JSX.Element {
         <div
             className="p-2 bg-transparent text-2xl font-bold flex flex-col text-center cursor-pointer w-32 border-gray-300 hover:border-black border-dashed border-8"
             onClick={() => addPile(props.root, '[new group]')}
-        >Add Group</div>
+        >
+            Add Group
+        </div>
     );
 }
 
@@ -51,25 +63,21 @@ function Pile(props: { pile: Pile; user: User }): JSX.Element {
     );
 }
 
-function PileName(props: {
-    pile:Pile
-}): JSX.Element {
-    return (        
+function PileName(props: { pile: Pile }): JSX.Element {
+    return (
         <input
             className="block mb-2 w-40 text-lg font-bold text-black bg-transparent"
             type="text"
             value={props.pile.name}
-            onChange={event => props.pile.name = event.target.value}
+            onChange={(event) => (props.pile.name = event.target.value)}
         />
-    )
+    );
 }
 
-function PileToolbar(props: {
-    pile: Pile
-}): JSX.Element {
+function PileToolbar(props: { pile: Pile }): JSX.Element {
     if (props.pile.notes.length == 0) {
         return (
-            <div className="flex justify-between">                
+            <div className="flex justify-between">
                 <PileName pile={props.pile} />
                 <DeletePileButton pile={props.pile} />
             </div>
@@ -77,17 +85,13 @@ function PileToolbar(props: {
     } else {
         return (
             <div className="flex justify-between">
-                <PileName pile={props.pile} />               
+                <PileName pile={props.pile} />
             </div>
         );
     }
 }
 
-function Notes(props: {
-    pile: Pile;
-    user: User;
-}): JSX.Element {   
-
+function Notes(props: { pile: Pile; user: User }): JSX.Element {
     const notes = props.pile.notes;
 
     const notesArray = [];
@@ -95,13 +99,9 @@ function Notes(props: {
         notesArray.push(<Note key={n.id} note={n} user={props.user} />);
     }
 
-    notesArray.push(<AddNoteButton pile={props.pile} user={props.user}/>)
-    
-    return (
-        <div className="flex flex-row flex-wrap gap-8 p-2">
-            {notesArray}
-        </div>
-    )
+    notesArray.push(<AddNoteButton pile={props.pile} user={props.user} />);
+
+    return <div className="flex flex-row flex-wrap gap-8 p-2">{notesArray}</div>;
 }
 
 function Note(props: { note: Note; user: User }): JSX.Element {
@@ -199,30 +199,32 @@ function AddNoteButton(props: { pile: Pile; user: User }): JSX.Element {
     );
 }
 
-function LikeButton(props: {
-    note: Note,
-    user: User
-}): JSX.Element {
-
+function LikeButton(props: { note: Note; user: User }): JSX.Element {
     const setColor = () => {
         if (isVoter(props.note, props.user)) {
-            return "bg-green-600"            
+            return 'bg-green-600';
         } else {
-            return "bg-gray-600"
+            return 'bg-gray-600';
         }
-    }
+    };
 
     return (
-        <IconButton color={setColor()} handleClick={() => toggleVote(props.note, props.user)} icon={MiniThumb()}>{props.note.users.length}</IconButton>
+        <IconButton
+            color={setColor()}
+            handleClick={() => toggleVote(props.note, props.user)}
+            icon={MiniThumb()}
+        >
+            {props.note.users.length}
+        </IconButton>
     );
 }
 
-function DeleteButton(props: {
-    note: Note,
-    user: User
-}): JSX.Element {
+function DeleteButton(props: { note: Note; user: User }): JSX.Element {
     return (
-        <IconButton handleClick={() => deleteNote(props.note)} icon={MiniX()}></IconButton>
+        <IconButton
+            handleClick={() => deleteNote(props.note)}
+            icon={MiniX()}
+        ></IconButton>
     );
 }
 
@@ -243,7 +245,10 @@ function IconButton(props: {
 }): JSX.Element {
     return (
         <button
-            className={props.color + " hover:bg-gray-400 text-white font-bold px-2 py-1 rounded inline-flex items-center h-6"}
+            className={
+                props.color +
+                ' hover:bg-gray-400 text-white font-bold px-2 py-1 rounded inline-flex items-center h-6'
+            }
             onClick={props.handleClick}
         >
             {props.icon}
@@ -253,16 +258,14 @@ function IconButton(props: {
 }
 
 IconButton.defaultProps = {
-    color: "bg-gray-600"
-}
+    color: 'bg-gray-600',
+};
 
-function IconButtonText (props: {
-    children: React.ReactNode
-}): JSX.Element {
+function IconButtonText(props: { children: React.ReactNode }): JSX.Element {
     if (props.children == undefined) {
-        return (<span></span>)
+        return <span></span>;
     } else {
-        return (<span className="text-sm pl-2 leading-none">{props.children}</span>)
+        return <span className="text-sm pl-2 leading-none">{props.children}</span>;
     }
 }
 
