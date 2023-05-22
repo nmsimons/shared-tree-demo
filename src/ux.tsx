@@ -4,6 +4,9 @@ import './output.css';
 import { SharedTree, useTree } from './fluid';
 import { addNote, addPile, toggleVote, deleteNote, deletePile, moveNote, movePile, isVoter, getRotation } from './helpers';
 import { AzureContainerServices } from '@fluidframework/azure-client';
+import { useDrag, useDrop } from 'react-dnd';
+import type { XYCoord } from 'dnd-core';
+import { useRef } from 'react';
 
 export function App(props: {
     data: SharedTree<App>,
@@ -15,11 +18,11 @@ export function App(props: {
     const [currentUser, ] = useState({
         name: props.services.audience.getMyself()?.userName,
         id: props.services.audience.getMyself()?.userId
-    } as User);    
+    } as User);
 
     useEffect(() => {
         const updateMembers = () => {
-            setFluidMembers(props.services.audience.getMembers());            
+            setFluidMembers(props.services.audience.getMembers());
         }
 
         updateMembers();
@@ -83,6 +86,35 @@ function Notes(props: {
     pile: Pile;
     user: User;
 }): JSX.Element {
+    const ref = useRef<HTMLDivElement>(null)
+
+    function calculateViewIndex(gridRect: DOMRect | undefined, viewRect: XYCoord | null): number {
+        if (gridRect === undefined || viewRect === null) return 0;
+
+        const noteWidth = 192;
+        const cols = Math.floor(gridRect.width / noteWidth);
+        const idx = Math.floor((viewRect.x - gridRect.left) / noteWidth);
+        const idy = Math.floor((viewRect.y - gridRect.top) / noteWidth);
+
+        return (idy * cols) + idx;
+    }
+
+    const [{ canDrop, isOver }, drop] = useDrop(() => ({
+        accept: 'Note',
+        collect: (monitor) => ({
+            isOver: monitor.isOver(),
+            canDrop: monitor.canDrop()
+        }),
+        drop(item, monitor) {
+            const droppedNote: Note = item as Note;
+
+            const hoverBoundingRect = ref.current?.getBoundingClientRect()
+            const clientOffset = monitor.getClientOffset()
+
+            moveNote(droppedNote, calculateViewIndex(hoverBoundingRect, clientOffset), props.pile);
+            return { pile: props.pile };
+        }
+    }))
 
     const notes = props.pile.notes;
 
@@ -93,8 +125,9 @@ function Notes(props: {
 
     notesArray.push(<AddNoteButton pile={props.pile} user={props.user}/>)
 
+    drop(ref)
     return (
-        <div className="flex flex-row flex-wrap gap-8 p-2">
+        <div ref={ref} className="flex flex-row flex-wrap gap-8 p-2">
             {notesArray}
         </div>
     )
@@ -102,24 +135,31 @@ function Notes(props: {
 
 function Note(props: {
     note: Note,
-    user: User,    
+    user: User,
 }): JSX.Element {
+    const [{ isDragging }, drag] = useDrag(() => ({
+        type: 'Note',
+        item: props.note,
+        collect: (monitor) => ({
+            isDragging: monitor.isDragging()
+        }),
+    }))
 
     if (props.note.author.id !== props.user.id) {
         return (
-            <div className={'flex flex-col bg-yellow-100 h-48 w-48 shadow-md hover:shadow-lg hover:rotate-0 p-2 ' + getRotation(props.note)}>
-            <NoteToolbar note={props.note} user={props.user} />
-            <textarea readOnly
-                className='p-2 bg-transparent h-full w-full resize-none'
-                value={props.note.text}                
-            />
+            <div ref={drag} style={{ opacity: isDragging ? 0.5 : 1 }} className={'flex flex-col bg-yellow-100 h-48 w-48 shadow-md hover:shadow-lg hover:rotate-0 p-2 ' + getRotation(props.note)}>
+                <NoteToolbar note={props.note} user={props.user} />
+                <textarea readOnly
+                    className='p-2 bg-transparent h-full w-full resize-none'
+                    value={props.note.text}
+                />
             </div>
         )
     } else {
         return (
-            <div className={'flex flex-col bg-red-100 h-48 w-48 shadow-md hover:shadow-lg hover:rotate-0 p-2 ' + getRotation(props.note)}>
+            <div ref={drag} style={{ opacity: isDragging ? 0.5 : 1 }} className={'flex flex-col bg-red-100 h-48 w-48 shadow-md hover:shadow-lg hover:rotate-0 p-2 ' + getRotation(props.note)}>
                 <NoteToolbar note={props.note} user={props.user} />
-                <textarea 
+                <textarea
                     className='p-2 bg-transparent h-full w-full resize-none'
                     value={props.note.text}
                     onChange={event => props.note.text = event.target.value}

@@ -5,6 +5,8 @@ import { AllowedUpdateType } from '@fluid-experimental/tree2';
 import { App } from './ux';
 import { schema } from './schema';
 import { ConnectionState } from 'fluid-framework';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 async function main() {
 
@@ -36,7 +38,7 @@ async function main() {
 		});
 	}
 
-    ReactDOM.render(<App data={data} services={services} />, document.getElementById('root'));
+    ReactDOM.render([<DndProvider backend={HTML5Backend}>,<App data={data} services={services} />,</DndProvider>], document.getElementById('root'));
 }
 
 export default main();
