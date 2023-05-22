@@ -41,7 +41,7 @@ export function App(props: {
             </div>
             <div className="flex flex-row flex-nowrap gap-8 p-2">            
                 <BigButton handleClick={() => addPile(root, "[new group]")}>Add Pile</BigButton> 
-            </div>
+            </div>            
         </div>
     );
 }
@@ -117,7 +117,7 @@ function Note(props: {
 
     if (props.note.author.id !== props.user.id) {
         return (
-            <div className={'flex flex-col bg-yellow-100 h-48 w-48 shadow-md hover:shadow-lg hover:rotate-0 ' + getRotation(props.note)}>
+            <div className={'flex flex-col bg-yellow-100 h-48 w-48 shadow-md hover:shadow-lg hover:rotate-0 p-2 ' + getRotation(props.note)}>
             <NoteToolbar note={props.note} user={props.user} />
             <textarea readOnly
                 className='p-2 bg-transparent h-full w-full resize-none'
@@ -127,7 +127,7 @@ function Note(props: {
         )
     } else {
         return (
-            <div className={'flex flex-col bg-green-200 h-48 w-48 shadow-md hover:shadow-lg hover:rotate-0 ' + getRotation(props.note)}>
+            <div className={'flex flex-col bg-red-100 h-48 w-48 shadow-md hover:shadow-lg hover:rotate-0 p-2 ' + getRotation(props.note)}>
                 <NoteToolbar note={props.note} user={props.user} />
                 <textarea 
                     className='p-2 bg-transparent h-full w-full resize-none'
@@ -145,28 +145,18 @@ function NoteToolbar(props: {
 }): JSX.Element {
     if (props.note.author.id == props.user.id) {
         return (
-            <div className="flex flex-row">
-                <DeleteNoteToolbarButton note={props.note} />
-                <VoteButton note={props.note} user={props.user} />
+            <div className="flex justify-between">                
+                <LikeButton note={props.note} user={props.user} />                
+                <DeleteButton note={props.note} user={props.user} />
             </div>
         );
     } else {
         return (
-            <div className="flex flex-row">
-                <VoteButton note={props.note} user={props.user} />
+            <div className="flex justify-between">
+                <LikeButton note={props.note} user={props.user} />                
             </div>
         );
     }
-}
-
-function DeleteNoteToolbarButton(props: {
-    note: Note
-}): JSX.Element {
-    return (
-        <LittleButton
-            color="bg-red-400"
-            handleClick={() => deleteNote(props.note)}>X</LittleButton>
-    )
 }
 
 function VoteButton(props: {
@@ -206,12 +196,12 @@ function AddNoteButton(props: {
 }
 
 function BigButton(props: {
-    handleClick: any;
-    children: React.ReactNode;    
+    handleClick: any,
+    children: React.ReactNode
 }): JSX.Element {
     return (
         <button
-            className="h-10 px-6 font-semibold rounded-md bg-black text-white w-full m-2"
+            className="h-10 px-6 font-semibold rounded-md bg-gray-500 text-white w-full m-2"
             onClick={props.handleClick}
         >
             {props.children}
@@ -220,9 +210,9 @@ function BigButton(props: {
 }
 
 function LittleButton(props: {
-    handleClick: any;
-    children: React.ReactNode;
-    color: string;
+    handleClick: any,
+    children: React.ReactNode,
+    color: string
 }): JSX.Element {
     return (
         <button
@@ -231,5 +221,89 @@ function LittleButton(props: {
         >
             {props.children}
         </button>
+    );
+}
+
+function IconButton(props: {
+    handleClick: any;
+    children?: React.ReactNode;
+    icon: JSX.Element;
+    color?: string;
+}): JSX.Element {
+    return (
+        <button
+            className={props.color + " hover:bg-gray-400 text-white font-bold px-2 py-1 rounded inline-flex items-center"}
+            onClick={props.handleClick}
+        >
+            {props.icon}
+            <IconButtonText>{props.children}</IconButtonText>
+        </button>
+    );
+}
+
+IconButton.defaultProps = {
+    color: "bg-gray-600"
+}
+
+function IconButtonText (props: {
+    children: React.ReactNode
+}): JSX.Element {
+    if (props.children == undefined) {
+        return (<span></span>)
+    } else {
+        return (<span className="text-sm pl-2 leading-none">{props.children}</span>)
+    }
+}
+
+function LikeButton(props: {
+    note: Note,
+    user: User
+}): JSX.Element {
+
+    const setColor = () => {
+        if (isVoter(props.note, props.user)) {
+            return "bg-green-600"            
+        } else {
+            return "bg-gray-600"
+        }
+    }
+
+    return (
+        <IconButton color={setColor()} handleClick={() => toggleVote(props.note, props.user)} icon={MiniThumb()}>{props.note.users.length}</IconButton>
+    );
+}
+
+function DeleteButton(props: {
+    note: Note,
+    user: User
+}): JSX.Element {
+    return (
+        <IconButton handleClick={() => deleteNote(props.note)} icon={MiniX()}></IconButton>
+    );
+}
+
+function MiniX(): JSX.Element {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            className="w-4 h-4"
+        >
+            <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+        </svg>
+    );
+}
+
+function MiniThumb(): JSX.Element {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            className="w-4 h-4"
+        >
+            <path d="M1 8.25a1.25 1.25 0 112.5 0v7.5a1.25 1.25 0 11-2.5 0v-7.5zM11 3V1.7c0-.268.14-.526.395-.607A2 2 0 0114 3c0 .995-.182 1.948-.514 2.826-.204.54.166 1.174.744 1.174h2.52c1.243 0 2.261 1.01 2.146 2.247a23.864 23.864 0 01-1.341 5.974C17.153 16.323 16.072 17 14.9 17h-3.192a3 3 0 01-1.341-.317l-2.734-1.366A3 3 0 006.292 15H5V8h.963c.685 0 1.258-.483 1.612-1.068a4.011 4.011 0 012.166-1.73c.432-.143.853-.386 1.011-.814.16-.432.248-.9.248-1.388z" />
+        </svg>
     );
 }
