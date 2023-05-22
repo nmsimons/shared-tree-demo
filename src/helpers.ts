@@ -34,8 +34,6 @@ export function addNote(pile: Pile, text: string, author: {name: string, id: str
         users: []        
     };
 
-    console.log(note.id);
-
     pile.notes.insertNodes(pile.notes.length, [note]);
 }
 
