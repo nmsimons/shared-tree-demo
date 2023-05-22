@@ -1,12 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { App, Pile, Note, User } from './schema';
 import './output.css';
 import { SharedTree, useTree } from './fluid';
-import { addNote, addPile, toggleVote, deleteNote, deletePile, moveNote, movePile, isVoter, getRotation } from './helpers';
+import { addNote, addPile, toggleVote, deleteNote, deletePile, isVoter, getRotation, moveNoteAfter } from './helpers';
 import { AzureContainerServices } from '@fluidframework/azure-client';
-import { useDrag, useDrop } from 'react-dnd';
-import type { XYCoord } from 'dnd-core';
-import { useRef } from 'react';
+import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 
 export function App(props: {
     data: SharedTree<App>,
@@ -14,23 +12,10 @@ export function App(props: {
 }): JSX.Element {
     const root = useTree(props.data);
 
-    const [fluidMembers, setFluidMembers] = useState(props.services.audience.getMembers());
     const [currentUser, ] = useState({
         name: props.services.audience.getMyself()?.userName,
         id: props.services.audience.getMyself()?.userId
-    } as User);
-
-    useEffect(() => {
-        const updateMembers = () => {
-            setFluidMembers(props.services.audience.getMembers());
-        }
-
-        updateMembers();
-
-        props.services.audience.on("membersChanged", updateMembers);
-
-        return () => { props.services.audience.off("membersChanged", updateMembers) };
-    }, []);
+    } as User);    
 
     const pilesArray = [];
     for (const p of root.piles) {
@@ -85,36 +70,7 @@ function PileName(props: {
 function Notes(props: {
     pile: Pile;
     user: User;
-}): JSX.Element {
-    const ref = useRef<HTMLDivElement>(null)
-
-    function calculateViewIndex(gridRect: DOMRect | undefined, viewRect: XYCoord | null): number {
-        if (gridRect === undefined || viewRect === null) return 0;
-
-        const noteWidth = 192;
-        const cols = Math.floor(gridRect.width / noteWidth);
-        const idx = Math.floor((viewRect.x - gridRect.left) / noteWidth);
-        const idy = Math.floor((viewRect.y - gridRect.top) / noteWidth);
-
-        return (idy * cols) + idx;
-    }
-
-    const [{ canDrop, isOver }, drop] = useDrop(() => ({
-        accept: 'Note',
-        collect: (monitor) => ({
-            isOver: monitor.isOver(),
-            canDrop: monitor.canDrop()
-        }),
-        drop(item, monitor) {
-            const droppedNote: Note = item as Note;
-
-            const hoverBoundingRect = ref.current?.getBoundingClientRect()
-            const clientOffset = monitor.getClientOffset()
-
-            moveNote(droppedNote, calculateViewIndex(hoverBoundingRect, clientOffset), props.pile);
-            return { pile: props.pile };
-        }
-    }))
+}): JSX.Element {   
 
     const notes = props.pile.notes;
 
@@ -124,49 +80,64 @@ function Notes(props: {
     }
 
     notesArray.push(<AddNoteButton pile={props.pile} user={props.user}/>)
-
-    drop(ref)
+    
     return (
-        <div ref={ref} className="flex flex-row flex-wrap gap-8 p-2">
+        <div className="flex flex-row flex-wrap gap-8 p-2">
             {notesArray}
         </div>
     )
 }
 
-function Note(props: {
-    note: Note,
-    user: User,
-}): JSX.Element {
+function Note(props: { note: Note; user: User }): JSX.Element {
     const [{ isDragging }, drag] = useDrag(() => ({
         type: 'Note',
         item: props.note,
         collect: (monitor) => ({
-            isDragging: monitor.isDragging()
+            isDragging: monitor.isDragging(),
         }),
-    }))
+    }));
 
-    if (props.note.author.id !== props.user.id) {
-        return (
-            <div ref={drag} style={{ opacity: isDragging ? 0.5 : 1 }} className={'flex flex-col bg-yellow-100 h-48 w-48 shadow-md hover:shadow-lg hover:rotate-0 p-2 ' + getRotation(props.note)}>
-                <NoteToolbar note={props.note} user={props.user} />
-                <textarea readOnly
-                    className='p-2 bg-transparent h-full w-full resize-none'
-                    value={props.note.text}
-                />
-            </div>
-        )
-    } else {
-        return (
-            <div ref={drag} style={{ opacity: isDragging ? 0.5 : 1 }} className={'flex flex-col bg-red-100 h-48 w-48 shadow-md hover:shadow-lg hover:rotate-0 p-2 ' + getRotation(props.note)}>
-                <NoteToolbar note={props.note} user={props.user} />
-                <textarea
-                    className='p-2 bg-transparent h-full w-full resize-none'
-                    value={props.note.text}
-                    onChange={event => props.note.text = event.target.value}
-                />
-            </div>
-        )
+    const [{ canDrop, isOver }, drop] = useDrop(() => ({
+        accept: 'Note',
+        collect: (monitor) => ({
+            isOver: monitor.isOver(),
+            canDrop: monitor.canDrop(),
+        }),
+        drop(item, monitor) {
+            const droppedNote: Note = item as Note;
+            moveNoteAfter(droppedNote, props.note);
+            return { note: props.note };
+        },
+    }));
+
+    function attachRef(el: ConnectableElement) {
+        drag(el);
+        drop(el);
     }
+
+    return (
+        <div
+            ref={attachRef}
+            style={{ opacity: isDragging ? 0.5 : 1 }}
+            className={
+                'flex flex-col bg-yellow-100 h-48 w-48 shadow-md hover:shadow-lg hover:rotate-0 p-2 ' +
+                getRotation(props.note)
+            }
+        >
+            <NoteToolbar note={props.note} user={props.user} />
+            <NoteTextArea note={props.note} user={props.user} />
+        </div>
+    );
+}
+
+function NoteTextArea(props: { note: Note; user: User }): JSX.Element {
+    return (
+        <textarea
+            className="p-2 bg-transparent h-full w-full resize-none"
+            value={props.note.text}
+            onChange={(event) => (props.note.text = event.target.value)}
+        />
+    );
 }
 
 function PileToolbar(props: {
@@ -188,24 +159,13 @@ function PileToolbar(props: {
     }
 }
 
-function NoteToolbar(props: {
-    note: Note,
-    user: User
-}): JSX.Element {
-    if (props.note.author.id == props.user.id) {
-        return (
-            <div className="flex justify-between">                
-                <LikeButton note={props.note} user={props.user} />                
-                <DeleteButton note={props.note} user={props.user} />
-            </div>
-        );
-    } else {
-        return (
-            <div className="flex justify-between">
-                <LikeButton note={props.note} user={props.user} />                
-            </div>
-        );
-    }
+function NoteToolbar(props: { note: Note; user: User }): JSX.Element {
+    return (
+        <div className="flex justify-between">
+            <LikeButton note={props.note} user={props.user} />
+            <DeleteButton note={props.note} user={props.user} />
+        </div>
+    );
 }
 
 function AddNoteButton(props: {

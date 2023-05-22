@@ -73,6 +73,12 @@ export function moveNote(note: Note, destinationIndex: number, destinationPile: 
     }
 }
 
+export function moveNoteAfter(note: Note, afterNote: Note) {
+    const parent = note[parentField].parent;
+    assert(isSequence(parent));    
+    parent.moveNodes(note[parentField].index, 1, afterNote[parentField].index, afterNote[parentField].parent);    
+}
+
 export function movePile(pile: Pile, destinationIndex: number) {
     const parent = pile[parentField].parent;
     assert(isSequence(parent));
