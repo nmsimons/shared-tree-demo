@@ -63,7 +63,7 @@ function PileName(props: {
 }): JSX.Element {
     return (        
         <input
-            className="block mb-2 w-full text-lg font-bold text-black bg-transparent"
+            className="block mb-2 w-40 text-lg font-bold text-black bg-transparent"
             type="text"
             value={props.pile.name}
             onChange={event => props.pile.name = event.target.value}
