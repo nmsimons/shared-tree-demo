@@ -65,38 +65,24 @@ function deleteItem(item: Note | Pile | User) {
     parent.deleteNodes(item[parentField].index, 1);
 }
 
-export function moveNote(note: Note, destinationIndex: number, destinationPile: Pile) {
-    const parent = note[parentField].parent;
-    assert(isSequence(parent));
-    if (destinationIndex < destinationPile.notes.length || destinationIndex == 0) {
-        parent.moveNodes(note[parentField].index, 1, destinationIndex, destinationPile.notes);
-    }
-}
-
 export function moveNoteToEnd(note: Note, destinationPile: Pile) {
     const parent = note[parentField].parent;    
     const destinationIsParent = (parent.parent === destinationPile as UntypedTreeCore);
     assert(isSequence(parent))
-
-    console.log(destinationIsParent);
-    
     const desinationIndex = () => {if (destinationIsParent) {return destinationPile.notes.length - 1} else {return destinationPile.notes.length}}
-
     parent.moveNodes(note[parentField].index, 1, desinationIndex(), destinationPile.notes);    
 }
 
-export function moveNoteBefore(note: Note, afterNote: Note) {
+export function moveNoteBefore(note: Note, beforeNote: Note) {
     const parent = note[parentField].parent;    
     assert(isSequence(parent));
-    parent.moveNodes(note[parentField].index, 1, afterNote[parentField].index, afterNote[parentField].parent);    
+    parent.moveNodes(note[parentField].index, 1, beforeNote[parentField].index, beforeNote[parentField].parent);    
 }
 
-export function movePile(pile: Pile, destinationIndex: number) {
+export function movePileBefore(pile: Pile, beforePile: Pile) {
     const parent = pile[parentField].parent;
     assert(isSequence(parent));
-    if (parent.length >= destinationIndex) {
-        parent.moveNodes(pile[parentField].index, 1, destinationIndex);
-    }
+    parent.moveNodes(pile[parentField].index, 1, beforePile[parentField].index);
 }
 
 export function isVoter(note: Note, user: {name: string, id: string}) {

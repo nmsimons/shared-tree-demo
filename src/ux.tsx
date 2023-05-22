@@ -33,21 +33,21 @@ export function App(props: {
     );
 }
 
-function Pile(props: { pile: Pile; user: User }): JSX.Element {
-    return (
-        <div className="p-2 bg-gray-200 ">
-            <PileToolbar pile={props.pile} />
-            <Notes pile={props.pile} user={props.user} />
-        </div>
-    );
-}
-
 function NewPile(props: { root: App }): JSX.Element {
     return (
         <div
             className="p-2 bg-transparent text-2xl font-bold flex flex-col text-center cursor-pointer w-32 border-gray-300 hover:border-black border-dashed border-8"
             onClick={() => addPile(props.root, '[new group]')}
         >Add Group</div>
+    );
+}
+
+function Pile(props: { pile: Pile; user: User }): JSX.Element {
+    return (
+        <div className="p-2 bg-gray-200 ">
+            <PileToolbar pile={props.pile} />
+            <Notes pile={props.pile} user={props.user} />
+        </div>
     );
 }
 
@@ -62,6 +62,25 @@ function PileName(props: {
             onChange={event => props.pile.name = event.target.value}
         />
     )
+}
+
+function PileToolbar(props: {
+    pile: Pile
+}): JSX.Element {
+    if (props.pile.notes.length == 0) {
+        return (
+            <div className="flex justify-between">                
+                <PileName pile={props.pile} />
+                <DeletePileButton pile={props.pile} />
+            </div>
+        );
+    } else {
+        return (
+            <div className="flex justify-between">
+                <PileName pile={props.pile} />               
+            </div>
+        );
+    }
 }
 
 function Notes(props: {
@@ -137,25 +156,6 @@ function NoteTextArea(props: { note: Note; user: User }): JSX.Element {
     );
 }
 
-function PileToolbar(props: {
-    pile: Pile
-}): JSX.Element {
-    if (props.pile.notes.length == 0) {
-        return (
-            <div className="flex justify-between">                
-                <PileName pile={props.pile} />
-                <DeletePileButton pile={props.pile} />
-            </div>
-        );
-    } else {
-        return (
-            <div className="flex justify-between">
-                <PileName pile={props.pile} />               
-            </div>
-        );
-    }
-}
-
 function NoteToolbar(props: { note: Note; user: User }): JSX.Element {
     return (
         <div className="flex justify-between">
@@ -199,37 +199,6 @@ function AddNoteButton(props: { pile: Pile; user: User }): JSX.Element {
     );
 }
 
-function IconButton(props: {
-    handleClick: any;
-    children?: React.ReactNode;
-    icon: JSX.Element;
-    color?: string;
-}): JSX.Element {
-    return (
-        <button
-            className={props.color + " hover:bg-gray-400 text-white font-bold px-2 py-1 rounded inline-flex items-center h-6"}
-            onClick={props.handleClick}
-        >
-            {props.icon}
-            <IconButtonText>{props.children}</IconButtonText>
-        </button>
-    );
-}
-
-IconButton.defaultProps = {
-    color: "bg-gray-600"
-}
-
-function IconButtonText (props: {
-    children: React.ReactNode
-}): JSX.Element {
-    if (props.children == undefined) {
-        return (<span></span>)
-    } else {
-        return (<span className="text-sm pl-2 leading-none">{props.children}</span>)
-    }
-}
-
 function LikeButton(props: {
     note: Note,
     user: User
@@ -264,6 +233,37 @@ function DeletePileButton(props: { pile: Pile }): JSX.Element {
             icon={MiniX()}
         ></IconButton>
     );
+}
+
+function IconButton(props: {
+    handleClick: any;
+    children?: React.ReactNode;
+    icon: JSX.Element;
+    color?: string;
+}): JSX.Element {
+    return (
+        <button
+            className={props.color + " hover:bg-gray-400 text-white font-bold px-2 py-1 rounded inline-flex items-center h-6"}
+            onClick={props.handleClick}
+        >
+            {props.icon}
+            <IconButtonText>{props.children}</IconButtonText>
+        </button>
+    );
+}
+
+IconButton.defaultProps = {
+    color: "bg-gray-600"
+}
+
+function IconButtonText (props: {
+    children: React.ReactNode
+}): JSX.Element {
+    if (props.children == undefined) {
+        return (<span></span>)
+    } else {
+        return (<span className="text-sm pl-2 leading-none">{props.children}</span>)
+    }
 }
 
 function MiniX(): JSX.Element {
