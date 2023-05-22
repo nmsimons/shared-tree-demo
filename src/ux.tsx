@@ -34,14 +34,13 @@ export function App(props: {
         pilesArray.push(<Pile key={p.id} pile={p} user={currentUser} />);
     }
 
+    pilesArray.push(<NewPile root={root} />);
+
     return (
         <div id="main" className='flex-row p-4 bg-white h-full'>                       
             <div id="piles" className='flex flex-row gap-4'>
                 {pilesArray}                
-            </div>
-            <div className="flex flex-row flex-nowrap gap-8 p-2">            
-                <BigButton handleClick={() => addPile(root, "[new group]")}>Add Pile</BigButton> 
-            </div>            
+            </div>                        
         </div>
     );
 }
@@ -56,6 +55,15 @@ function Pile(props: {
             <Notes pile={props.pile} user={props.user} />                        
         </div >
     )
+}
+
+function NewPile(props: { root: App }): JSX.Element {
+    return (
+        <div
+            className="p-2 bg-transparent text-2xl font-bold flex flex-col text-center cursor-pointer w-32 border-gray-300 hover:border-black border-dashed border-8"
+            onClick={() => addPile(props.root, '[new group')}
+        >Add Group</div>
+    );
 }
 
 function PileName(props: {
