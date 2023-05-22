@@ -1,4 +1,4 @@
-import { EditableField, FieldKinds, SchemaAware, UntypedField, parentField } from "@fluid-experimental/tree2";
+import { EditableField, FieldKinds, SchemaAware, UntypedField, UntypedTree, UntypedTreeCore, parentField } from "@fluid-experimental/tree2";
 import { App, Note, Pile, User } from "./schema";
 import assert from "assert";
 import { Guid } from 'guid-typescript';
@@ -73,9 +73,21 @@ export function moveNote(note: Note, destinationIndex: number, destinationPile: 
     }
 }
 
-export function moveNoteAfter(note: Note, afterNote: Note) {
-    const parent = note[parentField].parent;
-    assert(isSequence(parent));    
+export function moveNoteToEnd(note: Note, destinationPile: Pile) {
+    const parent = note[parentField].parent;    
+    const destinationIsParent = (parent.parent === destinationPile as UntypedTreeCore);
+    assert(isSequence(parent))
+
+    console.log(destinationIsParent);
+    
+    const desinationIndex = () => {if (destinationIsParent) {return destinationPile.notes.length - 1} else {return destinationPile.notes.length}}
+
+    parent.moveNodes(note[parentField].index, 1, desinationIndex(), destinationPile.notes);    
+}
+
+export function moveNoteBefore(note: Note, afterNote: Note) {
+    const parent = note[parentField].parent;    
+    assert(isSequence(parent));
     parent.moveNodes(note[parentField].index, 1, afterNote[parentField].index, afterNote[parentField].parent);    
 }
 

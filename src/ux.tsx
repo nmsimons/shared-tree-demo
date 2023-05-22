@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { App, Pile, Note, User } from './schema';
 import './output.css';
 import { SharedTree, useTree } from './fluid';
-import { addNote, addPile, toggleVote, deleteNote, deletePile, isVoter, getRotation, moveNoteAfter, moveNote } from './helpers';
+import { addNote, addPile, toggleVote, deleteNote, deletePile, isVoter, getRotation, moveNoteBefore, moveNoteToEnd } from './helpers';
 import { AzureContainerServices } from '@fluidframework/azure-client';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 
@@ -33,31 +33,13 @@ export function App(props: {
     );
 }
 
-function Pile(props: {
-    pile: Pile,
-    user: User
-}): JSX.Element {
-
-    const [{ canDrop, isOver }, drop] = useDrop(() => ({
-        accept: 'Note',
-        collect: (monitor) => ({
-            isOver: monitor.isOver(),
-            canDrop: monitor.canDrop(),
-        }),
-        drop(item, monitor) {
-            const droppedNote: Note = item as Note;
-            const index = () => {if (0 < props.pile.notes.length - 1) {return props.pile.notes.length - 1} else {return 0}};
-            moveNote(droppedNote, index(), props.pile);
-            return { pile: props.pile };
-        },
-    }));
-
+function Pile(props: { pile: Pile; user: User }): JSX.Element {
     return (
-        <div ref={drop} className='p-2 bg-gray-200 '>
-            <PileToolbar pile={props.pile} />          
-            <Notes pile={props.pile} user={props.user} />                        
-        </div >
-    )
+        <div className="p-2 bg-gray-200 ">
+            <PileToolbar pile={props.pile} />
+            <Notes pile={props.pile} user={props.user} />
+        </div>
+    );
 }
 
 function NewPile(props: { root: App }): JSX.Element {
@@ -120,7 +102,7 @@ function Note(props: { note: Note; user: User }): JSX.Element {
         }),
         drop(item, monitor) {
             const droppedNote: Note = item as Note;
-            moveNoteAfter(droppedNote, props.note);
+            moveNoteBefore(droppedNote, props.note);
             return { note: props.note };
         },
     }));
@@ -183,12 +165,30 @@ function NoteToolbar(props: { note: Note; user: User }): JSX.Element {
     );
 }
 
-function AddNoteButton(props: {
-    pile: Pile,
-    user: User
-}): JSX.Element {
+function AddNoteButton(props: { pile: Pile; user: User }): JSX.Element {
+    const [{ canDrop, isOver }, drop] = useDrop(() => ({
+        accept: 'Note',
+        collect: (monitor) => ({
+            isOver: monitor.isOver(),
+            canDrop: monitor.canDrop(),
+        }),
+        drop(item, monitor) {
+            const droppedNote: Note = item as Note;
+            const index = () => {
+                if (0 < props.pile.notes.length - 1) {
+                    return props.pile.notes.length - 1;
+                } else {
+                    return 0;
+                }
+            };
+            moveNoteToEnd(droppedNote, props.pile);
+            return { pile: props.pile };
+        },
+    }));
+
     return (
         <div
+            ref={drop}
             className={
                 'text-2xl font-bold flex flex-col text-center cursor-pointer bg-transparent border-white border-dashed border-8 h-48 w-48 p-4 hover:border-black'
             }
