@@ -68,7 +68,7 @@ function deleteItem(item: Note | Pile | User) {
 export function moveNote(note: Note, destinationIndex: number, destinationPile: Pile) {
     const parent = note[parentField].parent;
     assert(isSequence(parent));
-    if (parent.length > destinationIndex) {
+    if (destinationIndex < destinationPile.notes.length || destinationIndex == 0) {
         parent.moveNodes(note[parentField].index, 1, destinationIndex, destinationPile.notes);
     }
 }
@@ -82,7 +82,7 @@ export function moveNoteAfter(note: Note, afterNote: Note) {
 export function movePile(pile: Pile, destinationIndex: number) {
     const parent = pile[parentField].parent;
     assert(isSequence(parent));
-    if (parent.length > destinationIndex) {
+    if (parent.length >= destinationIndex) {
         parent.moveNodes(pile[parentField].index, 1, destinationIndex);
     }
 }

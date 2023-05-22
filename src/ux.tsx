@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { App, Pile, Note, User } from './schema';
 import './output.css';
 import { SharedTree, useTree } from './fluid';
-import { addNote, addPile, toggleVote, deleteNote, deletePile, isVoter, getRotation, moveNoteAfter } from './helpers';
+import { addNote, addPile, toggleVote, deleteNote, deletePile, isVoter, getRotation, moveNoteAfter, moveNote } from './helpers';
 import { AzureContainerServices } from '@fluidframework/azure-client';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 
@@ -37,8 +37,23 @@ function Pile(props: {
     pile: Pile,
     user: User
 }): JSX.Element {
+
+    const [{ canDrop, isOver }, drop] = useDrop(() => ({
+        accept: 'Note',
+        collect: (monitor) => ({
+            isOver: monitor.isOver(),
+            canDrop: monitor.canDrop(),
+        }),
+        drop(item, monitor) {
+            const droppedNote: Note = item as Note;
+            const index = () => {if (0 < props.pile.notes.length - 1) {return props.pile.notes.length - 1} else {return 0}};
+            moveNote(droppedNote, index(), props.pile);
+            return { pile: props.pile };
+        },
+    }));
+
     return (
-        <div className='p-2 bg-gray-200 '>
+        <div ref={drop} className='p-2 bg-gray-200 '>
             <PileToolbar pile={props.pile} />          
             <Notes pile={props.pile} user={props.user} />                        
         </div >
