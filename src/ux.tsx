@@ -50,16 +50,10 @@ function Pile(props: {
     pile: Pile,
     user: User
 }): JSX.Element {
-
     return (
         <div className='p-2 bg-gray-200 '>
-            <div className="flex flex-row flex-nowrap gap-8 p-0 bg-transparent">
-                <PileName pile={props.pile} />                
-            </div>            
-            <Notes pile={props.pile} user={props.user} />
-            <div className="flex flex-row flex-nowrap gap-8 p-0 bg-transparent">                
-                <DeletePileButton pile={props.pile} />
-            </div>            
+            <PileToolbar pile={props.pile} />          
+            <Notes pile={props.pile} user={props.user} />                        
         </div >
     )
 }
@@ -75,18 +69,6 @@ function PileName(props: {
             onChange={event => props.pile.name = event.target.value}
         />
     )
-}
-
-function DeletePileButton(props: {
-    pile:Pile
-}): JSX.Element {
-    if (props.pile.notes.length == 0) {
-        return (
-            <BigButton handleClick={() => deletePile(props.pile)}>Delete</BigButton>
-        );
-    } else {
-        return <div />;
-    }
 }
 
 function Notes(props: {
@@ -139,6 +121,25 @@ function Note(props: {
     }
 }
 
+function PileToolbar(props: {
+    pile: Pile
+}): JSX.Element {
+    if (props.pile.notes.length == 0) {
+        return (
+            <div className="flex justify-between">                
+                <PileName pile={props.pile} />
+                <DeletePileButton pile={props.pile} />
+            </div>
+        );
+    } else {
+        return (
+            <div className="flex justify-between">
+                <PileName pile={props.pile} />               
+            </div>
+        );
+    }
+}
+
 function NoteToolbar(props: {
     note: Note,
     user: User
@@ -157,26 +158,6 @@ function NoteToolbar(props: {
             </div>
         );
     }
-}
-
-function VoteButton(props: {
-    note: Note,
-    user: User
-}): JSX.Element {
-    
-    const setColor = () => {
-        if (isVoter(props.note, props.user)) {
-            return "bg-red-400"            
-        } else {
-            return "bg-orange-300"
-        }
-    }
-
-    return (
-        <LittleButton
-            color={setColor()}
-            handleClick={() => toggleVote(props.note, props.user)}>+{props.note.users.length}</LittleButton>
-    )
 }
 
 function AddNoteButton(props: {
@@ -209,21 +190,6 @@ function BigButton(props: {
     );
 }
 
-function LittleButton(props: {
-    handleClick: any,
-    children: React.ReactNode,
-    color: string
-}): JSX.Element {
-    return (
-        <button
-            className={"h-6 px-2 m-2 font-semibold rounded-md text-white " + props.color}            
-            onClick={props.handleClick}
-        >
-            {props.children}
-        </button>
-    );
-}
-
 function IconButton(props: {
     handleClick: any;
     children?: React.ReactNode;
@@ -232,7 +198,7 @@ function IconButton(props: {
 }): JSX.Element {
     return (
         <button
-            className={props.color + " hover:bg-gray-400 text-white font-bold px-2 py-1 rounded inline-flex items-center"}
+            className={props.color + " hover:bg-gray-400 text-white font-bold px-2 py-1 rounded inline-flex items-center h-6"}
             onClick={props.handleClick}
         >
             {props.icon}
@@ -279,6 +245,15 @@ function DeleteButton(props: {
 }): JSX.Element {
     return (
         <IconButton handleClick={() => deleteNote(props.note)} icon={MiniX()}></IconButton>
+    );
+}
+
+function DeletePileButton(props: { pile: Pile }): JSX.Element {
+    return (
+        <IconButton
+            handleClick={() => deletePile(props.pile)}
+            icon={MiniX()}
+        ></IconButton>
     );
 }
 
