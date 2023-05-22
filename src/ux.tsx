@@ -64,7 +64,7 @@ function NewPile(props: { root: App }): JSX.Element {
     return (
         <div
             className="p-2 bg-transparent text-2xl font-bold flex flex-col text-center cursor-pointer w-32 border-gray-300 hover:border-black border-dashed border-8"
-            onClick={() => addPile(props.root, '[new group')}
+            onClick={() => addPile(props.root, '[new group]')}
         >Add Group</div>
     );
 }
@@ -221,20 +221,6 @@ function AddNoteButton(props: {
         >
             Add Note
         </div>
-    );
-}
-
-function BigButton(props: {
-    handleClick: any,
-    children: React.ReactNode
-}): JSX.Element {
-    return (
-        <button
-            className="h-10 px-6 font-semibold rounded-md bg-gray-500 text-white w-full m-2"
-            onClick={props.handleClick}
-        >
-            {props.children}
-        </button>
     );
 }
 
