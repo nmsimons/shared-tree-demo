@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { App, Pile, Note, User } from './schema';
 import './output.css';
 import { SharedTree, useTree } from './fluid';
@@ -15,10 +15,12 @@ import {
 } from './helpers';
 import { AzureContainerServices } from '@fluidframework/azure-client';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
+import { ConnectionState, IFluidContainer } from 'fluid-framework';
 
 export function App(props: {
     data: SharedTree<App>;
     services: AzureContainerServices;
+    container: IFluidContainer;
 }): JSX.Element {
     const root = useTree(props.data);
 
@@ -27,18 +29,50 @@ export function App(props: {
         id: props.services.audience.getMyself()?.userId,
     } as User);
 
-    const pilesArray = [];
-    for (const p of root.piles) {
-        pilesArray.push(<Pile key={p.id} pile={p} user={currentUser} />);
-    }
+    return (
+        <div id="main" className="flex flex-col bg-white h-full w-full p-4">            
+            <Piles root={root} user={currentUser} />
+            <Footer services={props.services} container={props.container} />
+        </div>
+    );
+}
 
-    pilesArray.push(<NewPile root={root} />);
+function Footer(props: {
+    services: AzureContainerServices,
+    container: IFluidContainer
+}): JSX.Element {
+    const [fluidMembers, setFluidMembers] = useState(props.services.audience.getMembers());
+    
+    useEffect(() => {
+        const updateMembers = () => {
+            setFluidMembers(props.services.audience.getMembers());           
+        }
+
+        updateMembers();
+
+        props.services.audience.on("membersChanged", updateMembers);
+
+        return () => { props.services.audience.off("membersChanged", updateMembers) };
+    }, []);
 
     return (
-        <div id="main" className="flex-row p-4 bg-white h-full">
-            <div id="piles" className="flex flex-row gap-4">
-                {pilesArray}
-            </div>
+        <div className="flex flex-row bg-gray-200 h-8 w-full my-3">
+            <div className="text-base m-1">Users: {fluidMembers.size}</div>           
+        </div>
+    )
+}
+
+function Piles(props: { root: App; user: User }): JSX.Element {
+    const pilesArray = [];
+    for (const p of props.root.piles) {
+        pilesArray.push(<Pile key={p.id} pile={p} user={props.user} />);
+    }
+
+    pilesArray.push(<NewPile root={props.root} />);
+
+    return (
+        <div id="piles" className="flex flex-row flex-wrap gap-4 w-full">
+            {pilesArray}
         </div>
     );
 }
@@ -46,7 +80,7 @@ export function App(props: {
 function NewPile(props: { root: App }): JSX.Element {
     return (
         <div
-            className="p-2 bg-transparent text-2xl font-bold flex flex-col text-center cursor-pointer w-32 border-gray-300 hover:border-black border-dashed border-8"
+            className="p-2 place-content-center bg-transparent text-2xl font-bold flex flex-col text-center cursor-pointer min-w-32 flex-grow border-gray-300 hover:border-black border-dashed border-8"
             onClick={() => addPile(props.root, '[new group]')}
         >
             Add Group
@@ -56,7 +90,7 @@ function NewPile(props: { root: App }): JSX.Element {
 
 function Pile(props: { pile: Pile; user: User }): JSX.Element {
     return (
-        <div className="p-2 bg-gray-200 ">
+        <div className="p-2 bg-gray-200 flex-grow">
             <PileToolbar pile={props.pile} />
             <Notes pile={props.pile} user={props.user} />
         </div>
