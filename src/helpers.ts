@@ -3,13 +3,38 @@ import {
     FieldKinds,
     SchemaAware,
     UntypedField,
-    UntypedTree,
     UntypedTreeCore,
     parentField,
 } from '@fluid-experimental/tree2';
 import { App, Note, Pile, User } from './schema';
 import assert from 'assert';
 import { Guid } from 'guid-typescript';
+
+export function addNote(
+    pile: Pile,
+    text: string,
+    author: { name: string; id: string }
+) {
+    const note = {
+        id: Guid.create().toString(),
+        text,
+        author,
+        users: [],
+    };
+
+    pile.notes.insertNodes(pile.notes.length, [note]);
+}
+
+export function moveNoteBefore(note: Note, beforeNote: Note) {
+    const parent = note[parentField].parent;
+    assert(isSequence(parent));
+    parent.moveNodes(
+        note[parentField].index,
+        1,
+        beforeNote[parentField].index,
+        beforeNote[parentField].parent
+    );
+}
 
 function isSequence(
     field: UntypedField | EditableField
@@ -39,22 +64,6 @@ export function hashCode(str: string): number {
     }
     return h;
 }
-
-export function addNote(
-    pile: Pile,
-    text: string,
-    author: { name: string; id: string }
-) {
-    const note = {
-        id: Guid.create().toString(),
-        text,
-        author,
-        users: [],
-    };
-
-    pile.notes.insertNodes(pile.notes.length, [note]);
-}
-
 export function addPile(app: App, name: string) {
     const pile = {
         id: Guid.create().toString(),
@@ -73,7 +82,7 @@ export function deletePile(pile: Pile, app: App): boolean {
         const notes = pile.notes;
         const defaultPile = app.piles[0];
         assert(isSequence(notes));
-        notes.moveNodes(0, pile.notes.length, 0, defaultPile.notes);        
+        notes.moveNodes(0, pile.notes.length, defaultPile.notes.length, defaultPile.notes);        
     }
 
     deleteItem(pile);
@@ -107,17 +116,6 @@ export function moveNoteToEnd(note: Note, destinationPile: Pile) {
         1,
         desinationIndex(),
         destinationPile.notes
-    );
-}
-
-export function moveNoteBefore(note: Note, beforeNote: Note) {
-    const parent = note[parentField].parent;
-    assert(isSequence(parent));
-    parent.moveNodes(
-        note[parentField].index,
-        1,
-        beforeNote[parentField].index,
-        beforeNote[parentField].parent
     );
 }
 
