@@ -16,6 +16,7 @@ import {
 import { AzureContainerServices } from '@fluidframework/azure-client';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 import { ConnectionState, IFluidContainer } from 'fluid-framework';
+import { parentField } from '@fluid-experimental/tree2';
 
 export function App(props: {
     data: SharedTree<App>;
@@ -30,14 +31,14 @@ export function App(props: {
     } as User);
 
     return (
-        <div id="main" className="flex flex-col bg-white h-full w-full p-4">            
-            <Piles root={root} user={currentUser} />
-            <Footer services={props.services} container={props.container} />
+        <div id="main" className="flex flex-col bg-white h-full w-full">
+            <Header services={props.services} container={props.container} />            
+            <Piles root={root} user={currentUser} />            
         </div>
     );
 }
 
-function Footer(props: {
+function Header(props: {
     services: AzureContainerServices,
     container: IFluidContainer
 }): JSX.Element {
@@ -56,8 +57,9 @@ function Footer(props: {
     }, []);
 
     return (
-        <div className="flex flex-row bg-gray-200 h-8 w-full my-3">
-            <div className="text-base m-1">Users: {fluidMembers.size}</div>           
+        <div className="flex flex-row justify-between bg-black h-10 text-base m-1 text-white">
+            <div className="m-2">shared-tree-demo</div>
+            <div className="m-2">Users: {fluidMembers.size}</div>           
         </div>
     )
 }
@@ -65,13 +67,13 @@ function Footer(props: {
 function Piles(props: { root: App; user: User }): JSX.Element {
     const pilesArray = [];
     for (const p of props.root.piles) {
-        pilesArray.push(<Pile key={p.id} pile={p} user={props.user} />);
+        pilesArray.push(<Pile key={p.id} pile={p} user={props.user} app={props.root} />);
     }
 
     pilesArray.push(<NewPile root={props.root} />);
 
     return (
-        <div id="piles" className="flex flex-row flex-wrap gap-4 w-full">
+        <div id="piles" className="flex flex-row flex-wrap gap-4 m-4">
             {pilesArray}
         </div>
     );
@@ -88,10 +90,10 @@ function NewPile(props: { root: App }): JSX.Element {
     );
 }
 
-function Pile(props: { pile: Pile; user: User }): JSX.Element {
+function Pile(props: { pile: Pile, user: User, app: App }): JSX.Element {
     return (
-        <div className="p-2 bg-gray-200 flex-grow">
-            <PileToolbar pile={props.pile} />
+        <div className="p-2 bg-gray-200">
+            <PileToolbar pile={props.pile} app={props.app} />
             <Notes pile={props.pile} user={props.user} />
         </div>
     );
@@ -108,12 +110,12 @@ function PileName(props: { pile: Pile }): JSX.Element {
     );
 }
 
-function PileToolbar(props: { pile: Pile }): JSX.Element {
-    if (props.pile.notes.length == 0) {
+function PileToolbar(props: { pile: Pile, app: App }): JSX.Element {
+    if (props.pile[parentField].index !== 0) {
         return (
             <div className="flex justify-between">
                 <PileName pile={props.pile} />
-                <DeletePileButton pile={props.pile} />
+                <DeletePileButton pile={props.pile} app={props.app} />
             </div>
         );
     } else {
@@ -262,10 +264,10 @@ function DeleteButton(props: { note: Note; user: User }): JSX.Element {
     );
 }
 
-function DeletePileButton(props: { pile: Pile }): JSX.Element {
+function DeletePileButton(props: { pile: Pile, app: App }): JSX.Element {
     return (
         <IconButton
-            handleClick={() => deletePile(props.pile)}
+            handleClick={() => deletePile(props.pile, props.app)}
             icon={MiniX()}
         ></IconButton>
     );

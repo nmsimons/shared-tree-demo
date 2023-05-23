@@ -65,12 +65,19 @@ export function addPile(app: App, name: string) {
     app.piles.insertNodes(app.piles.length, [pile]);
 }
 
-export function deletePile(pile: Pile): boolean {
-    if (pile.notes.length == 0) {
-        deleteItem(pile);
-        return true;
+export function deletePile(pile: Pile, app: App): boolean {
+    if (pile[parentField].index == 0) {return false}
+    
+
+    if (pile.notes.length !== 0) {
+        const notes = pile.notes;
+        const defaultPile = app.piles[0];
+        assert(isSequence(notes));
+        notes.moveNodes(0, pile.notes.length, 0, defaultPile.notes);        
     }
-    return false;
+
+    deleteItem(pile);
+    return true;    
 }
 
 export function deleteNote(note: Note) {
