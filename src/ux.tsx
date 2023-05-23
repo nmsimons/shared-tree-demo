@@ -15,7 +15,7 @@ import {
 } from './helpers';
 import { AzureContainerServices } from '@fluidframework/azure-client';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
-import { ConnectionState, IFluidContainer } from 'fluid-framework';
+import { IFluidContainer } from 'fluid-framework';
 import { parentField } from '@fluid-experimental/tree2';
 
 export function App(props: {
