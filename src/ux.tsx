@@ -82,7 +82,7 @@ function Piles(props: { root: App; user: User }): JSX.Element {
 function NewPile(props: { root: App }): JSX.Element {
     return (
         <div
-            className="p-2 place-content-center bg-transparent text-2xl font-bold flex flex-col text-center cursor-pointer w-32 border-gray-300 hover:border-black border-dashed border-8"
+            className="p-2 place-content-center bg-transparent text-2xl font-bold flex flex-col text-center cursor-pointer w-32 flex-grow border-gray-300 hover:border-black border-dashed border-8"
             onClick={() => addPile(props.root, '[new group]')}
         >
             Add Group

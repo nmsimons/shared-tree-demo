@@ -41,8 +41,8 @@ async function main() {
     ReactDOM.render(
         [
             <DndProvider backend={HTML5Backend}>
-                <App data={data} services={services} container={container} />,
-            </DndProvider>,
+                <App data={data} services={services} container={container} />
+            </DndProvider>
         ],
         document.getElementById('root')
     );
