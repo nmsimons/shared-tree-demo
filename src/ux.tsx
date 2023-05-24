@@ -68,7 +68,9 @@ function Header(props: {
 function Piles(props: { root: App; user: User }): JSX.Element {
     const pilesArray = [];
     for (const p of props.root.piles) {
-        pilesArray.push(<Pile key={p.id} pile={p} user={props.user} app={props.root} />);
+        pilesArray.push(
+            <Pile key={p.id} pile={p} user={props.user} app={props.root} />
+        );
     }
 
     pilesArray.push(<NewPile root={props.root} />);
