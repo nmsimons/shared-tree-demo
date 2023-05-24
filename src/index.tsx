@@ -5,7 +5,6 @@ import { loadFluidData } from './fluid';
 import { AllowedUpdateType } from '@fluid-experimental/tree2';
 import { App } from './ux';
 import { schema } from './schema';
-import { ConnectionState } from 'fluid-framework';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
@@ -27,16 +26,7 @@ async function main() {
             ],
         },
         allowedSchemaModifications: AllowedUpdateType.SchemaCompatible,
-    });
-
-    //Don't do anything until we are properly connected.
-    if (container.connectionState !== ConnectionState.Connected) {
-        await new Promise<void>((resolve) => {
-            container.once('connected', () => {
-                resolve();
-            });
-        });
-    }
+    });    
 
     ReactDOM.render(
         [

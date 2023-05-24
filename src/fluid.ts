@@ -91,7 +91,7 @@ if (!useAzure) {
 
 const user = generateTestUser();
 
-const azureUser = {
+export const azureUser = {
     userId: user.id,
     userName: user.name,
 };

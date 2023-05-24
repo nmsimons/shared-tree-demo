@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { App, Pile, Note, User } from './schema';
 import './output.css';
-import { SharedTree, useTree } from './fluid';
+import { SharedTree, useTree, azureUser } from './fluid';
 import {
     addNote,
     addPile,
@@ -27,8 +27,8 @@ export function App(props: {
     const root = useTree(props.data);
 
     const [currentUser] = useState({
-        name: props.services.audience.getMyself()?.userName,
-        id: props.services.audience.getMyself()?.userId,
+        name: azureUser.userName,
+        id: azureUser.userId,
     } as User);
 
     return (
