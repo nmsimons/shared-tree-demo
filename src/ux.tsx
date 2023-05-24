@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from 'react';
 import { App, Pile, Note, User } from './schema';
 import './output.css';
@@ -149,13 +150,13 @@ function Note(props: { note: Note; user: User }): JSX.Element {
         }),
     }));
 
-    const [{ canDrop, isOver }, drop] = useDrop(() => ({
+    const [, drop] = useDrop(() => ({
         accept: 'Note',
         collect: (monitor) => ({
             isOver: monitor.isOver(),
             canDrop: monitor.canDrop(),
         }),
-        drop(item, monitor) {
+        drop(item) {
             const droppedNote: Note = item as Note;
             moveNoteBefore(droppedNote, props.note);
             return { note: props.note };
@@ -202,37 +203,41 @@ function NoteToolbar(props: { note: Note; user: User }): JSX.Element {
 }
 
 function AddNoteButton(props: { pile: Pile; user: User }): JSX.Element {
-    const [{ canDrop, isOver }, drop] = useDrop(() => ({
+    const [, drop] = useDrop(() => ({
         accept: 'Note',
         collect: (monitor) => ({
             isOver: monitor.isOver(),
             canDrop: monitor.canDrop(),
         }),
-        drop(item, monitor) {
+        drop(item) {
             const droppedNote: Note = item as Note;
-            const index = () => {
-                if (0 < props.pile.notes.length - 1) {
-                    return props.pile.notes.length - 1;
-                } else {
-                    return 0;
-                }
-            };
             moveNoteToEnd(droppedNote, props.pile);
             return { pile: props.pile };
         },
     }));
 
+    let size = "h-48 w-48";
+    let buttonText = 'Add Note';
+
+    if (props.pile.notes.length > 0) {
+        buttonText = '+';
+        size = 'h-48';
+    }
+
     return (
         <div
             ref={drop}
             className={
-                'text-2xl font-bold flex flex-col text-center cursor-pointer bg-transparent border-white border-dashed border-8 h-48 w-48 p-4 hover:border-black'
+                'text-2xl place-content-center font-bold flex flex-col text-center cursor-pointer bg-transparent border-white border-dashed border-8 ' +
+                size +
+                ' p-4 hover:border-black'
             }
             onClick={() => addNote(props.pile, '', props.user)}
         >
-            Add Note
+            {buttonText}
         </div>
     );
+    
 }
 
 function LikeButton(props: { note: Note; user: User }): JSX.Element {
