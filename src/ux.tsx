@@ -197,7 +197,7 @@ function NoteToolbar(props: { note: Note; user: User }): JSX.Element {
     return (
         <div className="flex justify-between">
             <LikeButton note={props.note} user={props.user} />
-            <DeleteButton note={props.note} user={props.user} />
+            <DeleteNoteButton note={props.note} user={props.user} />
         </div>
     );
 }
@@ -260,21 +260,34 @@ function LikeButton(props: { note: Note; user: User }): JSX.Element {
     );
 }
 
-function DeleteButton(props: { note: Note; user: User }): JSX.Element {
+function DeleteNoteButton(props: { note: Note; user: User }): JSX.Element {
     return (
-        <IconButton
+        <DeleteButton
             handleClick={() => deleteNote(props.note)}
-            icon={MiniX()}
-        ></IconButton>
+        ></DeleteButton>
     );
 }
 
 function DeletePileButton(props: { pile: Pile, app: App }): JSX.Element {
     return (
-        <IconButton
+        <DeleteButton
             handleClick={() => deletePile(props.pile, props.app)}
-            icon={MiniX()}
-        ></IconButton>
+        ></DeleteButton>
+    );
+}
+
+function DeleteButton(props: {
+    handleClick: any;
+}): JSX.Element {
+    return (
+        <button
+            className={                
+                'bg-transparent hover:bg-gray-600 text-black hover:text-white font-bold px-2 py-1 rounded inline-flex items-center h-6'
+            }
+            onClick={props.handleClick}
+        >
+            {MiniX()}            
+        </button>
     );
 }
 
