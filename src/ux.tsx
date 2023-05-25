@@ -152,13 +152,12 @@ function Note(props: { note: Note; user: User }): JSX.Element {
         }),
     }));
 
-    const [, drop] = useDrop(() => ({
+    const [{ isActive }, drop] = useDrop(() => ({
         accept: 'Note',
-        collect: (monitor) => ({
-            isOver: monitor.isOver(),
-            canDrop: monitor.canDrop(),
+        collect: (monitor) => ({            
+            isActive: monitor.canDrop() && monitor.isOver()
         }),
-        drop(item) {
+        drop(item) {            
             const droppedNote: Note = item as Note;
             moveNoteBefore(droppedNote, props.note);
             return { note: props.note };
@@ -168,19 +167,22 @@ function Note(props: { note: Note; user: User }): JSX.Element {
     function attachRef(el: ConnectableElement) {
         drag(el);
         drop(el);
-    }
+    }    
 
     return (
-        <div
-            ref={attachRef}
-            style={{ opacity: isDragging ? 0.5 : 1 }}
-            className={
-                'flex flex-col bg-yellow-100 h-48 w-48 shadow-md hover:shadow-lg hover:rotate-0 p-2 ' +
-                getRotation(props.note)
-            }
-        >
-            <NoteToolbar note={props.note} user={props.user} />
-            <NoteTextArea note={props.note} user={props.user} />
+        <div ref={attachRef} className={
+            (isActive ? 'border-l-4 border-dashed border-gray-500' : 'border-l-4 border-dashed border-transparent')
+        }>
+            <div                
+                style={{ opacity: isDragging ? 0.5 : 1 }}
+                className={
+                    'transition-all flex flex-col bg-yellow-100 h-48 w-48 shadow-md hover:shadow-lg hover:rotate-0 p-2 ' +
+                    getRotation(props.note) + ' ' +  (isActive ? 'translate-x-3' : '')
+                }
+            >
+                <NoteToolbar note={props.note} user={props.user} />
+                <NoteTextArea note={props.note} user={props.user} />
+            </div>
         </div>
     );
 }
@@ -205,11 +207,10 @@ function NoteToolbar(props: { note: Note; user: User }): JSX.Element {
 }
 
 function AddNoteButton(props: { pile: Pile; user: User }): JSX.Element {
-    const [, drop] = useDrop(() => ({
+    const [{ isActive }, drop] = useDrop(() => ({
         accept: 'Note',
-        collect: (monitor) => ({
-            isOver: monitor.isOver(),
-            canDrop: monitor.canDrop(),
+        collect: (monitor) => ({            
+            isActive: monitor.canDrop() && monitor.isOver()
         }),
         drop(item) {
             const droppedNote: Note = item as Note;
@@ -227,16 +228,19 @@ function AddNoteButton(props: { pile: Pile; user: User }): JSX.Element {
     }
 
     return (
-        <div
-            ref={drop}
+        <div ref={drop} className={
+            (isActive ? 'border-l-4 border-dashed border-gray-500' : 'border-l-4 border-dashed border-transparent')
+        }>
+        <div            
             className={
-                'text-2xl place-content-center font-bold flex flex-col text-center cursor-pointer bg-transparent border-white border-dashed border-8 ' +
+                'transition-all text-2xl place-content-center font-bold flex flex-col text-center cursor-pointer bg-transparent border-white border-dashed border-8 ' +
                 size +
-                ' p-4 hover:border-black'
+                ' p-4 hover:border-black' + ' ' +  (isActive ? 'translate-x-3' : '')
             }
             onClick={() => addNote(props.pile, '', props.user)}
         >
             {buttonText}
+        </div>
         </div>
     );
     
