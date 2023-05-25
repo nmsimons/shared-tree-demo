@@ -64,14 +64,22 @@ export function hashCode(str: string): number {
     }
     return h;
 }
-export function addPile(app: App, name: string) {
+export function addPile(app: App, name: string):Pile {
     const pile = {
         id: Guid.create().toString(),
         name,
         notes: [],
     };
 
-    app.piles.insertNodes(app.piles.length, [pile]);
+    const index = app.piles.length
+
+    app.piles.insertNodes(index, [pile]);
+    return app.piles[index];
+}
+
+export function moveNoteToNewPile(note: Note, app: App, name: string) {
+    const pile = addPile(app, name);
+    moveNoteToEnd(note, pile);
 }
 
 export function deletePile(pile: Pile, app: App): boolean {

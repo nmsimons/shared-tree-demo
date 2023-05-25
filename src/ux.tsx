@@ -13,6 +13,7 @@ import {
     getRotation,
     moveNoteBefore,
     moveNoteToEnd,
+    moveNoteToNewPile,
 } from './helpers';
 import { AzureContainerServices } from '@fluidframework/azure-client';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
@@ -83,9 +84,24 @@ function Piles(props: { root: App; user: User }): JSX.Element {
 }
 
 function NewPile(props: { root: App }): JSX.Element {
+    const [{ isActive }, drop] = useDrop(() => ({
+        accept: 'Note',
+        collect: (monitor) => ({            
+            isActive: monitor.canDrop() && monitor.isOver()
+        }),
+        drop(item) {
+            const droppedNote: Note = item as Note;
+            const pile = moveNoteToNewPile(droppedNote, props.root, '[new group]');
+            return { pile: pile };
+        },
+    }));
     return (
         <div
-            className="p-2 place-content-center bg-transparent text-2xl font-bold flex flex-col text-center cursor-pointer w-32 flex-grow border-gray-300 hover:border-black border-dashed border-8"
+            ref={drop}
+            className={
+                'p-2 place-content-center bg-transparent text-2xl font-bold flex flex-col text-center cursor-pointer w-32 flex-grow hover:border-black border-dashed border-8 '
+                + (isActive ? 'border-black' : 'border-gray-300')
+            }
             onClick={() => addPile(props.root, '[new group]')}
         >
             Add Group
