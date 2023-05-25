@@ -194,7 +194,7 @@ export function useTree<TRoot>(tree: SharedTree<TRoot>): TRoot {
     React.useEffect(() => {
         // Returns the cleanup function to be invoked when the component unmounts.
         return tree[treeSym].events.on('afterBatch', () => {
-            setInvalidations(invalidations + 1);
+            setInvalidations(invalidations + Math.random());
         });
     });
 

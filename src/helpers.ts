@@ -75,8 +75,7 @@ export function addPile(app: App, name: string) {
 }
 
 export function deletePile(pile: Pile, app: App): boolean {
-    if (pile[parentField].index == 0) {return false}
-    
+    if (pile[parentField].index == 0) {return false}    
 
     if (pile.notes.length !== 0) {
         const notes = pile.notes;
