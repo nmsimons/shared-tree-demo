@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useRef, useState } from 'react';
-import { App, Pile, Note, User, boolean } from './schema';
+import React, { useEffect, useState } from 'react';
+import { App, Pile, Note, User } from './schema';
 import './output.css';
 import { SharedTree, useTree, azureUser } from './fluid';
 import {
