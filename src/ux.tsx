@@ -20,6 +20,7 @@ import { AzureContainerServices } from '@fluidframework/azure-client';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 import { IFluidContainer } from 'fluid-framework';
 import { parentField } from '@fluid-experimental/tree2';
+import { useTransition } from 'react-transition-state';
 
 export function App(props: {
     data: SharedTree<App>;
@@ -162,19 +163,23 @@ function Notes(props: { pile: Pile; user: User }): JSX.Element {
 
 function Note(props: { note: Note; user: User }): JSX.Element {
 
-    const changedTime = useRef(0);
-    const movedTime = useRef(props.note.lastChanged);
+    const changedTime = useRef(props.note.lastChanged);
+    const movedTime = useRef(props.note.lastMoved);
 
-    const hasMoved = (movedTime.current !== props.note.lastMoved);
-    const hasChanged = (changedTime.current !== props.note.lastChanged);
-     
+    const [{ status }, toggle] = useTransition({
+        timeout: 1000,
+        preEnter: true,
+    });
 
+    toggle(false);
 
-    useEffect(() => {        
+    useEffect(() => {
+        toggle(true);
         changedTime.current = props.note.lastChanged;        
     }, [props.note.lastChanged])
 
-    useEffect(() => {        
+    useEffect(() => {
+        toggle(true);            
         movedTime.current = props.note.lastMoved;        
     }, [props.note.lastMoved])
 
@@ -204,6 +209,12 @@ function Note(props: { note: Note; user: User }): JSX.Element {
     }
 
     return (
+        <div
+          className={`transition duration-500${status === "exiting"
+              ? " transform ease-out scale-110"
+              : ""
+          }`}
+        >
         <div ref={attachRef} className={
             (isActive ? 'border-l-4 border-dashed border-gray-500' : 'border-l-4 border-dashed border-transparent')
         }>
@@ -217,6 +228,7 @@ function Note(props: { note: Note; user: User }): JSX.Element {
                 <NoteToolbar note={props.note} user={props.user} />
                 <NoteTextArea note={props.note} user={props.user} />
             </div>
+        </div>
         </div>
     );
 }

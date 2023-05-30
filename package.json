@@ -18,7 +18,7 @@
         "@fluid-experimental/data-objects": "2.0.0-dev.4.4.0.162574",
         "@fluid-experimental/tree-react-api": "2.0.0-dev.4.4.0.162574",
         "@fluid-experimental/tree2": "2.0.0-dev.4.4.0.162574",
-        "@fluidframework/azure-client": "2.0.0-dev.4.4.0.162574",        
+        "@fluidframework/azure-client": "2.0.0-dev.4.4.0.162574",
         "@fluidframework/test-client-utils": "2.0.0-dev.4.4.0.162574",
         "@mdi/font": "^6.9.96",
         "@mdi/js": "^6.9.96",
@@ -34,7 +34,8 @@
         "react": "^17.0.2",
         "react-dnd": "^16.0.1",
         "react-dnd-html5-backend": "^16.0.1",
-        "react-dom": "^17.0.2"
+        "react-dom": "^17.0.2",
+        "react-transition-state": "^2.1.0"
     },
     "devDependencies": {
         "@types/debug": "^4.1.7",
