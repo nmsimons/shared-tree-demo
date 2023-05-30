@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useState } from 'react';
-import { App, Pile, Note, User } from './schema';
+import React, { useEffect, useRef, useState } from 'react';
+import { App, Pile, Note, User, boolean } from './schema';
 import './output.css';
 import { SharedTree, useTree, azureUser } from './fluid';
 import {
@@ -14,6 +14,7 @@ import {
     moveNoteBefore,
     moveNoteToEnd,
     moveNoteToNewPile,
+    updateNoteText,
 } from './helpers';
 import { AzureContainerServices } from '@fluidframework/azure-client';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
@@ -160,6 +161,23 @@ function Notes(props: { pile: Pile; user: User }): JSX.Element {
 }
 
 function Note(props: { note: Note; user: User }): JSX.Element {
+
+    const changedTime = useRef(0);
+    const movedTime = useRef(props.note.lastChanged);
+
+    const hasMoved = (movedTime.current !== props.note.lastMoved);
+    const hasChanged = (changedTime.current !== props.note.lastChanged);
+     
+
+
+    useEffect(() => {        
+        changedTime.current = props.note.lastChanged;        
+    }, [props.note.lastChanged])
+
+    useEffect(() => {        
+        movedTime.current = props.note.lastMoved;        
+    }, [props.note.lastMoved])
+
     const [{ isDragging }, drag] = useDrag(() => ({
         type: 'Note',
         item: props.note,
@@ -183,7 +201,7 @@ function Note(props: { note: Note; user: User }): JSX.Element {
     function attachRef(el: ConnectableElement) {
         drag(el);
         drop(el);
-    }    
+    }
 
     return (
         <div ref={attachRef} className={
@@ -208,7 +226,7 @@ function NoteTextArea(props: { note: Note; user: User }): JSX.Element {
         <textarea
             className="p-2 bg-transparent h-full w-full resize-none"
             value={props.note.text}
-            onChange={(event) => (props.note.text = event.target.value)}
+            onChange={(event) => (updateNoteText(props.note, event.target.value))}
         />
     );
 }
