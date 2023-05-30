@@ -163,24 +163,18 @@ function Notes(props: { pile: Pile; user: User }): JSX.Element {
 
 function Note(props: { note: Note; user: User }): JSX.Element {
 
-    const changedTime = useRef(props.note.lastChanged);
-    const movedTime = useRef(props.note.lastMoved);
-
     const [{ status }, toggle] = useTransition({
-        timeout: 1000,
-        preEnter: true,
+        timeout: 1000
     });
 
     toggle(false);
 
     useEffect(() => {
-        toggle(true);
-        changedTime.current = props.note.lastChanged;        
+        toggle(true);                
     }, [props.note.lastChanged])
 
     useEffect(() => {
-        toggle(true);            
-        movedTime.current = props.note.lastMoved;        
+        toggle(true);           
     }, [props.note.lastMoved])
 
     const [{ isDragging }, drag] = useDrag(() => ({
