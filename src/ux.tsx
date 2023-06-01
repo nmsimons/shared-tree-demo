@@ -76,7 +76,7 @@ function Piles(props: { root: App; user: User }): JSX.Element {
         );
     }
 
-    pilesArray.push(<NewPile root={props.root} />);
+    pilesArray.push(<NewPile key="newPile" root={props.root} />);
 
     return (
         <div id="piles" className="flex flex-row flex-wrap gap-4 m-4">
@@ -156,7 +156,7 @@ function Notes(props: { pile: Pile; user: User }): JSX.Element {
         notesArray.push(<Note key={n.id} note={n} user={props.user} />);
     }
 
-    notesArray.push(<AddNoteButton pile={props.pile} user={props.user} />);
+    notesArray.push(<AddNoteButton key="newNote" pile={props.pile} user={props.user} />);
 
     return <div className="flex flex-row flex-wrap gap-8 p-2">{notesArray}</div>;
 }
@@ -301,7 +301,7 @@ function LikeButton(props: { note: Note; user: User }): JSX.Element {
             handleClick={() => toggleVote(props.note, props.user)}
             icon={MiniThumb()}
         >
-            {props.note.users.length}
+            {props.note.votes.length}
         </IconButton>
     );
 }

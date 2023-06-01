@@ -15,15 +15,12 @@ export function addNote(
     text: string,
     author: { name: string; id: string }
 ) {
-
-    const date = new Date();
-    const timeStamp = date.getTime();
-
+    const timeStamp = new Date().getTime();
     const note = {
         id: Guid.create().toString(),
         text,
         author,
-        users: [],
+        votes: [],
         created: timeStamp,
         lastChanged: timeStamp,
         lastMoved: timeStamp
@@ -33,13 +30,11 @@ export function addNote(
 }
 
 export function updateNoteText(note: Note, text: string) {
-    const date = new Date();
-    note.lastChanged = date.getTime();
+    note.lastChanged = new Date().getTime();
     note.text = text;
 }
 
 export function moveNoteBefore(note: Note, beforeNote: Note) {
-    const date = new Date();
     const parent = note[parentField].parent;
     assert(isSequence(parent));
     parent.moveNodes(
@@ -48,7 +43,7 @@ export function moveNoteBefore(note: Note, beforeNote: Note) {
         beforeNote[parentField].index,
         beforeNote[parentField].parent
     );
-    note.lastMoved = date.getTime();
+    note.lastMoved = new Date().getTime();
 }
 
 function isSequence(
@@ -79,6 +74,7 @@ export function hashCode(str: string): number {
     }
     return h;
 }
+
 export function addPile(app: App, name: string):Pile {
     const pile = {
         id: Guid.create().toString(),
@@ -93,10 +89,9 @@ export function addPile(app: App, name: string):Pile {
 }
 
 export function moveNoteToNewPile(note: Note, app: App, name: string) {
-    const date = new Date();
     const pile = addPile(app, name);
     moveNoteToEnd(note, pile);
-    note.lastMoved = date.getTime();
+    note.lastMoved = new Date().getTime();
 }
 
 export function deletePile(pile: Pile, app: App): boolean {
@@ -107,7 +102,7 @@ export function deletePile(pile: Pile, app: App): boolean {
         const defaultPile = app.piles[0];
         assert(isSequence(notes));
         notes.moveNodes(0, pile.notes.length, defaultPile.notes.length, defaultPile.notes);
-        // TODO: Update lastChanged on all these nodes but ideally in a transaction         
+        // TODO: Update lastMoved on all these nodes but ideally in a transaction         
     }
 
     deleteItem(pile);
@@ -125,7 +120,6 @@ function deleteItem(item: Note | Pile | User) {
 }
 
 export function moveNoteToEnd(note: Note, destinationPile: Pile) {
-    const date = new Date();
     const parent = note[parentField].parent;
     const destinationIsParent =
         parent.parent === (destinationPile as UntypedTreeCore);
@@ -143,7 +137,7 @@ export function moveNoteToEnd(note: Note, destinationPile: Pile) {
         desinationIndex(),
         destinationPile.notes
     );
-    note.lastMoved = date.getTime();
+    note.lastMoved = new Date().getTime();
 }
 
 export function movePileBefore(pile: Pile, beforePile: Pile) {
@@ -153,7 +147,7 @@ export function movePileBefore(pile: Pile, beforePile: Pile) {
 }
 
 export function isVoter(note: Note, user: { name: string; id: string }) {
-    for (const u of note.users) {
+    for (const u of note.votes) {
         if (u.id == user.id) {
             return u;
         }
@@ -162,13 +156,12 @@ export function isVoter(note: Note, user: { name: string; id: string }) {
 }
 
 export function toggleVote(note: Note, user: { name: string; id: string }) {
-    const date = new Date();
     const voter = isVoter(note, user);
     if (voter) {
         deleteItem(voter);
-        note.lastChanged = date.getTime();
+        note.lastChanged = new Date().getTime();
     } else {
-        note.users.insertNodes(note.users.length, [user]);
-        note.lastChanged = date.getTime();
+        note.votes.insertNodes(note.votes.length, [user]);
+        note.lastChanged = new Date().getTime();
     }
 }
