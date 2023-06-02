@@ -167,7 +167,7 @@ function Note(props: { note: Note; user: User; pile: Pile }): JSX.Element {
 
     useEffect(() => {
         toggle(true);
-    }, [props.note.lastChanged])
+    }, [props.note.text])
 
     useEffect(() => {
         toggle(true);                 
@@ -234,10 +234,30 @@ function NoteTextArea(props: { note: Note; user: User }): JSX.Element {
 }
 
 function NoteToolbar(props: { note: Note; user: User, pile: Pile }): JSX.Element {
+    const [{ status }, toggle] = useTransition({
+        timeout: 1000
+    });
+
+    toggle(false);
+
+    useEffect(() => {
+        toggle(true);
+    }, [props.note.votes.length])
+
     return (
         <div className="flex justify-between">
-            <LikeButton note={props.note} user={props.user} />
-            <DeleteNoteButton note={props.note} user={props.user} pile={props.pile} />
+            <div
+                className={`transition duration-500${
+                    status === 'exiting' ? ' transform ease-out scale-110' : ''
+                }`}
+            >
+                <LikeButton note={props.note} user={props.user} />
+            </div>
+            <DeleteNoteButton
+                note={props.note}
+                user={props.user}
+                pile={props.pile}
+            />
         </div>
     );
 }
