@@ -234,25 +234,11 @@ function NoteTextArea(props: { note: Note; user: User }): JSX.Element {
 }
 
 function NoteToolbar(props: { note: Note; user: User, pile: Pile }): JSX.Element {
-    const [{ status }, toggle] = useTransition({
-        timeout: 1000
-    });
-
-    toggle(false);
-
-    useEffect(() => {
-        toggle(true);
-    }, [props.note.votes.length])
+    
 
     return (
         <div className="flex justify-between">
-            <div
-                className={`transition duration-500${
-                    status === 'exiting' ? ' transform ease-out scale-110' : ''
-                }`}
-            >
-                <LikeButton note={props.note} user={props.user} />
-            </div>
+            <LikeButton note={props.note} user={props.user} />
             <DeleteNoteButton
                 note={props.note}
                 user={props.user}
@@ -301,6 +287,17 @@ function AddNoteButton(props: { pile: Pile; user: User }): JSX.Element {
 }
 
 function LikeButton(props: { note: Note; user: User }): JSX.Element {
+
+    const [{ status }, toggle] = useTransition({
+        timeout: 1000
+    });
+
+    toggle(false);
+
+    useEffect(() => {
+        toggle(true);
+    }, [props.note.votes.length])
+
     const setColor = () => {
         if (isVoter(props.note, props.user)) {
             return 'bg-green-600';
@@ -310,13 +307,20 @@ function LikeButton(props: { note: Note; user: User }): JSX.Element {
     };
 
     return (
-        <IconButton
-            color={setColor()}
-            handleClick={() => toggleVote(props.note, props.user)}
-            icon={MiniThumb()}
-        >
-            {props.note.votes.length}
-        </IconButton>
+        <div className='relative flex'>            
+            <IconButton
+                color={setColor()}
+                handleClick={() => toggleVote(props.note, props.user)}
+                icon={MiniThumb()}
+            >
+                {props.note.votes.length}
+            </IconButton>
+            <span
+                className={`transition duration-500${
+                    status === 'exiting' ? ' animate-ping' : ''
+                } absolute inline-flex h-full w-full rounded bg-black opacity-75 -z-10`}
+            ></span>
+        </div>
     );
 }
 
