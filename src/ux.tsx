@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { App, Pile, Note, User } from './schema';
 import './output.css';
 import { SharedTree, useTree, azureUser } from './fluid';
@@ -159,6 +159,8 @@ function Notes(props: { pile: Pile; user: User }): JSX.Element {
 }
 
 function Note(props: { note: Note; user: User; pile: Pile }): JSX.Element {
+    const changedTime = useRef(0);
+
     const [{ status }, toggle] = useTransition({
         timeout: 1000
     });
@@ -166,12 +168,15 @@ function Note(props: { note: Note; user: User; pile: Pile }): JSX.Element {
     toggle(false);
 
     useEffect(() => {
-        toggle(true);
-    }, [props.note.text])
+        if (changedTime.current !== 0) {
+            toggle(true);
+        }                 
+    }, [props.note[parentField].index])
 
     useEffect(() => {
-        toggle(true);                 
-    }, [props.note[parentField].index])
+        toggle(true);
+        changedTime.current = props.note.lastChanged;                
+    }, [props.note.text])    
 
     const [{ isDragging }, drag] = useDrag(() => ({
         type: 'Note',
@@ -288,6 +293,8 @@ function AddNoteButton(props: { pile: Pile; user: User }): JSX.Element {
 
 function LikeButton(props: { note: Note; user: User }): JSX.Element {
 
+    const changedTime = useRef(0);
+
     const [{ status }, toggle] = useTransition({
         timeout: 1000
     });
@@ -295,7 +302,10 @@ function LikeButton(props: { note: Note; user: User }): JSX.Element {
     toggle(false);
 
     useEffect(() => {
-        toggle(true);
+        if (changedTime.current !== 0) {
+            toggle(true);
+        }
+        changedTime.current = props.note.lastChanged
     }, [props.note.votes.length])
 
     const setColor = () => {
