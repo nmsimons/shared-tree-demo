@@ -11,8 +11,7 @@ import {
     deletePile,
     isVoter,
     getRotation,
-    moveNote,
-    moveNoteToEnd,
+    moveNote,    
     moveNoteToNewPile,
     updateNoteText,
 } from './helpers';
@@ -261,7 +260,7 @@ function AddNoteButton(props: { pile: Pile; user: User }): JSX.Element {
         }),
         drop(item) {
             const droppedNote: { note: Note, user: User, pile: Pile } = item as { note: Note, user: User, pile: Pile };
-            moveNoteToEnd(droppedNote.note, droppedNote.pile, props.pile);
+            moveNote(droppedNote.note, droppedNote.pile, props.pile.notes.length, props.pile);
             return { pile: props.pile };
         },
     }));
