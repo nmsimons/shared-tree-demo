@@ -25,8 +25,7 @@ export const noteSchema = builder.object('demo:note', {
         author: SchemaBuilder.field(FieldKinds.value, userSchema),
         votes: SchemaBuilder.field(FieldKinds.sequence, userSchema),
         created: SchemaBuilder.field(FieldKinds.value, float64),
-        lastChanged: SchemaBuilder.field(FieldKinds.value, float64),
-        lastMoved: SchemaBuilder.field(FieldKinds.value, float64)
+        lastChanged: SchemaBuilder.field(FieldKinds.value, float64)        
     },
 });
 

@@ -3,7 +3,6 @@ import {
     FieldKinds,
     SchemaAware,
     UntypedField,
-    UntypedTreeCore,
     parentField,
 } from '@fluid-experimental/tree2';
 import { App, Note, Pile, User } from './schema';
@@ -22,8 +21,7 @@ export function addNote(
         author,
         votes: [],
         created: timeStamp,
-        lastChanged: timeStamp,
-        lastMoved: timeStamp
+        lastChanged: timeStamp        
     };
 
     pile.notes.insertNodes(pile.notes.length, [note]);
@@ -34,22 +32,13 @@ export function updateNoteText(note: Note, text: string) {
     note.text = text;
 }
 
-export function moveNoteBefore(note: Note, beforeNote: Note) {
-    const parent = note[parentField].parent;
-    assert(isSequence(parent));
-    parent.moveNodes(
+export function moveNote(note: Note, sourcePile: Pile, index: number, destinationPile: Pile) {
+    sourcePile.notes.moveNodes(
         note[parentField].index,
         1,
-        beforeNote[parentField].index,
-        beforeNote[parentField].parent
-    );
-    note.lastMoved = new Date().getTime();
-}
-
-function isSequence(
-    field: UntypedField | EditableField
-): field is SchemaAware.InternalTypes.UntypedSequenceField {
-    return field.fieldSchema.kind.identifier === FieldKinds.sequence.identifier;
+        getAdjustedIndex(note, sourcePile, index, destinationPile),
+        destinationPile.notes
+    )
 }
 
 export function getRotation(note: Note) {
@@ -88,62 +77,40 @@ export function addPile(app: App, name: string):Pile {
     return app.piles[index];
 }
 
-export function moveNoteToNewPile(note: Note, app: App, name: string) {
-    const pile = addPile(app, name);
-    moveNoteToEnd(note, pile);
-    note.lastMoved = new Date().getTime();
+export function moveNoteToNewPile(note: Note, sourcePile: Pile, app: App, name: string) {
+    const newPile = addPile(app, name);
+    moveNoteToEnd(note, sourcePile, newPile);
 }
 
 export function deletePile(pile: Pile, app: App): boolean {
-    if (pile[parentField].index == 0) {return false}    
-
-    if (pile.notes.length !== 0) {
-        const notes = pile.notes;
-        const defaultPile = app.piles[0];
-        assert(isSequence(notes));
-        notes.moveNodes(0, pile.notes.length, defaultPile.notes.length, defaultPile.notes);
-        // TODO: Update lastMoved on all these nodes but ideally in a transaction         
+    if (pile[parentField].index == 0) {return false}
+    if (pile.notes.length !== 0) {        
+        const defaultPile = app.piles[0];        
+        pile.notes.moveNodes(0, pile.notes.length, defaultPile.notes.length, defaultPile.notes);       
     }
-
-    deleteItem(pile);
+    app.piles.deleteNodes(pile[parentField].index, 1);
     return true;    
 }
 
-export function deleteNote(note: Note) {
-    deleteItem(note);
+export function deleteNote(note: Note, pile: Pile) {
+    pile.notes.deleteNodes(note[parentField].index, 1);
 }
 
-function deleteItem(item: Note | Pile | User) {
-    const parent = item[parentField].parent;
-    assert(isSequence(parent));
-    parent.deleteNodes(item[parentField].index, 1);
-}
-
-export function moveNoteToEnd(note: Note, destinationPile: Pile) {
-    const parent = note[parentField].parent;
-    const destinationIsParent =
-        parent.parent === (destinationPile as UntypedTreeCore);
-    assert(isSequence(parent));
-    const desinationIndex = () => {
-        if (destinationIsParent) {
-            return destinationPile.notes.length - 1;
-        } else {
-            return destinationPile.notes.length;
-        }
-    };
-    parent.moveNodes(
+export function moveNoteToEnd(note: Note, sourcePile: Pile, destinationPile: Pile) {    
+    sourcePile.notes.moveNodes(
         note[parentField].index,
         1,
-        desinationIndex(),
+        getAdjustedIndex(note, sourcePile, destinationPile.notes.length, destinationPile),
         destinationPile.notes
-    );
-    note.lastMoved = new Date().getTime();
+    );    
 }
 
-export function movePileBefore(pile: Pile, beforePile: Pile) {
-    const parent = pile[parentField].parent;
-    assert(isSequence(parent));
-    parent.moveNodes(pile[parentField].index, 1, beforePile[parentField].index);
+function getAdjustedIndex(note: Note, sourcePile: Pile, targetIndex: number, destinationPile: Pile): number {
+    if ((sourcePile === destinationPile) && (note[parentField].index < targetIndex)) {
+        return targetIndex - 1;
+    } else {
+        return targetIndex;
+    }
 }
 
 export function isVoter(note: Note, user: { name: string; id: string }) {
@@ -158,10 +125,14 @@ export function isVoter(note: Note, user: { name: string; id: string }) {
 export function toggleVote(note: Note, user: { name: string; id: string }) {
     const voter = isVoter(note, user);
     if (voter) {
-        deleteItem(voter);
+        deleteVote(voter, note);
         note.lastChanged = new Date().getTime();
     } else {
         note.votes.insertNodes(note.votes.length, [user]);
         note.lastChanged = new Date().getTime();
     }
+}
+
+function deleteVote(user: User, note: Note) {
+    note.votes.deleteNodes(user[parentField].index, 1);
 }
