@@ -1,12 +1,7 @@
-import {
-    EditableField,
-    FieldKinds,
-    SchemaAware,
-    UntypedField,
+import {    
     parentField,
 } from '@fluid-experimental/tree2';
 import { App, Note, Pile, User } from './schema';
-import assert from 'assert';
 import { Guid } from 'guid-typescript';
 
 export function addNote(
