@@ -673,6 +673,10 @@ video {
   height: 8rem;
 }
 
+.h-24 {
+  height: 6rem;
+}
+
 .w-32 {
   width: 8rem;
 }
@@ -716,6 +720,10 @@ video {
 
 .w-6 {
   width: 1.5rem;
+}
+
+.w-24 {
+  width: 6rem;
 }
 
 .flex-grow {
@@ -1037,6 +1045,11 @@ video {
 .text-white {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+
+.text-red-800 {
+  --tw-text-opacity: 1;
+  color: rgb(153 27 27 / var(--tw-text-opacity));
 }
 
 .opacity-75 {
