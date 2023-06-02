@@ -11,7 +11,7 @@ import {
     deletePile,
     isVoter,
     getRotation,
-    moveNote,    
+    moveNote,
     moveNoteToNewPile,
     updateNoteText,
 } from './helpers';
@@ -28,40 +28,80 @@ export function App(props: {
 }): JSX.Element {
     const root = useTree(props.data);
 
+    const [connected, setConnected] = useState(false);
+
+    useEffect(() => {
+        props.container.on('connected', () => setConnected(true));
+    }, []);
+
     const [currentUser] = useState({
         name: azureUser.userName,
         id: azureUser.userId,
     } as User);
 
-    return (
-        <div id="main" className="flex flex-col bg-white h-full w-full">
-            <Header services={props.services} container={props.container} />            
-            <Piles root={root} user={currentUser} />            
-        </div>
-    );
+    if (connected) {
+        return (
+            <div id="main" className="flex flex-col bg-white h-full w-full">
+                <Header services={props.services} container={props.container} />
+                <Piles root={root} user={currentUser} />
+            </div>
+        );
+    } else {
+        return (
+            <div className="flex h-full w-full justify-center mt-32">
+                <div
+                    className="absolute h-32 w-32 animate-ping rounded-full border-8 border-solid border-blue-800 bg-blue-800"
+                    role="status"
+                ></div>
+                <div
+                    className="absolute h-32 w-32 animate-pulse rounded-full bg-blue-800 text-white"
+                    role="status"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className="absolute h-32 w-32"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
+                        />
+                    </svg>
+                </div>
+            </div>
+        );
+    }
 }
 
 function Header(props: {
-    services: AzureContainerServices,
-    container: IFluidContainer
+    services: AzureContainerServices;
+    container: IFluidContainer;
 }): JSX.Element {
-    const [fluidMembers, setFluidMembers] = useState(props.services.audience.getMembers());
-    
+    const [fluidMembers, setFluidMembers] = useState(
+        props.services.audience.getMembers()
+    );
+
     useEffect(() => {
         const updateMembers = () => {
-            setFluidMembers(props.services.audience.getMembers());           
-        }
+            setFluidMembers(props.services.audience.getMembers());
+        };
         updateMembers();
-        props.services.audience.on("membersChanged", updateMembers);
-        return () => { props.services.audience.off("membersChanged", updateMembers) };
+        props.services.audience.on('membersChanged', updateMembers);
+        return () => {
+            props.services.audience.off('membersChanged', updateMembers);
+        };
     }, []);
 
     return (
         <div className="flex flex-row justify-between bg-black h-10 text-base m-1 text-white">
             <div className="m-2">shared-tree-demo</div>
-            <div className="m-2">Users: {fluidMembers.size}</div>           
+            <div className="m-2">Users: {fluidMembers.size}</div>
         </div>
-    )
+    );
 }
 
 function Piles(props: { root: App; user: User }): JSX.Element {
@@ -84,12 +124,21 @@ function Piles(props: { root: App; user: User }): JSX.Element {
 function NewPile(props: { root: App }): JSX.Element {
     const [{ isActive }, drop] = useDrop(() => ({
         accept: 'Note',
-        collect: (monitor) => ({            
-            isActive: monitor.canDrop() && monitor.isOver()
+        collect: (monitor) => ({
+            isActive: monitor.canDrop() && monitor.isOver(),
         }),
         drop(item) {
-            const droppedNote: { note: Note, user: User, pile: Pile } = item as { note: Note, user: User, pile: Pile };
-            const pile = moveNoteToNewPile(droppedNote.note, droppedNote.pile, props.root, '[new group]');
+            const droppedNote: { note: Note; user: User; pile: Pile } = item as {
+                note: Note;
+                user: User;
+                pile: Pile;
+            };
+            const pile = moveNoteToNewPile(
+                droppedNote.note,
+                droppedNote.pile,
+                props.root,
+                '[new group]'
+            );
             return { pile: pile };
         },
     }));
@@ -97,8 +146,8 @@ function NewPile(props: { root: App }): JSX.Element {
         <div
             ref={drop}
             className={
-                'p-2 place-content-center bg-transparent text-2xl font-bold flex flex-col text-center cursor-pointer w-32 flex-grow hover:border-black border-dashed border-8 '
-                + (isActive ? 'border-black' : 'border-gray-300')
+                'p-2 place-content-center bg-transparent text-2xl font-bold flex flex-col text-center cursor-pointer w-32 flex-grow hover:border-black border-dashed border-8 ' +
+                (isActive ? 'border-black' : 'border-gray-300')
             }
             onClick={() => addPile(props.root, '[new group]')}
         >
@@ -107,7 +156,7 @@ function NewPile(props: { root: App }): JSX.Element {
     );
 }
 
-function Pile(props: { pile: Pile, user: User, app: App }): JSX.Element {
+function Pile(props: { pile: Pile; user: User; app: App }): JSX.Element {
     return (
         <div className="p-2 bg-gray-200">
             <PileToolbar pile={props.pile} app={props.app} />
@@ -127,7 +176,7 @@ function PileName(props: { pile: Pile }): JSX.Element {
     );
 }
 
-function PileToolbar(props: { pile: Pile, app: App }): JSX.Element {
+function PileToolbar(props: { pile: Pile; app: App }): JSX.Element {
     if (props.pile[parentField].index !== 0) {
         return (
             <div className="flex justify-between">
@@ -149,10 +198,14 @@ function Notes(props: { pile: Pile; user: User }): JSX.Element {
 
     const notesArray = [];
     for (const n of notes) {
-        notesArray.push(<Note key={n.id} note={n} user={props.user} pile={props.pile} />);
+        notesArray.push(
+            <Note key={n.id} note={n} user={props.user} pile={props.pile} />
+        );
     }
 
-    notesArray.push(<AddNoteButton key="newNote" pile={props.pile} user={props.user} />);
+    notesArray.push(
+        <AddNoteButton key="newNote" pile={props.pile} user={props.user} />
+    );
 
     return <div className="flex flex-row flex-wrap gap-8 p-2">{notesArray}</div>;
 }
@@ -161,27 +214,27 @@ function Note(props: { note: Note; user: User; pile: Pile }): JSX.Element {
     const mounted = useRef(false);
 
     const [{ status }, toggle] = useTransition({
-        timeout: 1000
+        timeout: 1000,
     });
 
     toggle(false);
 
-    useEffect(() => {        
-        toggle(true);                         
-    }, [props.note[parentField].index])
+    useEffect(() => {
+        toggle(true);
+    }, [props.note[parentField].index]);
 
     useEffect(() => {
         if (mounted.current) {
             toggle(true);
-        }               
-    }, [props.note.text])
+        }
+    }, [props.note.text]);
 
     useEffect(() => {
         mounted.current = true;
         return () => {
             mounted.current = false;
         };
-    }, [])
+    }, []);
 
     const [{ isDragging }, drag] = useDrag(() => ({
         type: 'Note',
@@ -193,12 +246,21 @@ function Note(props: { note: Note; user: User; pile: Pile }): JSX.Element {
 
     const [{ isActive }, drop] = useDrop(() => ({
         accept: 'Note',
-        collect: (monitor) => ({            
-            isActive: monitor.canDrop() && monitor.isOver()
+        collect: (monitor) => ({
+            isActive: monitor.canDrop() && monitor.isOver(),
         }),
-        drop(item) {            
-            const droppedNote: { note: Note, user: User, pile: Pile } = item as { note: Note, user: User, pile: Pile };
-            moveNote(droppedNote.note, droppedNote.pile, props.note[parentField].index, props.pile);            
+        drop(item) {
+            const droppedNote: { note: Note; user: User; pile: Pile } = item as {
+                note: Note;
+                user: User;
+                pile: Pile;
+            };
+            moveNote(
+                droppedNote.note,
+                droppedNote.pile,
+                props.note[parentField].index,
+                props.pile
+            );
             return { note: props.note };
         },
     }));
@@ -210,25 +272,35 @@ function Note(props: { note: Note; user: User; pile: Pile }): JSX.Element {
 
     return (
         <div
-          className={`transition duration-500${status === "exiting"
-              ? " transform ease-out scale-110"
-              : ""
-          }`}
+            className={`transition duration-500${
+                status === 'exiting' ? ' transform ease-out scale-110' : ''
+            }`}
         >
-        <div ref={attachRef} className={
-            (isActive ? 'border-l-4 border-dashed border-gray-500' : 'border-l-4 border-dashed border-transparent')
-        }>
-            <div                
-                style={{ opacity: isDragging ? 0.5 : 1 }}
+            <div
+                ref={attachRef}
                 className={
-                    'transition-all flex flex-col bg-yellow-100 h-48 w-48 shadow-md hover:shadow-lg hover:rotate-0 p-2 ' +
-                    getRotation(props.note) + ' ' +  (isActive ? 'translate-x-3' : '')
+                    isActive
+                        ? 'border-l-4 border-dashed border-gray-500'
+                        : 'border-l-4 border-dashed border-transparent'
                 }
             >
-                <NoteToolbar note={props.note} user={props.user} pile={props.pile} />
-                <NoteTextArea note={props.note} user={props.user} />
+                <div
+                    style={{ opacity: isDragging ? 0.5 : 1 }}
+                    className={
+                        'transition-all flex flex-col bg-yellow-100 h-48 w-48 shadow-md hover:shadow-lg hover:rotate-0 p-2 ' +
+                        getRotation(props.note) +
+                        ' ' +
+                        (isActive ? 'translate-x-3' : '')
+                    }
+                >
+                    <NoteToolbar
+                        note={props.note}
+                        user={props.user}
+                        pile={props.pile}
+                    />
+                    <NoteTextArea note={props.note} user={props.user} />
+                </div>
             </div>
-        </div>
         </div>
     );
 }
@@ -238,13 +310,12 @@ function NoteTextArea(props: { note: Note; user: User }): JSX.Element {
         <textarea
             className="p-2 bg-transparent h-full w-full resize-none"
             value={props.note.text}
-            onChange={(event) => (updateNoteText(props.note, event.target.value))}
+            onChange={(event) => updateNoteText(props.note, event.target.value)}
         />
     );
 }
 
-function NoteToolbar(props: { note: Note; user: User, pile: Pile }): JSX.Element {   
-
+function NoteToolbar(props: { note: Note; user: User; pile: Pile }): JSX.Element {
     return (
         <div className="flex justify-between">
             <LikeButton note={props.note} user={props.user} />
@@ -260,17 +331,26 @@ function NoteToolbar(props: { note: Note; user: User, pile: Pile }): JSX.Element
 function AddNoteButton(props: { pile: Pile; user: User }): JSX.Element {
     const [{ isActive }, drop] = useDrop(() => ({
         accept: 'Note',
-        collect: (monitor) => ({            
-            isActive: monitor.canDrop() && monitor.isOver()
+        collect: (monitor) => ({
+            isActive: monitor.canDrop() && monitor.isOver(),
         }),
         drop(item) {
-            const droppedNote: { note: Note, user: User, pile: Pile } = item as { note: Note, user: User, pile: Pile };
-            moveNote(droppedNote.note, droppedNote.pile, props.pile.notes.length, props.pile);
+            const droppedNote: { note: Note; user: User; pile: Pile } = item as {
+                note: Note;
+                user: User;
+                pile: Pile;
+            };
+            moveNote(
+                droppedNote.note,
+                droppedNote.pile,
+                props.pile.notes.length,
+                props.pile
+            );
             return { pile: props.pile };
         },
     }));
 
-    let size = "h-48 w-48";
+    let size = 'h-48 w-48';
     let buttonText = 'Add Note';
     if (props.pile.notes.length > 0) {
         buttonText = '+';
@@ -278,29 +358,35 @@ function AddNoteButton(props: { pile: Pile; user: User }): JSX.Element {
     }
 
     return (
-        <div ref={drop} className={
-            (isActive ? 'border-l-4 border-dashed border-gray-500' : 'border-l-4 border-dashed border-transparent')
-        }>
-        <div            
+        <div
+            ref={drop}
             className={
-                'transition-all text-2xl place-content-center font-bold flex flex-col text-center cursor-pointer bg-transparent border-white border-dashed border-8 ' +
-                size +
-                ' p-4 hover:border-black' + ' ' +  (isActive ? 'translate-x-3' : '')
+                isActive
+                    ? 'border-l-4 border-dashed border-gray-500'
+                    : 'border-l-4 border-dashed border-transparent'
             }
-            onClick={() => addNote(props.pile, '', props.user)}
         >
-            {buttonText}
+            <div
+                className={
+                    'transition-all text-2xl place-content-center font-bold flex flex-col text-center cursor-pointer bg-transparent border-white border-dashed border-8 ' +
+                    size +
+                    ' p-4 hover:border-black' +
+                    ' ' +
+                    (isActive ? 'translate-x-3' : '')
+                }
+                onClick={() => addNote(props.pile, '', props.user)}
+            >
+                {buttonText}
+            </div>
         </div>
-        </div>
-    );    
+    );
 }
 
 function LikeButton(props: { note: Note; user: User }): JSX.Element {
-
     const mounted = useRef(false);
 
     const [{ status }, toggle] = useTransition({
-        timeout: 800
+        timeout: 800,
     });
 
     toggle(false);
@@ -308,15 +394,15 @@ function LikeButton(props: { note: Note; user: User }): JSX.Element {
     useEffect(() => {
         if (mounted.current) {
             toggle(true);
-        }        
-    }, [props.note.votes.length])
+        }
+    }, [props.note.votes.length]);
 
     useEffect(() => {
         mounted.current = true;
         return () => {
             mounted.current = false;
         };
-    }, [])
+    }, []);
 
     const setColor = () => {
         if (isVoter(props.note, props.user)) {
@@ -327,7 +413,7 @@ function LikeButton(props: { note: Note; user: User }): JSX.Element {
     };
 
     return (
-        <div className='relative flex'>            
+        <div className="relative flex">
             <IconButton
                 color={setColor()}
                 handleClick={() => toggleVote(props.note, props.user)}
@@ -344,7 +430,11 @@ function LikeButton(props: { note: Note; user: User }): JSX.Element {
     );
 }
 
-function DeleteNoteButton(props: { note: Note; user: User, pile: Pile }): JSX.Element {
+function DeleteNoteButton(props: {
+    note: Note;
+    user: User;
+    pile: Pile;
+}): JSX.Element {
     return (
         <DeleteButton
             handleClick={() => deleteNote(props.note, props.pile)}
@@ -352,7 +442,7 @@ function DeleteNoteButton(props: { note: Note; user: User, pile: Pile }): JSX.El
     );
 }
 
-function DeletePileButton(props: { pile: Pile, app: App }): JSX.Element {
+function DeletePileButton(props: { pile: Pile; app: App }): JSX.Element {
     return (
         <DeleteButton
             handleClick={() => deletePile(props.pile, props.app)}
@@ -360,17 +450,15 @@ function DeletePileButton(props: { pile: Pile, app: App }): JSX.Element {
     );
 }
 
-function DeleteButton(props: {
-    handleClick: any;
-}): JSX.Element {
+function DeleteButton(props: { handleClick: any }): JSX.Element {
     return (
         <button
-            className={                
+            className={
                 'bg-transparent hover:bg-gray-600 text-black hover:text-white font-bold px-2 py-1 rounded inline-flex items-center h-6'
             }
             onClick={props.handleClick}
         >
-            {MiniX()}            
+            {MiniX()}
         </button>
     );
 }
