@@ -159,7 +159,7 @@ function Notes(props: { pile: Pile; user: User }): JSX.Element {
 }
 
 function Note(props: { note: Note; user: User; pile: Pile }): JSX.Element {
-    const changedTime = useRef(0);
+    const loaded = useRef(false);
 
     const [{ status }, toggle] = useTransition({
         timeout: 1000
@@ -167,15 +167,15 @@ function Note(props: { note: Note; user: User; pile: Pile }): JSX.Element {
 
     toggle(false);
 
-    useEffect(() => {
-        if (changedTime.current !== 0) {
-            toggle(true);
-        }                 
+    useEffect(() => {        
+        toggle(true);                         
     }, [props.note[parentField].index])
 
     useEffect(() => {
-        toggle(true);
-        changedTime.current = props.note.lastChanged;                
+        if (loaded.current) {
+            toggle(true);
+        }    
+        loaded.current = true;                
     }, [props.note.text])    
 
     const [{ isDragging }, drag] = useDrag(() => ({
@@ -293,19 +293,19 @@ function AddNoteButton(props: { pile: Pile; user: User }): JSX.Element {
 
 function LikeButton(props: { note: Note; user: User }): JSX.Element {
 
-    const changedTime = useRef(0);
+    const loaded = useRef(false);
 
     const [{ status }, toggle] = useTransition({
-        timeout: 1000
+        timeout: 800
     });
 
     toggle(false);
 
     useEffect(() => {
-        if (changedTime.current !== 0) {
+        if (loaded.current) {
             toggle(true);
         }
-        changedTime.current = props.note.lastChanged
+        loaded.current = true;
     }, [props.note.votes.length])
 
     const setColor = () => {
