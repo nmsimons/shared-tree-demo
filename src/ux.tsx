@@ -158,7 +158,7 @@ function Notes(props: { pile: Pile; user: User }): JSX.Element {
 }
 
 function Note(props: { note: Note; user: User; pile: Pile }): JSX.Element {
-    const loaded = useRef(false);
+    const mounted = useRef(false);
 
     const [{ status }, toggle] = useTransition({
         timeout: 1000
@@ -171,11 +171,17 @@ function Note(props: { note: Note; user: User; pile: Pile }): JSX.Element {
     }, [props.note[parentField].index])
 
     useEffect(() => {
-        if (loaded.current) {
+        if (mounted.current) {
             toggle(true);
-        }    
-        loaded.current = true;                
-    }, [props.note.text])    
+        }               
+    }, [props.note.text])
+
+    useEffect(() => {
+        mounted.current = true;
+        return () => {
+            mounted.current = false;
+        };
+    }, [])
 
     const [{ isDragging }, drag] = useDrag(() => ({
         type: 'Note',
@@ -237,8 +243,7 @@ function NoteTextArea(props: { note: Note; user: User }): JSX.Element {
     );
 }
 
-function NoteToolbar(props: { note: Note; user: User, pile: Pile }): JSX.Element {
-    
+function NoteToolbar(props: { note: Note; user: User, pile: Pile }): JSX.Element {   
 
     return (
         <div className="flex justify-between">
@@ -292,7 +297,7 @@ function AddNoteButton(props: { pile: Pile; user: User }): JSX.Element {
 
 function LikeButton(props: { note: Note; user: User }): JSX.Element {
 
-    const loaded = useRef(false);
+    const mounted = useRef(false);
 
     const [{ status }, toggle] = useTransition({
         timeout: 800
@@ -301,11 +306,17 @@ function LikeButton(props: { note: Note; user: User }): JSX.Element {
     toggle(false);
 
     useEffect(() => {
-        if (loaded.current) {
+        if (mounted.current) {
             toggle(true);
-        }
-        loaded.current = true;
+        }        
     }, [props.note.votes.length])
+
+    useEffect(() => {
+        mounted.current = true;
+        return () => {
+            mounted.current = false;
+        };
+    }, [])
 
     const setColor = () => {
         if (isVoter(props.note, props.user)) {
