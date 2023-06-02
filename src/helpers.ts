@@ -28,6 +28,9 @@ export function updateNoteText(note: Note, text: string) {
 }
 
 export function moveNote(note: Note, sourcePile: Pile, index: number, destinationPile: Pile) {
+
+    if (sourcePile.notes[note[parentField].index] !== note) return;
+
     sourcePile.notes.moveNodes(
         note[parentField].index,
         1,
@@ -92,12 +95,7 @@ export function deleteNote(note: Note, pile: Pile) {
 }
 
 export function moveNoteToEnd(note: Note, sourcePile: Pile, destinationPile: Pile) {    
-    sourcePile.notes.moveNodes(
-        note[parentField].index,
-        1,
-        getAdjustedIndex(note, sourcePile, destinationPile.notes.length, destinationPile),
-        destinationPile.notes
-    );    
+    moveNote(note, sourcePile, destinationPile.notes.length, destinationPile);
 }
 
 function getAdjustedIndex(note: Note, sourcePile: Pile, targetIndex: number, destinationPile: Pile): number {
