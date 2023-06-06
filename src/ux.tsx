@@ -17,7 +17,7 @@ import {
 } from './helpers';
 import { AzureContainerServices } from '@fluidframework/azure-client';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
-import { IFluidContainer } from 'fluid-framework';
+import { ConnectionState, IFluidContainer } from 'fluid-framework';
 import { parentField } from '@fluid-experimental/tree2';
 import { useTransition } from 'react-transition-state';
 
@@ -29,9 +29,13 @@ export function App(props: {
     const root = useTree(props.data);
 
     const [connected, setConnected] = useState(false);
+    const [saved, setSaved] = useState(false);
 
     useEffect(() => {
         props.container.on('connected', () => setConnected(true));
+        props.container.on('disconnected', () => setConnected(false));
+        props.container.on('dirty', () => setSaved(false));
+        props.container.on('saved', () => setSaved(true));
     }, []);
 
     const [currentUser] = useState({
@@ -48,27 +52,40 @@ export function App(props: {
         );
     } else {
         return (
-            <div className="flex h-full w-full justify-center mt-32">
-                <div
-                    className="absolute h-32 w-32 animate-ping rounded-full border-8 border-solid border-black bg-black"
-                    role="status"
-                ></div>
-                <div
-                    className="flex justify-center h-32 w-32 animate-pulse rounded-full bg-black text-red-800 border-8 border-solid border-black"
-                    role="status"
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        className="absolute w-32 h-32"
-                    >
-                        <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
-                    </svg>
-                </div>
+            <div id="main" className="flex flex-col bg-white h-full w-full">
+                <Header services={props.services} container={props.container} />
+                <div>{(props.container.connectionState === ConnectionState.Disconnected) ? <ReconnectButton container={props.container} /> : ""}</div>                
             </div>
         );
     }
+}
+
+function ReconnectButton(props: {
+    container: IFluidContainer;
+}): JSX.Element {
+    return (
+        <div className="flex h-full w-full content-center justify-center text-center mt-32">
+            <button
+                className="flex h-32 w-32 rounded-full bg-black text-white content-center border-8 border-black p-1 hover:animate-pulse"
+                onClick={props.container.connect}
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2.5}
+                    stroke="currentColor"
+                    className="w-full h-full"
+                >
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
+                    />
+                </svg>
+            </button>
+        </div>
+    );
 }
 
 function Header(props: {
@@ -79,6 +96,25 @@ function Header(props: {
         props.services.audience.getMembers()
     );
 
+    const [connectionState, setConnectionState] = useState("");
+    const [saved, setSaved] = useState(false);
+
+    useEffect(() => {
+        if (props.container.connectionState === ConnectionState.Connected) {
+            setConnectionState("connected");
+        } else if (props.container.connectionState === ConnectionState.Disconnected) {
+            setConnectionState("disconnected");
+        } else if (props.container.connectionState === ConnectionState.EstablishingConnection) {
+            setConnectionState("connecting");
+        } else if (props.container.connectionState === ConnectionState.CatchingUp) {
+            setConnectionState("catching up");
+        }        
+    }, [props.container.connectionState])
+
+    useEffect(() => {
+        setSaved(!props.container.isDirty);
+    }, [props.container.isDirty])
+
     useEffect(() => {
         const updateMembers = () => {
             setFluidMembers(props.services.audience.getMembers());
@@ -88,12 +124,12 @@ function Header(props: {
         return () => {
             props.services.audience.off('membersChanged', updateMembers);
         };
-    }, []);
+    }, []);    
 
     return (
         <div className="flex flex-row justify-between bg-black h-10 text-base m-1 text-white">
-            <div className="m-2">shared-tree-demo</div>
-            <div className="m-2">Users: {fluidMembers.size}</div>
+            <div className="m-2">shared-tree-demo</div>            
+            <div className="m-2">{saved ? "saved" : "not saved"} | {connectionState} | users: {fluidMembers.size}</div>
         </div>
     );
 }
