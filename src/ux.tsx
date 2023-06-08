@@ -28,62 +28,15 @@ export function App(props: {
 }): JSX.Element {
     const root = useTree(props.data);
 
-    const [connected, setConnected] = useState(false);
-    const [saved, setSaved] = useState(false);
-
-    useEffect(() => {
-        props.container.on('connected', () => setConnected(true));
-        props.container.on('disconnected', () => setConnected(false));
-        props.container.on('dirty', () => setSaved(false));
-        props.container.on('saved', () => setSaved(true));
-    }, []);
-
     const [currentUser] = useState({
         name: azureUser.userName,
         id: azureUser.userId,
     } as User);
 
-    if (connected) {
-        return (
-            <div id="main" className="flex flex-col bg-white h-full w-full">
-                <Header services={props.services} container={props.container} />
-                <Piles root={root} user={currentUser} />
-            </div>
-        );
-    } else {
-        return (
-            <div id="main" className="flex flex-col bg-white h-full w-full">
-                <Header services={props.services} container={props.container} />
-                <div>{(props.container.connectionState === ConnectionState.Disconnected) ? <ReconnectButton container={props.container} /> : ""}</div>                
-            </div>
-        );
-    }
-}
-
-function ReconnectButton(props: {
-    container: IFluidContainer;
-}): JSX.Element {
     return (
-        <div className="flex h-full w-full content-center justify-center text-center mt-32">
-            <button
-                className="flex h-32 w-32 rounded-full bg-black text-white content-center border-8 border-black p-1 hover:animate-pulse"
-                onClick={props.container.connect}
-            >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2.5}
-                    stroke="currentColor"
-                    className="w-full h-full"
-                >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
-                    />
-                </svg>
-            </button>
+        <div id="main" className="flex flex-col bg-white h-full w-full">
+            <Header services={props.services} container={props.container} />
+            <Piles root={root} user={currentUser} />
         </div>
     );
 }
@@ -93,35 +46,39 @@ function Header(props: {
     container: IFluidContainer;
 }): JSX.Element {
     const [fluidMembers, setFluidMembers] = useState(
-        props.services.audience.getMembers()
+        props.services.audience.getMembers().size
     );
 
     const [connectionState, setConnectionState] = useState("");
-    const [saved, setSaved] = useState(false);
-
+    const [saved, setSaved] = useState(!props.container.isDirty);
+    
     useEffect(() => {
-        if (props.container.connectionState === ConnectionState.Connected) {
-            setConnectionState("connected");
-        } else if (props.container.connectionState === ConnectionState.Disconnected) {
-            setConnectionState("disconnected");
-        } else if (props.container.connectionState === ConnectionState.EstablishingConnection) {
-            setConnectionState("connecting");
-        } else if (props.container.connectionState === ConnectionState.CatchingUp) {
-            setConnectionState("catching up");
-        }        
-    }, [props.container.connectionState])
-
-    useEffect(() => {
-        setSaved(!props.container.isDirty);
-    }, [props.container.isDirty])
+        const updateConnectionState = () => {
+            if (props.container.connectionState === ConnectionState.Connected) {
+                setConnectionState("connected");
+            } else if (props.container.connectionState === ConnectionState.Disconnected) {
+                setConnectionState("disconnected");
+            } else if (props.container.connectionState === ConnectionState.EstablishingConnection) {
+                setConnectionState("connecting");
+            } else if (props.container.connectionState === ConnectionState.CatchingUp) {
+                setConnectionState("catching up");
+            }        
+        };
+        updateConnectionState();
+        props.container.on('connected', updateConnectionState);
+        props.container.on('disconnected', updateConnectionState);
+        props.container.on('dirty', () => setSaved(false));
+        props.container.on('saved', () => setSaved(true));
+        props.container.on('disposed', updateConnectionState);        
+    }, []);       
 
     useEffect(() => {
         const updateMembers = () => {
-            setFluidMembers(props.services.audience.getMembers());
+            setFluidMembers(props.services.audience.getMembers().size);            
         };
         updateMembers();
         props.services.audience.on('membersChanged', updateMembers);
-        return () => {
+        return () => {            
             props.services.audience.off('membersChanged', updateMembers);
         };
     }, []);    
@@ -129,7 +86,7 @@ function Header(props: {
     return (
         <div className="flex flex-row justify-between bg-black h-10 text-base m-1 text-white">
             <div className="m-2">shared-tree-demo</div>            
-            <div className="m-2">{saved ? "saved" : "not saved"} | {connectionState} | users: {fluidMembers.size}</div>
+            <div className="m-2">{saved ? "saved" : "not saved"} | {connectionState} | users: {fluidMembers}</div>
         </div>
     );
 }

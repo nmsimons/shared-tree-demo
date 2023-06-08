@@ -28,7 +28,6 @@ export function updateNoteText(note: Note, text: string) {
 }
 
 export function moveNote(note: Note, sourcePile: Pile, index: number, destinationPile: Pile) {
-
     // need to test that sourcePile and destinationPile haven't been deleted
     if (sourcePile.notes[note[parentField].index] !== note) return;
 
