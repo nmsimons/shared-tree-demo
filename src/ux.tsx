@@ -26,6 +26,10 @@ export function App(props: {
     services: AzureContainerServices;
     container: IFluidContainer;
 }): JSX.Element {
+
+    // Passes the SharedTree into the custom hook and returns
+    // the root of the tree. This data can be used to populate the UI and
+    // it will update automatically anytime the tree changes.
     const root = useTree(props.data);
 
     const [currentUser] = useState({

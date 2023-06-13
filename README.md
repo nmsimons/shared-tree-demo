@@ -15,15 +15,15 @@ One thing of particular interest is the inclusion of the useTree React hook in f
 
 ## Schema Definition
 
-TODO
+The SharedTree schema is defined in the schema.ts source file. This schema is passed into the SharedTree when it is initialized in index.tsx. For more details, see the schema.ts comments.
 
 ## Working with Data
 
-TODO
+Working with data in the SharedTree is very simple; however, working with distributed data is always a little more complicated than working with local data. To isolate this complexity, this app uses a set of helper functions in the helpers.ts source file that take types defined in the schema as input and modify the data in some way. Each function includes a brief description of how it works.
 
 ## User Interface
 
-TODO
+This app is built using React. It uses a custom hook to fetch the data from the SharedTree and automatically keep it up to date. Changes to the data are handled using the helper functions mentioned above. If you look at the code in ux.tsx, you'll find very little code that is unique to an app built with the Fluid Framework.
 
 ## Building and Running
 
@@ -33,7 +33,7 @@ You can use the following npm scripts (`npm run SCRIPT-NAME`) to build and run t
 | Script | Description |
 |--------|-------------|
 | `build` | `npm run format && npm run docs && npm run compile && npm run pack` |
-| `compile` | Compile the TyppeScript source code to JavaScript. |
+| `compile` | Compile the TypeScript source code to JavaScript. |
 | `dev` | Runs the app in webpack-dev-server. Expects local-azure-service running on port 7070. |
 | `dev:azure` | Runs the app in webpack-dev-server using the Azure Fluid Relay config. |
 | `docs` | Update documentation. |
