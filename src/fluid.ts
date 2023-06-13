@@ -201,6 +201,9 @@ export const loadFluidData = async <TRoot extends GlobalFieldSchema>(
 
 const treeSym = Symbol();
 
+// The useTree React hook makes building the user interface very
+// intuitive as it allows the developer to use typed tree data to build the UI
+// and it ensures that any changes trigger an update to the React app.
 export function useTree<TRoot>(tree: SharedTree<TRoot>): TRoot {
     // This proof-of-concept implementation allocates a state variable this is modified
     // when the tree changes to trigger re-render.

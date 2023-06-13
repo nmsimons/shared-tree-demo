@@ -5,11 +5,11 @@ import {
     ValueSchema,
 } from '@fluid-experimental/tree2';
 
-const builder = new SchemaBuilder('Demo App');
+// Include a UUID to guarantee that this schema will be unique
+const builder = new SchemaBuilder('fc1db2e8-0a00-11ee-be56-0242ac120002');
 
 export const float64 = builder.primitive('number', ValueSchema.Number);
 export const string = builder.primitive('string', ValueSchema.String);
-export const boolean = builder.primitive('boolean', ValueSchema.Boolean);
 
 export const userSchema = builder.object('demo:user', {
     local: {

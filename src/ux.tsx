@@ -293,6 +293,14 @@ function Note(props: { note: Note; user: User; pile: Pile }): JSX.Element {
 }
 
 function NoteTextArea(props: { note: Note; user: User }): JSX.Element {
+
+    // The text field updates the Fluid data model on every keystroke in this demo.
+    // This works well with small strings but doesn't scale to very large strings.
+    // A Future iteration of SharedTree will include support for collaborative strings
+    // that make real-time collaboration on this type of data efficient and simple.
+    // If you need real-time typing before this happens, you can use the SharedString
+    // data structure and embed that in a SharedTree using a Fluid Handle.
+
     return (
         <textarea
             className="p-2 bg-transparent h-full w-full resize-none"

@@ -29,6 +29,9 @@ export function updateNoteText(note: Note, text: string) {
 
 export function moveNote(note: Note, sourcePile: Pile, index: number, destinationPile: Pile) {
     // need to test that sourcePile and destinationPile haven't been deleted
+    // because the move may have been initiated through a drag and drop which
+    // is asynchronous - the state may have changed during the drag but this function
+    // is operating based on the state at the moment the drag began
     if (sourcePile.notes[note[parentField].index] !== note) return;
 
     sourcePile.notes.moveNodes(
@@ -72,6 +75,10 @@ export function deleteNote(note: Note, pile: Pile) {
     pile.notes.deleteNodes(note[parentField].index, 1);
 }
 
+// This function accounts for an issue where the target index of a move will vary
+// depending on whether the node is moved within a sequence vs. to another
+// sequence and whether the node is before the target index in the sequence.
+// This is awkward and will be fixed in a future iteration of the API.
 function getAdjustedIndex(note: Note, sourcePile: Pile, targetIndex: number, destinationPile: Pile): number {
     if ((sourcePile === destinationPile) && (note[parentField].index < targetIndex)) {
         return targetIndex - 1;
