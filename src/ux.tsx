@@ -157,12 +157,17 @@ function Pile(props: { pile: Pile; user: User; app: App }): JSX.Element {
 }
 
 function PileName(props: { pile: Pile }): JSX.Element {
+    const repeat = () => {
+        setInterval(() => {
+            props.pile.name = '42';
+        }, 200);
+    };
     return (
         <input
             className="block mb-2 w-40 text-lg font-bold text-black bg-transparent"
             type="text"
             value={props.pile.name}
-            onChange={(event) => (props.pile.name = event.target.value)}
+            onChange={repeat}
         />
     );
 }
