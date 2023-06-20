@@ -212,8 +212,9 @@ export function useTree<TRoot>(tree: SharedTree<TRoot>): TRoot {
     // Register for tree deltas when the component mounts
     React.useEffect(() => {
         // Returns the cleanup function to be invoked when the component unmounts.
-        return tree[treeSym].events.on('afterBatch', () => {
-            setTimeout(() => setInvalidations(invalidations + Math.random()), 200);
+        return tree[treeSym].events.on('afterBatch', async () => {
+            await delay(1000);
+            setInvalidations(invalidations + Math.random());
         });
     });
 
@@ -226,4 +227,8 @@ export class SharedTree<T> {
     public get [treeSym]() {
         return this.tree;
     }
+}
+
+function delay(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
 }
