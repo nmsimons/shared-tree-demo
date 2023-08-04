@@ -11,7 +11,12 @@ module.exports = {
     entry: './src/index.tsx',
     // Necessary in order to use source maps and debug directly TypeScript files
     devtool: 'source-map',
-    module: {
+    mode: 'production',
+    performance: {
+        maxAssetSize: 1500000,
+        maxEntrypointSize: 1500000,
+    },
+    module: {        
         rules: [
             // Necessary in order to use TypeScript
             {
@@ -25,18 +30,28 @@ module.exports = {
                     // { loader: 'style-loader' },
                     MiniCssExtractPlugin.loader,
                     {
-                        loader: 'css-loader'
+                        loader: 'css-loader',
                     },
                     {
                         loader: 'sass-loader',
                         options: {
                             sourceMap: true,
                             // options...
-                        }
-                    }
-                ]
+                        },
+                    },
+                ],
             },
-            { test: /\.css$/, loader: "style-loader!css-loader" }
+            {
+                test: /\.css$/,
+                use: [
+                    {
+                        loader: 'style-loader',
+                    },
+                    {
+                        loader: 'css-loader',
+                    },
+                ],
+            },
         ],
     },
     resolve: {
@@ -63,18 +78,15 @@ module.exports = {
         }),
         // Extract CSS to separate file
         new MiniCssExtractPlugin({
-            filename: 'css/mystyles.css'
+            filename: 'css/mystyles.css',
         }),
         // Do not accumulate files in ./dist
-        new CleanWebpackPlugin(),        
+        new CleanWebpackPlugin(),
     ],
     devServer: {
-        // webpack-dev-server configuration
-        contentBase: path.join(__dirname, 'dist'),
         // keep port in sync with VS Code launch.json
         port: 3000,
         // Hot-reloading, the sole reason to use webpack here <3
         hot: true,
-        writeToDisk: true,
     },
-}
+};

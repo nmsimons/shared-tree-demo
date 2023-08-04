@@ -1,8 +1,7 @@
-import {    
-    parentField,
-} from '@fluid-experimental/tree2';
+import { parentField } from '@fluid-experimental/tree2';
 import { App, Note, Pile } from './schema';
 import { Guid } from 'guid-typescript';
+import { IUser } from '@fluidframework/azure-client';
 
 // Takes a destination pile, content string, and author data and adds a new
 // note to the SharedTree with that data.
@@ -12,7 +11,7 @@ export function addNote(
     author: { name: string; id: string }
 ) {
     const timeStamp = new Date().getTime();
-    
+
     // Define the note to add to the SharedTree - this must conform to
     // the schema definition of a note
     const note = {
@@ -21,7 +20,7 @@ export function addNote(
         author,
         votes: [],
         created: timeStamp,
-        lastChanged: timeStamp        
+        lastChanged: timeStamp,
     };
 
     // Insert the note into the SharedTree. This code always inserts the note at the end of the
@@ -38,7 +37,12 @@ export function updateNoteText(note: Note, text: string) {
 
 // Move a note from one position in a sequence to another position in the same sequence or
 // in a different sequence. The index being passed here is the desired index after the move.
-export function moveNote(note: Note, sourcePile: Pile, index: number, destinationPile: Pile) {
+export function moveNote(
+    note: Note,
+    sourcePile: Pile,
+    index: number,
+    destinationPile: Pile
+) {
     // need to test that sourcePile and destinationPile haven't been deleted
     // because the move may have been initiated through a drag and drop which
     // is asynchronous - the state may have changed during the drag but this function
@@ -53,25 +57,30 @@ export function moveNote(note: Note, sourcePile: Pile, index: number, destinatio
         1,
         getAdjustedIndex(note, sourcePile, index, destinationPile),
         destinationPile.notes
-    )
+    );
 }
 
 // Add a new pile (container for notes) to the SharedTree.
-export function addPile(app: App, name: string):Pile {
+export function addPile(app: App, name: string): Pile {
     const pile = {
         id: Guid.create().toString(),
         name,
         notes: [],
     };
 
-    const index = app.piles.length
+    const index = app.piles.length;
 
     app.piles.insertNodes(index, [pile]);
     return app.piles[index];
 }
 
 // Function that wraps the moveNote function to keep the UI code simple.
-export function moveNoteToNewPile(note: Note, sourcePile: Pile, app: App, name: string) {
+export function moveNoteToNewPile(
+    note: Note,
+    sourcePile: Pile,
+    app: App,
+    name: string
+) {
     const newPile = addPile(app, name);
     moveNote(note, sourcePile, newPile.notes.length, newPile);
 }
@@ -80,17 +89,24 @@ export function moveNoteToNewPile(note: Note, sourcePile: Pile, app: App, name: 
 // to the default pile instead of deleting them as well
 export function deletePile(pile: Pile, app: App): boolean {
     // Prevent deleting the default pile
-    if (pile[parentField].index == 0) {return false}
+    if (pile[parentField].index == 0) {
+        return false;
+    }
 
     // Test for the presence of notes and move them to the default pile
-    if (pile.notes.length !== 0) {        
-        const defaultPile = app.piles[0];        
-        pile.notes.moveNodes(0, pile.notes.length, defaultPile.notes.length, defaultPile.notes);       
+    if (pile.notes.length !== 0) {
+        const defaultPile = app.piles[0];
+        pile.notes.moveNodes(
+            0,
+            pile.notes.length,
+            defaultPile.notes.length,
+            defaultPile.notes
+        );
     }
 
     // Delete the now empty pile
     app.piles.deleteNodes(pile[parentField].index, 1);
-    return true;    
+    return true;
 }
 
 // Function to delete a note. This function tests to make sure the note is still in the
@@ -104,8 +120,13 @@ export function deleteNote(note: Note, pile: Pile) {
 // depending on whether the node is moved within a sequence vs. to another
 // sequence and whether the node is before the target index in the sequence.
 // This is awkward and will be fixed in a future iteration of the API.
-function getAdjustedIndex(note: Note, sourcePile: Pile, targetIndex: number, destinationPile: Pile): number {
-    if ((sourcePile === destinationPile) && (note[parentField].index < targetIndex)) {
+function getAdjustedIndex(
+    note: Note,
+    sourcePile: Pile,
+    targetIndex: number,
+    destinationPile: Pile
+): number {
+    if (sourcePile === destinationPile && note[parentField].index < targetIndex) {
         return targetIndex - 1;
     } else {
         return targetIndex;
@@ -154,3 +175,10 @@ export function hashCode(str: string): number {
     }
     return h;
 }
+
+export const generateTestUser = (): IUser => {
+    const user = {
+        id: Guid.create().toString(),
+    };
+    return user;
+};

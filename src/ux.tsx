@@ -26,7 +26,6 @@ export function App(props: {
     services: AzureContainerServices;
     container: IFluidContainer;
 }): JSX.Element {
-
     // Passes the SharedTree into the custom hook and returns
     // the root of the tree. This data can be used to populate the UI and
     // it will update automatically anytime the tree changes.
@@ -53,44 +52,54 @@ function Header(props: {
         props.services.audience.getMembers().size
     );
 
-    const [connectionState, setConnectionState] = useState("");
+    const [connectionState, setConnectionState] = useState('');
     const [saved, setSaved] = useState(!props.container.isDirty);
-    
+
     useEffect(() => {
         const updateConnectionState = () => {
             if (props.container.connectionState === ConnectionState.Connected) {
-                setConnectionState("connected");
-            } else if (props.container.connectionState === ConnectionState.Disconnected) {
-                setConnectionState("disconnected");
-            } else if (props.container.connectionState === ConnectionState.EstablishingConnection) {
-                setConnectionState("connecting");
-            } else if (props.container.connectionState === ConnectionState.CatchingUp) {
-                setConnectionState("catching up");
-            }        
+                setConnectionState('connected');
+            } else if (
+                props.container.connectionState === ConnectionState.Disconnected
+            ) {
+                setConnectionState('disconnected');
+            } else if (
+                props.container.connectionState ===
+                ConnectionState.EstablishingConnection
+            ) {
+                setConnectionState('connecting');
+            } else if (
+                props.container.connectionState === ConnectionState.CatchingUp
+            ) {
+                setConnectionState('catching up');
+            }
         };
         updateConnectionState();
         props.container.on('connected', updateConnectionState);
         props.container.on('disconnected', updateConnectionState);
         props.container.on('dirty', () => setSaved(false));
         props.container.on('saved', () => setSaved(true));
-        props.container.on('disposed', updateConnectionState);        
-    }, []);       
+        props.container.on('disposed', updateConnectionState);
+    }, []);
 
     useEffect(() => {
         const updateMembers = () => {
-            setFluidMembers(props.services.audience.getMembers().size);            
+            setFluidMembers(props.services.audience.getMembers().size);
         };
         updateMembers();
         props.services.audience.on('membersChanged', updateMembers);
-        return () => {            
+        return () => {
             props.services.audience.off('membersChanged', updateMembers);
         };
-    }, []);    
+    }, []);
 
     return (
         <div className="flex flex-row justify-between bg-black h-10 text-base m-1 text-white">
-            <div className="m-2">shared-tree-demo</div>            
-            <div className="m-2">{saved ? "saved" : "not saved"} | {connectionState} | users: {fluidMembers}</div>
+            <div className="m-2">shared-tree-demo</div>
+            <div className="m-2">
+                {saved ? 'saved' : 'not saved'} | {connectionState} | users:{' '}
+                {fluidMembers}
+            </div>
         </div>
     );
 }
@@ -297,7 +306,6 @@ function Note(props: { note: Note; user: User; pile: Pile }): JSX.Element {
 }
 
 function NoteTextArea(props: { note: Note; user: User }): JSX.Element {
-
     // The text field updates the Fluid data model on every keystroke in this demo.
     // This works well with small strings but doesn't scale to very large strings.
     // A Future iteration of SharedTree will include support for collaborative strings

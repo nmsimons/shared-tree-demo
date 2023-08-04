@@ -1,20 +1,15 @@
 import {
     AzureClient,
     AzureRemoteConnectionConfig,
-    AzureLocalConnectionConfig,
     AzureContainerServices,
     AzureClientProps,
     AzureMember,
     ITokenProvider,
     ITokenResponse,
 } from '@fluidframework/azure-client';
-import {
-    generateTestUser,
-    InsecureTokenProvider,
-} from '@fluidframework/test-client-utils';
 import { ContainerSchema, IFluidContainer } from 'fluid-framework';
 import {
-    GlobalFieldSchema,
+    FieldSchema,
     ISharedTree,
     SchematizeConfiguration,
     SharedTreeFactory,
@@ -24,7 +19,7 @@ import axios from 'axios';
 import React from 'react';
 import { App } from './schema';
 import { DevtoolsLogger, initializeDevtools } from '@fluid-experimental/devtools';
-import { TelemetryNullLogger } from '@fluidframework/telemetry-utils';
+import { generateTestUser } from './helpers';
 
 /**
  * Token Provider implementation for connecting to an Azure Function endpoint for
@@ -38,10 +33,7 @@ export class AzureFunctionTokenProvider implements ITokenProvider {
      */
     constructor(
         private readonly azFunctionUrl: string,
-        private readonly user?: Pick<
-            AzureMember,
-            'userId' | 'userName' | 'additionalDetails'
-        >
+        private readonly user?: Pick<AzureMember, 'userName' | 'additionalDetails'>
     ) {}
 
     public async fetchOrdererToken(
@@ -70,7 +62,6 @@ export class AzureFunctionTokenProvider implements ITokenProvider {
             params: {
                 tenantId,
                 documentId,
-                userId: this.user?.userId,
                 userName: this.user?.userName,
                 additionalDetails: this.user?.additionalDetails,
             },
@@ -95,7 +86,7 @@ const user = generateTestUser();
 
 export const azureUser = {
     userId: user.id,
-    userName: user.name,
+    userName: user.id,
 };
 
 const remoteConnectionConfig: AzureRemoteConnectionConfig = {
@@ -108,21 +99,10 @@ const remoteConnectionConfig: AzureRemoteConnectionConfig = {
     endpoint: process.env.AZURE_ORDERER!,
 };
 
-const localConnectionConfig: AzureLocalConnectionConfig = {
-    type: 'local',
-    tokenProvider: new InsecureTokenProvider('VALUE_NOT_USED', user),
-    endpoint: 'http://localhost:7070',
-};
-
-const connectionConfig: AzureRemoteConnectionConfig | AzureLocalConnectionConfig =
-    useAzure ? remoteConnectionConfig : localConnectionConfig;
-
-const baseLogger = new TelemetryNullLogger();
-const devtoolsLogger = new DevtoolsLogger(baseLogger);
+const connectionConfig: AzureRemoteConnectionConfig = remoteConnectionConfig;
 
 const clientProps: AzureClientProps = {
-    connection: connectionConfig,
-    logger: devtoolsLogger
+    connection: connectionConfig,    
 };
 
 const client = new AzureClient(clientProps);
@@ -136,7 +116,7 @@ const containerSchema: ContainerSchema = {
     },
 };
 
-async function initializeNewContainer<TRoot extends GlobalFieldSchema>(
+async function initializeNewContainer<TRoot extends FieldSchema>(
     container: IFluidContainer,
     config: SchematizeConfiguration<TRoot>
 ): Promise<void> {
@@ -150,7 +130,7 @@ async function initializeNewContainer<TRoot extends GlobalFieldSchema>(
  *
  * @returns The loaded container and container services.
  */
-export const loadFluidData = async <TRoot extends GlobalFieldSchema>(
+export const loadFluidData = async <TRoot extends FieldSchema>(
     config: SchematizeConfiguration<TRoot>
 ): Promise<{
     data: SharedTree<App>;
@@ -186,12 +166,11 @@ export const loadFluidData = async <TRoot extends GlobalFieldSchema>(
     const tree = container.initialObjects.tree as ISharedTree;
     const data = new SharedTree<App>(tree, tree.root as any);
 
-    initializeDevtools({
-        logger: devtoolsLogger,
+    initializeDevtools({        
         initialContainers: [
             {
                 container,
-                containerKey: 'Shared Tree Demo Container'
+                containerKey: 'Shared Tree Demo Container',
             },
         ],
     });

@@ -26,13 +26,13 @@ async function main() {
             ],
         },
         allowedSchemaModifications: AllowedUpdateType.SchemaCompatible,
-    });    
+    });
 
     ReactDOM.render(
         [
             <DndProvider backend={HTML5Backend}>
                 <App data={data} services={services} container={container} />
-            </DndProvider>
+            </DndProvider>,
         ],
         document.getElementById('root')
     );
