@@ -272,9 +272,8 @@ function Note(props: { note: Note; user: User; pile: Pile }): JSX.Element {
 
     return (
         <div
-            className={`transition duration-500${
-                status === 'exiting' ? ' transform ease-out scale-110' : ''
-            }`}
+            className={`transition duration-500${status === 'exiting' ? ' transform ease-out scale-110' : ''
+                }`}
         >
             <div
                 ref={attachRef}
@@ -413,9 +412,17 @@ function LikeButton(props: { note: Note; user: User }): JSX.Element {
 
     const setColor = () => {
         if (isVoter(props.note, props.user)) {
+            return 'text-white';
+        } else {
+            return undefined;
+        }
+    };
+
+    const setBackground = () => {
+        if (isVoter(props.note, props.user)) {
             return 'bg-green-600';
         } else {
-            return 'bg-gray-600';
+            return undefined;
         }
     };
 
@@ -423,15 +430,15 @@ function LikeButton(props: { note: Note; user: User }): JSX.Element {
         <div className="relative flex">
             <IconButton
                 color={setColor()}
+                background={setBackground()}
                 handleClick={() => toggleVote(props.note, props.user)}
                 icon={MiniThumb()}
             >
                 {props.note.votes.length}
             </IconButton>
             <span
-                className={`transition duration-500${
-                    status === 'exiting' ? ' animate-ping' : ''
-                } absolute inline-flex h-full w-full rounded bg-black opacity-75 -z-10`}
+                className={`transition duration-500${status === 'exiting' ? ' animate-ping' : ''
+                    } absolute inline-flex h-full w-full rounded bg-transparent opacity-75 -z-10`}
             ></span>
         </div>
     );
@@ -475,12 +482,12 @@ function IconButton(props: {
     children?: React.ReactNode;
     icon: JSX.Element;
     color?: string;
+    background?: string;
 }): JSX.Element {
     return (
         <button
             className={
-                props.color +
-                ' hover:bg-gray-400 text-white font-bold px-2 py-1 rounded inline-flex items-center h-6'
+                props.color + ' ' + props.background + ' bg-transparent hover:bg-gray-600 hover:text-white font-bold px-2 py-1 rounded inline-flex items-center h-6'
             }
             onClick={props.handleClick}
         >
@@ -491,7 +498,8 @@ function IconButton(props: {
 }
 
 IconButton.defaultProps = {
-    color: 'bg-gray-600',
+    color: 'text-gray-600',
+    background: 'bg-transparent'
 };
 
 function IconButtonText(props: { children: React.ReactNode }): JSX.Element {
