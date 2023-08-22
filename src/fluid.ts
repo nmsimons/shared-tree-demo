@@ -18,7 +18,7 @@ import {
 import axios from 'axios';
 import React from 'react';
 import { App } from './schema';
-import { DevtoolsLogger, initializeDevtools } from '@fluid-experimental/devtools';
+import { initializeDevtools } from '@fluid-experimental/devtools';
 import { generateTestUser } from './helpers';
 
 /**
