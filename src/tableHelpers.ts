@@ -64,6 +64,7 @@ export function addColumn(table: Table, index: number) {
         throw new Error('invalid column index');
     }
 
+    // BUGBUG: this may not be safe if conflicting remote edits are sequenced interleaved
     for (const row of table.rows) {
         row.cells.insertNodes(index, '');
     }
@@ -124,6 +125,7 @@ export function moveColumn(table: Table, oldIndex: number, newIndex: number) {
         throw new Error('invalid new column index');
     }
 
+    // BUGBUG: this may not be safe if conflicting remote edits are sequenced interleaved
     for (const row of table.rows) {
         row.cells.moveNodes(oldIndex, 1, newIndex);
     }
