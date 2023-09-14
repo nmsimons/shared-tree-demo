@@ -1,21 +1,21 @@
 import { Row, Table } from './tableSchema';
+import {
+    brand,
+    EditableTree,
+    getField,
+    parentField,
+} from '@fluid-experimental/tree2';
 import { Guid } from 'guid-typescript';
 
-function getRowIndex(table: Table, row: number | Row | string) {
+function getRowIndex(table: Table, row: number | Row) {
     if (typeof row === 'number') {
         return row;
     }
 
-    for (let i = 0; i < table.rows.length; i++) {
-        if (table.rows[i] === row || table.rows[i].id === row) {
-            return i;
-        }
-    }
-
-    return -1;
+    return row[parentField].index;
 }
 
-function getRow(table: Table, row: number | Row | string) {
+function getRow(table: Table, row: number | Row) {
     if (typeof row === 'object') {
         return row;
     }
@@ -27,13 +27,35 @@ function getRow(table: Table, row: number | Row | string) {
         return table.rows[row];
     }
 
-    for (let i = 0; i < table.rows.length; i++) {
-        if (table.rows[i].id === row) {
-            return table.rows[i];
+    return undefined;
+}
+
+function getColumnId(table: Table, column: string | number) {
+    if (typeof column === 'string') {
+        return column;
+    }
+
+    if (column >= table.columnDefinitions.length || column < 0) {
+        return undefined;
+    }
+    return table.columnDefinitions[column].id;
+}
+
+function getColumnIndex(table: Table, column: string | number) {
+    if (typeof column === 'number') {
+        if (column >= table.columnDefinitions.length || column < 0) {
+            return -1;
+        }
+        return column;
+    }
+
+    for (let i = 0; i < table.columnDefinitions.length; i++) {
+        if (table.columnDefinitions[i].id === column) {
+            return i;
         }
     }
 
-    return undefined;
+    return -1;
 }
 
 /**
@@ -44,37 +66,24 @@ export function addRow(table: Table, index: number) {
         throw new Error('invalid row index');
     }
 
-    const cells = new Array<string | number>(table.columnCount);
-    for (let i = 0; i < table.columnCount; i++) {
-        cells[i] = '';
-    }
-    const row = {
-        id: Guid.create().toString(),
-        cells,
-    };
-    table.rows.insertNodes(index, [row]);
-    return row;
+    table.rows.insertNodes(index, [{}]);
 }
 
 /**
  * Add a new column to the table at the given index
  */
-export function addColumn(table: Table, index: number) {
-    if (index > table.columnCount || index < 0) {
+export function addColumn(table: Table, index: number, columnName: string) {
+    if (index > table.columnDefinitions.length || index < 0) {
         throw new Error('invalid column index');
     }
 
-    // BUGBUG: this may not be safe if conflicting remote edits are sequenced interleaved
-    for (const row of table.rows) {
-        row.cells.insertNodes(index, '');
-    }
-    table.columnCount++;
+    table.columnDefinitions.insertNodes(index, {id: Guid.create().toString(), name: columnName});
 }
 
 /**
  * Remove an existing row in the table
  */
-export function deleteRow(table: Table, row: Row | number | string) {
+export function deleteRow(table: Table, row: Row | number) {
     const index = getRowIndex(table, row);
 
     if (index >= table.rows.length || index < 0) {
@@ -85,23 +94,31 @@ export function deleteRow(table: Table, row: Row | number | string) {
 }
 
 /**
- * Remove an existing column in the table
+ * Remove an existing column in the table by index or id
  */
-export function deleteColumn(table: Table, index: number) {
-    if (index >= table.columnCount || index < 0) {
-        throw new Error('invalid column index');
+export function deleteColumn(table: Table, column: string | number) {
+    const id = getColumnId(table, column);
+    if (id === undefined) {
+        throw new Error('invalid column');
     }
 
-    for (const row of table.rows) {
-        row.cells.deleteNodes(index);
+    const index = getColumnIndex(table, column);
+    if (index === -1) {
+        throw new Error('invalid column');
     }
-    table.columnCount--;
+
+    table.columnDefinitions.deleteNodes(index);
+
+    // This is expensive for long tables, we could do this lazily or not at all.
+    for (const row of table.rows) {
+        setCellContent(table, row, id, undefined);
+    }
 }
 
 /**
  * Move a row to another position in the table
  */
-export function moveRow(table: Table, row: Row | number | string, newIndex: number) {
+export function moveRow(table: Table, row: Row | number, newIndex: number) {
     if (newIndex >= table.rows.length || newIndex < 0) {
         throw new Error('invalid index');
     }
@@ -118,17 +135,14 @@ export function moveRow(table: Table, row: Row | number | string, newIndex: numb
  * Move a column to another position in the table
  */
 export function moveColumn(table: Table, oldIndex: number, newIndex: number) {
-    if (oldIndex >= table.columnCount || oldIndex < 0) {
+    if (oldIndex >= table.columnDefinitions.length || oldIndex < 0) {
         throw new Error('invalid old column index');
     }
-    if (newIndex >= table.columnCount || newIndex < 0) {
+    if (newIndex >= table.columnDefinitions.length || newIndex < 0) {
         throw new Error('invalid new column index');
     }
 
-    // BUGBUG: this may not be safe if conflicting remote edits are sequenced interleaved
-    for (const row of table.rows) {
-        row.cells.moveNodes(oldIndex, 1, newIndex);
-    }
+    table.columnDefinitions.moveNodes(oldIndex, 1, newIndex);
 }
 
 /**
@@ -136,17 +150,33 @@ export function moveColumn(table: Table, oldIndex: number, newIndex: number) {
  */
 export function setCellContent(
     table: Table,
-    row: Row | number | string,
-    column: number,
-    content: string | number
+    row: Row | number,
+    column: string | number,
+    content: string | number | undefined
 ) {
-    if (column >= table.columnCount || column < 0) {
-        throw new Error('invalid column index');
+    const columnName = getColumnId(table, column);
+    if (columnName === undefined) {
+        throw new Error('invalid column');
     }
 
     const found = getRow(table, row);
     if (found === undefined) {
         throw new Error('row not found');
     }
-    found.cells[column] = content;
+    // TODO: update this when we have map methods
+    const cast = found as unknown as EditableTree;
+    cast[getField](brand(columnName)).setContent(content);
+    // cast[setField](brand(columnName), content);
+}
+
+/**
+ * Edit the visible column name
+ */
+export function setColumnName(table: Table, column: string | number, name: string) {
+    const index = getColumnIndex(table, column);
+    if (index === -1) {
+        throw new Error('invalid column');
+    }
+
+    table.columnDefinitions[index].name = name;
 }
