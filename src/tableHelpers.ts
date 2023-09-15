@@ -7,7 +7,7 @@ import {
 } from '@fluid-experimental/tree2';
 import { Guid } from 'guid-typescript';
 
-function getRowIndex(table: Table, row: number | Row) {
+function getRowIndex(row: number | Row) {
     if (typeof row === 'number') {
         return row;
     }
@@ -20,14 +20,10 @@ function getRow(table: Table, row: number | Row) {
         return row;
     }
 
-    if (typeof row === 'number') {
-        if (row >= table.rows.length || row < 0) {
-            return undefined;
-        }
-        return table.rows[row];
+    if (row >= table.rows.length || row < 0) {
+        return undefined;
     }
-
-    return undefined;
+    return table.rows[row];
 }
 
 function getColumnId(table: Table, column: string | number) {
@@ -84,8 +80,7 @@ export function addColumn(table: Table, index: number, columnName: string) {
  * Remove an existing row in the table
  */
 export function deleteRow(table: Table, row: Row | number) {
-    const index = getRowIndex(table, row);
-
+    const index = getRowIndex(row);
     if (index >= table.rows.length || index < 0) {
         throw new Error('invalid row');
     }
@@ -123,7 +118,7 @@ export function moveRow(table: Table, row: Row | number, newIndex: number) {
         throw new Error('invalid index');
     }
 
-    const index = getRowIndex(table, row);
+    const index = getRowIndex(row);
     if (index >= table.rows.length || index < 0) {
         throw new Error('invalid row');
     }
