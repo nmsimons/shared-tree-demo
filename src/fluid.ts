@@ -11,7 +11,7 @@ import { ContainerSchema, IFluidContainer } from 'fluid-framework';
 import {
     FieldSchema,
     ISharedTree,
-    SchematizeConfiguration,
+    InitializeAndSchematizeConfiguration,
     SharedTreeFactory,
 } from '@fluid-experimental/tree2';
 
@@ -118,7 +118,7 @@ const containerSchema: ContainerSchema = {
 
 async function initializeNewContainer<TRoot extends FieldSchema>(
     container: IFluidContainer,
-    config: SchematizeConfiguration<TRoot>
+    config: InitializeAndSchematizeConfiguration<TRoot>
 ): Promise<void> {
     const fluidTree = container.initialObjects.tree as ISharedTree;
     fluidTree.schematize(config);
@@ -131,7 +131,7 @@ async function initializeNewContainer<TRoot extends FieldSchema>(
  * @returns The loaded container and container services.
  */
 export const loadFluidData = async <TRoot extends FieldSchema>(
-    config: SchematizeConfiguration<TRoot>
+    config: InitializeAndSchematizeConfiguration<TRoot>
 ): Promise<{
     data: SharedTree<App>;
     services: AzureContainerServices;

@@ -105,7 +105,7 @@ export function deletePile(pile: Pile, app: App): boolean {
     }
 
     // Delete the now empty pile
-    app.piles.deleteNodes(pile[parentField].index, 1);
+    app.piles.removeNodes(pile[parentField].index, 1);
     return true;
 }
 
@@ -113,7 +113,7 @@ export function deletePile(pile: Pile, app: App): boolean {
 // specified pile before attempting the delete.
 export function deleteNote(note: Note, pile: Pile) {
     if (pile.notes[note[parentField].index] !== note) return;
-    pile.notes.deleteNodes(note[parentField].index, 1);
+    pile.notes.removeNodes(note[parentField].index, 1);
 }
 
 // This function accounts for an issue where the target index of a move will vary
@@ -145,7 +145,7 @@ export function isVoter(note: Note, user: { name: string; id: string }) {
 export function toggleVote(note: Note, user: { name: string; id: string }) {
     const voter = isVoter(note, user);
     if (voter) {
-        note.votes.deleteNodes(voter[parentField].index, 1);
+        note.votes.removeNodes(voter[parentField].index, 1);
         note.lastChanged = new Date().getTime();
     } else {
         note.votes.insertNodes(note.votes.length, [user]);
