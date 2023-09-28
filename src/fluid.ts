@@ -13,12 +13,12 @@ import {
     ISharedTree,
     InitializeAndSchematizeConfiguration,
     SharedTreeFactory,
+    ISharedTreeView
 } from '@fluid-experimental/tree2';
 
 import axios from 'axios';
 import React from 'react';
 import { App } from './schema';
-import { initializeDevtools } from '@fluid-experimental/devtools';
 import { generateTestUser } from './helpers';
 
 /**
@@ -102,7 +102,7 @@ const remoteConnectionConfig: AzureRemoteConnectionConfig = {
 const connectionConfig: AzureRemoteConnectionConfig = remoteConnectionConfig;
 
 const clientProps: AzureClientProps = {
-    connection: connectionConfig,    
+    connection: connectionConfig,
 };
 
 const client = new AzureClient(clientProps);
@@ -164,16 +164,9 @@ export const loadFluidData = async <TRoot extends FieldSchema>(
     }
 
     const tree = container.initialObjects.tree as ISharedTree;
-    const data = new SharedTree<App>(tree, tree.root as any);
-
-    initializeDevtools({        
-        initialContainers: [
-            {
-                container,
-                containerKey: 'Shared Tree Demo Container',
-            },
-        ],
-    });
+    const view = tree.schematize(config)
+    
+    const data = new SharedTree<App>(view, view.root as any);    
 
     return { data, services, container };
 };
@@ -191,16 +184,16 @@ export function useTree<TRoot>(tree: SharedTree<TRoot>): TRoot {
     // Register for tree deltas when the component mounts
     React.useEffect(() => {
         // Returns the cleanup function to be invoked when the component unmounts.
-        return tree[treeSym].events.on('afterBatch', () => {
+        return tree[treeSym].events.on("afterBatch", () => {
             setInvalidations(invalidations + Math.random());
         });
     });
 
-    return tree[treeSym].root as unknown as TRoot;
+    return tree.root as unknown as TRoot;
 }
 
 export class SharedTree<T> {
-    constructor(private readonly tree: ISharedTree, public readonly root: T) {}
+    constructor(private readonly tree: ISharedTreeView, public readonly root: T) {}
 
     public get [treeSym]() {
         return this.tree;

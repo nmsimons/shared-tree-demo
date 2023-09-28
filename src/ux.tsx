@@ -272,8 +272,9 @@ function Note(props: { note: Note; user: User; pile: Pile }): JSX.Element {
 
     return (
         <div
-            className={`transition duration-500${status === 'exiting' ? ' transform ease-out scale-110' : ''
-                }`}
+            className={`transition duration-500${
+                status === 'exiting' ? ' transform ease-out scale-110' : ''
+            }`}
         >
             <div
                 ref={attachRef}
@@ -437,8 +438,9 @@ function LikeButton(props: { note: Note; user: User }): JSX.Element {
                 {props.note.votes.length}
             </IconButton>
             <span
-                className={`transition duration-500${status === 'exiting' ? ' animate-ping' : ''
-                    } absolute inline-flex h-full w-full rounded bg-transparent opacity-75 -z-10`}
+                className={`transition duration-500${
+                    status === 'exiting' ? ' animate-ping' : ''
+                } absolute inline-flex h-full w-full rounded bg-transparent opacity-75 -z-10`}
             ></span>
         </div>
     );
@@ -487,7 +489,10 @@ function IconButton(props: {
     return (
         <button
             className={
-                props.color + ' ' + props.background + ' bg-transparent hover:bg-gray-600 hover:text-white font-bold px-2 py-1 rounded inline-flex items-center h-6'
+                props.color +
+                ' ' +
+                props.background +
+                ' bg-transparent hover:bg-gray-600 hover:text-white font-bold px-2 py-1 rounded inline-flex items-center h-6'
             }
             onClick={props.handleClick}
         >
@@ -499,7 +504,7 @@ function IconButton(props: {
 
 IconButton.defaultProps = {
     color: 'text-gray-600',
-    background: 'bg-transparent'
+    background: 'bg-transparent',
 };
 
 function IconButtonText(props: { children: React.ReactNode }): JSX.Element {

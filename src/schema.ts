@@ -1,5 +1,4 @@
 import {
-    FieldKinds,
     SchemaAware,
     SchemaBuilder,
     ValueSchema,
@@ -21,37 +20,37 @@ export const string = builder.leaf('string', ValueSchema.String);
 // Define a simple user type - in most apps this would probably not be
 // necessary as the user would be defined through an identity/auth service
 export const userSchema = builder.struct('demo:user', {
-    name: SchemaBuilder.field(FieldKinds.value, string),
-    id: SchemaBuilder.field(FieldKinds.value, string),
+    name: SchemaBuilder.fieldValue(string),
+    id: SchemaBuilder.fieldValue(string),
 });
 
 // Define the schema for the note object. This schema includes an id to make
 // building the React app simpler, several fields that use primitive types, and a sequence
 // of users (defined above) to track which users have voted on this note.
 export const noteSchema = builder.struct('demo:note', {
-    id: SchemaBuilder.field(FieldKinds.value, string),
-    text: SchemaBuilder.field(FieldKinds.value, string),
-    author: SchemaBuilder.field(FieldKinds.value, userSchema),
-    votes: SchemaBuilder.field(FieldKinds.sequence, userSchema),
-    created: SchemaBuilder.field(FieldKinds.value, float64),
-    lastChanged: SchemaBuilder.field(FieldKinds.value, float64),
+    id: SchemaBuilder.fieldValue(string),
+    text: SchemaBuilder.fieldValue(string),
+    author: SchemaBuilder.fieldValue(userSchema),
+    votes: SchemaBuilder.fieldSequence(userSchema),
+    created: SchemaBuilder.fieldValue(float64),
+    lastChanged: SchemaBuilder.fieldValue(float64),
 });
 
 // Define the schema for the container of notes. This type includes a sequence of notes.
 export const pileSchema = builder.struct('demo:pile', {
-    id: SchemaBuilder.field(FieldKinds.value, string),
-    name: SchemaBuilder.field(FieldKinds.value, string),
-    notes: SchemaBuilder.field(FieldKinds.sequence, noteSchema),
+    id: SchemaBuilder.fieldValue(string),
+    name: SchemaBuilder.fieldValue(string),
+    notes: SchemaBuilder.fieldSequence(noteSchema),
 });
 
 // Define a root type. This only contains a sequence of piles but if the app needed
 // additional metadata or other app data, it is easy to add that here.
 export const appSchema = builder.struct('demo:app', {
-    piles: SchemaBuilder.field(FieldKinds.sequence, pileSchema),
+    piles: SchemaBuilder.fieldSequence(pileSchema),
 });
 
 // Define the root of the schema as the app type.
-export const rootField = SchemaBuilder.field(FieldKinds.value, appSchema);
+export const rootField = SchemaBuilder.fieldValue(appSchema);
 
 // Create the schema object to pass into the SharedTree
 export const schema = builder.intoDocumentSchema(rootField);
