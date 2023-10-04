@@ -6,6 +6,7 @@ import {
     AzureMember,
     ITokenProvider,
     ITokenResponse,
+    AzureLocalConnectionConfig,
 } from '@fluidframework/azure-client';
 import { ContainerSchema, IFluidContainer } from 'fluid-framework';
 import {
@@ -20,6 +21,7 @@ import axios from 'axios';
 import React from 'react';
 import { App } from './schema';
 import { generateTestUser } from './helpers';
+import { IInsecureUser, InsecureTokenProvider } from '@fluidframework/test-runtime-utils';
 
 /**
  * Token Provider implementation for connecting to an Azure Function endpoint for
@@ -99,7 +101,14 @@ const remoteConnectionConfig: AzureRemoteConnectionConfig = {
     endpoint: process.env.AZURE_ORDERER!,
 };
 
-const connectionConfig: AzureRemoteConnectionConfig = remoteConnectionConfig;
+const localConnectionConfig: AzureLocalConnectionConfig = {
+    type: 'local',
+    tokenProvider: new InsecureTokenProvider('VALUE_NOT_USED', user),
+    endpoint: 'http://localhost:7070',
+};
+
+const connectionConfig: AzureRemoteConnectionConfig | AzureLocalConnectionConfig =
+    useAzure ? remoteConnectionConfig : localConnectionConfig;
 
 const clientProps: AzureClientProps = {
     connection: connectionConfig,

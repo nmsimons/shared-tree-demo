@@ -2,6 +2,7 @@ import { parentField } from '@fluid-experimental/tree2';
 import { App, Note, Pile } from './schema';
 import { Guid } from 'guid-typescript';
 import { IUser } from '@fluidframework/azure-client';
+import { IInsecureUser } from '@fluidframework/test-runtime-utils';
 
 // Takes a destination pile, content string, and author data and adds a new
 // note to the SharedTree with that data.
@@ -176,9 +177,10 @@ export function hashCode(str: string): number {
     return h;
 }
 
-export const generateTestUser = (): IUser => {
+export const generateTestUser = (): IInsecureUser => {
     const user = {
         id: Guid.create().toString(),
+        name: "Tyler Butler"
     };
     return user;
 };
