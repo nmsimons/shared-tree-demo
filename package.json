@@ -20,7 +20,10 @@
         "@fluid-experimental/tree2": ">=2.0.0-internal.7.0.0",
         "@fluidframework/azure-client": ">=2.0.0-internal.7.0.0",
         "@fluidframework/telemetry-utils": ">=2.0.0-internal.7.0.0",
-        "@fluidframework/test-runtime-utils": ">=2.0.0-internal.7.0.0",        
+        "@fluidframework/test-runtime-utils": ">=2.0.0-internal.7.0.0",
+        "@fluidframework/odsp-driver-definitions": ">=2.0.0-internal.7.0.0",
+        "@fluidframework/odsp-driver": ">=2.0.0-internal.7.0.0",
+        "@fluidframework/odsp-doclib-utils": ">=2.0.0-internal.7.0.0",
         "@mdi/font": "^6.9.96",
         "@mdi/js": "^6.9.96",
         "@mdi/react": "^1.6.1",
@@ -36,7 +39,9 @@
         "react-dnd": "^16.0.1",
         "react-dnd-html5-backend": "^16.0.1",
         "react-dom": "^18.0.0",
-        "react-transition-state": "^2.1.0"        
+        "react-transition-state": "^2.1.0",
+        "@azure/msal-browser": "^2.34.0",
+        "@microsoft/microsoft-graph-client": "^3.0.5"        
     },
     "devDependencies": {
         "@fluid-experimental/devtools": ">=2.0.0-internal.7.0.0",

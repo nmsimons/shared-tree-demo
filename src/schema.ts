@@ -1,8 +1,4 @@
-import {
-    SchemaAware,
-    SchemaBuilder,
-    ValueSchema,
-} from '@fluid-experimental/tree2';
+import { SchemaAware, SchemaBuilder, ValueSchema } from '@fluid-experimental/tree2';
 
 // Schema is defined using a builder object that generates a schema that is passed into the
 // SharedTree data structure when it is intialized. The following code

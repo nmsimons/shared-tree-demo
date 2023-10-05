@@ -1,7 +1,6 @@
 import { parentField } from '@fluid-experimental/tree2';
 import { App, Note, Pile } from './schema';
 import { Guid } from 'guid-typescript';
-import { IUser } from '@fluidframework/azure-client';
 import { IInsecureUser } from '@fluidframework/test-runtime-utils';
 
 // Takes a destination pile, content string, and author data and adds a new
@@ -180,7 +179,7 @@ export function hashCode(str: string): number {
 export const generateTestUser = (): IInsecureUser => {
     const user = {
         id: Guid.create().toString(),
-        name: "Tyler Butler"
+        name: 'Tyler Butler',
     };
     return user;
 };

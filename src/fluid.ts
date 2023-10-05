@@ -1,120 +1,32 @@
-import {
-    AzureClient,
-    AzureRemoteConnectionConfig,
-    AzureContainerServices,
-    AzureClientProps,
-    AzureMember,
-    ITokenProvider,
-    ITokenResponse,
-    AzureLocalConnectionConfig,
-} from '@fluidframework/azure-client';
+import { AzureContainerServices } from '@fluidframework/azure-client';
 import { ContainerSchema, IFluidContainer } from 'fluid-framework';
 import {
     FieldSchema,
     ISharedTree,
     InitializeAndSchematizeConfiguration,
     SharedTreeFactory,
-    ISharedTreeView
+    ISharedTreeView,
 } from '@fluid-experimental/tree2';
 
-import axios from 'axios';
 import React from 'react';
 import { App } from './schema';
+
+import { Guid } from 'guid-typescript';
+import { ConnectionState, FluidContainer } from 'fluid-framework';
+import {
+    OdspContainerServices,
+    OdspCreateContainerConfig,
+    OdspGetContainerConfig,
+} from './odsp-client/interfaces';
+import { OdspClient } from './odsp-client/OdspClient';
+import { getodspDriver } from './odsp-client';
 import { generateTestUser } from './helpers';
-import { IInsecureUser, InsecureTokenProvider } from '@fluidframework/test-runtime-utils';
-
-/**
- * Token Provider implementation for connecting to an Azure Function endpoint for
- * Azure Fluid Relay token resolution.
- */
-export class AzureFunctionTokenProvider implements ITokenProvider {
-    /**
-     * Creates a new instance using configuration parameters.
-     * @param azFunctionUrl - URL to Azure Function endpoint
-     * @param user - User object
-     */
-    constructor(
-        private readonly azFunctionUrl: string,
-        private readonly user?: Pick<AzureMember, 'userName' | 'additionalDetails'>
-    ) {}
-
-    public async fetchOrdererToken(
-        tenantId: string,
-        documentId?: string
-    ): Promise<ITokenResponse> {
-        return {
-            jwt: await this.getToken(tenantId, documentId),
-        };
-    }
-
-    public async fetchStorageToken(
-        tenantId: string,
-        documentId: string
-    ): Promise<ITokenResponse> {
-        return {
-            jwt: await this.getToken(tenantId, documentId),
-        };
-    }
-
-    private async getToken(
-        tenantId: string,
-        documentId: string | undefined
-    ): Promise<string> {
-        const response = await axios.get(this.azFunctionUrl, {
-            params: {
-                tenantId,
-                documentId,
-                userName: this.user?.userName,
-                additionalDetails: this.user?.additionalDetails,
-            },
-        });
-        return response.data as string;
-    }
-}
 
 export class MySharedTree {
     public static getFactory(): SharedTreeFactory {
         return new SharedTreeFactory();
     }
 }
-
-// Define the server (Azure or local) we will be using
-const useAzure = process.env.FLUID_CLIENT === 'azure';
-if (!useAzure) {
-    console.warn(`Configured to use local tinylicious.`);
-}
-
-const user = generateTestUser();
-
-export const azureUser = {
-    userId: user.id,
-    userName: user.id,
-};
-
-const remoteConnectionConfig: AzureRemoteConnectionConfig = {
-    type: 'remote',
-    tenantId: process.env.AZURE_TENANT_ID!,
-    tokenProvider: new AzureFunctionTokenProvider(
-        process.env.AZURE_FUNCTION_TOKEN_PROVIDER_URL!,
-        azureUser
-    ),
-    endpoint: process.env.AZURE_ORDERER!,
-};
-
-const localConnectionConfig: AzureLocalConnectionConfig = {
-    type: 'local',
-    tokenProvider: new InsecureTokenProvider('VALUE_NOT_USED', user),
-    endpoint: 'http://localhost:7070',
-};
-
-const connectionConfig: AzureRemoteConnectionConfig | AzureLocalConnectionConfig =
-    useAzure ? remoteConnectionConfig : localConnectionConfig;
-
-const clientProps: AzureClientProps = {
-    connection: connectionConfig,
-};
-
-const client = new AzureClient(clientProps);
 
 // Define the schema of our Container. This includes the DDSes/DataObjects
 // that we want to create dynamically and any
@@ -133,6 +45,13 @@ async function initializeNewContainer<TRoot extends FieldSchema>(
     fluidTree.schematize(config);
 }
 
+const user = generateTestUser();
+
+export const azureUser = {
+    userId: user.id,
+    userName: user.id,
+};
+
 /**
  * This function will create a container if no container ID is passed on the hash portion of the URL.
  * If a container ID is provided, it will load the container.
@@ -146,36 +65,12 @@ export const loadFluidData = async <TRoot extends FieldSchema>(
     services: AzureContainerServices;
     container: IFluidContainer;
 }> => {
-    let container: IFluidContainer;
-    let services: AzureContainerServices;
-    let id: string;
-
-    // Get or create the document depending if we are running through the create new flow
-    const createNew = location.hash.length === 0;
-    if (createNew) {
-        // The client will create a new detached container using the schema
-        // A detached container will enable the app to modify the container before attaching it to the client
-        ({ container, services } = await client.createContainer(containerSchema));
-
-        // Initialize our Fluid data -- set default values, establish relationships, etc.
-        await initializeNewContainer(container, config);
-
-        // If the app is in a `createNew` state, and the container is detached, we attach the container.
-        // This uploads the container to the service and connects to the collaboration session.
-        id = await container.attach();
-        // The newly attached container is given a unique ID that can be used to access the container in another session
-        location.hash = id;
-    } else {
-        id = location.hash.substring(1);
-        // Use the unique container ID to fetch the container created earlier.  It will already be connected to the
-        // collaboration session.
-        ({ container, services } = await client.getContainer(id, containerSchema));
-    }
+    const { container, services } = await initializeContainer();
 
     const tree = container.initialObjects.tree as ISharedTree;
-    const view = tree.schematize(config)
-    
-    const data = new SharedTree<App>(view, view.root as any);    
+    const view = tree.schematize(config);
+
+    const data = new SharedTree<App>(view, view.root as any);
 
     return { data, services, container };
 };
@@ -193,7 +88,7 @@ export function useTree<TRoot>(tree: SharedTree<TRoot>): TRoot {
     // Register for tree deltas when the component mounts
     React.useEffect(() => {
         // Returns the cleanup function to be invoked when the component unmounts.
-        return tree[treeSym].events.on("afterBatch", () => {
+        return tree[treeSym].events.on('afterBatch', () => {
             setInvalidations(invalidations + Math.random());
         });
     });
@@ -207,4 +102,92 @@ export class SharedTree<T> {
     public get [treeSym]() {
         return this.tree;
     }
+}
+
+const documentId = Guid.create().toString();
+
+const containerPath = (url: string) => {
+    const itemIdPattern = /itemId=([^&]+)/; // regular expression to match the itemId parameter value
+    let itemId;
+
+    const match = url.match(itemIdPattern); // get the match object for the itemId parameter value
+    if (match) {
+        itemId = match[1]; // extract the itemId parameter value from the match object
+        console.log(itemId); // output: "itemidQ"
+    } else {
+        console.log('itemId parameter not found in the URL');
+        itemId = '';
+    }
+    return itemId;
+};
+
+export async function initializeContainer(): Promise<{
+    container: FluidContainer;
+    services: OdspContainerServices;
+}> {
+    console.log('Initiating the driver------');
+    const odspDriver = await getodspDriver();
+    console.log('INITIAL DRIVER', odspDriver);
+
+    const getContainerId = (): { containerId: string; isNew: boolean } => {
+        let isNew = false;
+        console.log('hash: ', location.hash);
+        if (location.hash.length === 0) {
+            isNew = true;
+        }
+        const hash = location.hash;
+        const itemId = hash.charAt(0) === '#' ? hash.substring(1) : hash;
+        const containerId = localStorage.getItem(itemId) as string;
+        return { containerId, isNew };
+    };
+
+    const { containerId, isNew } = getContainerId();
+
+    let container: FluidContainer;
+    let services: OdspContainerServices;
+
+    if (isNew) {
+        console.log('CREATING THE CONTAINER');
+        const containerConfig: OdspCreateContainerConfig = {
+            siteUrl: odspDriver.siteUrl,
+            driveId: odspDriver.driveId,
+            folderName: odspDriver.directory,
+            fileName: documentId,
+        };
+
+        console.log('CONTAINER CONFIG', containerConfig);
+
+        const { fluidContainer, containerServices } =
+            await OdspClient.createContainer(containerConfig, containerSchema);
+        container = fluidContainer;
+        services = containerServices;
+
+        const sharingLink = await containerServices.generateLink();
+        const itemId = containerPath(sharingLink);
+        localStorage.setItem(itemId, sharingLink);
+        console.log('CONTAINER CREATED');
+        location.hash = itemId;
+    } else {
+        const containerConfig: OdspGetContainerConfig = {
+            fileUrl: containerId, //pass file url
+        };
+
+        const { fluidContainer, containerServices } = await OdspClient.getContainer(
+            containerConfig,
+            containerSchema
+        );
+
+        container = fluidContainer;
+        services = containerServices;
+    }
+
+    if (container.connectionState !== ConnectionState.Connected) {
+        await new Promise<void>((resolve) => {
+            container.once('connected', () => {
+                resolve();
+            });
+        });
+    }
+
+    return { container, services };
 }
