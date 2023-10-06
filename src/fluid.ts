@@ -37,14 +37,6 @@ const containerSchema: ContainerSchema = {
     },
 };
 
-async function initializeNewContainer<TRoot extends FieldSchema>(
-    container: IFluidContainer,
-    config: InitializeAndSchematizeConfiguration<TRoot>
-): Promise<void> {
-    const fluidTree = container.initialObjects.tree as ISharedTree;
-    fluidTree.schematize(config);
-}
-
 const user = generateTestUser();
 
 export const azureUser = {
