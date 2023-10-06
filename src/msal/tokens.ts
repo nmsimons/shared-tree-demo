@@ -18,6 +18,7 @@ const msalConfig = {
 };
 
 const graphScopes = ['FileStorageContainer.Selected'];
+const request = {scopes: ['FileStorageContainer.Selected']};
 
 const sharePointScopes = [
     'https://M365x82694150.sharepoint.com/Container.Selected',
@@ -31,21 +32,24 @@ const pushScopes = [
 
 const msalInstance = new PublicClientApplication(msalConfig);
 
-export async function getTokens(): Promise<{
+export async function getDriverConfig(): Promise<{
     graphToken: string;
     sharePointToken: string;
     pushToken: string;
     userName: string;
     siteUrl: string;
+    directory: string
 }> {
-    const response = await msalInstance.loginPopup({ scopes: graphScopes });
+    const account = await msalInstance.getActiveAccount();
 
-    msalInstance.setActiveAccount(response.account);
-    const username = response.account?.username as string;
+    const response = await msalInstance.acquireTokenSilent(request);
+    
+    const username = account?.username as string;
     const startIndex = username.indexOf('@') + 1;
     const endIndex = username.indexOf('.');
     const tenantName = username.substring(startIndex, endIndex);
     const siteUrl = `https://${tenantName}.sharepoint.com`;
+    const directory = "shared-tree-demo";
 
     try {
         // Attempt to acquire SharePoint token silently
@@ -75,6 +79,7 @@ export async function getTokens(): Promise<{
             pushToken: pushTokenResult.accessToken,
             userName: response.account?.username as string,
             siteUrl: siteUrl,
+            directory: directory
         };
     } catch (error) {
         if (error instanceof InteractionRequiredAuthError) {
@@ -104,6 +109,7 @@ export async function getTokens(): Promise<{
                 pushToken: pushTokenResult.accessToken,
                 userName: response.account?.username as string,
                 siteUrl: siteUrl,
+                directory: directory
             };
         } else {
             // Handle any other error

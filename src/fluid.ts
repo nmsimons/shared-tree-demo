@@ -22,6 +22,8 @@ import { OdspClient } from './odsp-client/OdspClient';
 import { getodspDriver } from './odsp-client';
 import { generateTestUser } from './helpers';
 
+import { getDriverConfig } from './msal/tokens';
+
 export class MySharedTree {
     public static getFactory(): SharedTreeFactory {
         return new SharedTreeFactory();
@@ -118,7 +120,8 @@ export async function initializeContainer(): Promise<{
     services: OdspContainerServices;
 }> {
     console.log('Initiating the driver------');
-    const odspDriver = await getodspDriver();
+    const driverConfig = await getDriverConfig();
+    const odspDriver = await getodspDriver(driverConfig);
     console.log('INITIAL DRIVER', odspDriver);
 
     const getContainerId = (): { containerId: string; isNew: boolean } => {

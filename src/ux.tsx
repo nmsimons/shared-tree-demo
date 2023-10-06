@@ -94,11 +94,19 @@ function Header(props: {
     }, []);
 
     return (
+        <HeaderFrame>
+                {saved ? 'saved' : 'not saved'} | {connectionState} | users:{' '}
+                {fluidMembers}            
+        </HeaderFrame>
+    );
+}
+
+export function HeaderFrame(props: {children?: React.ReactNode}): JSX.Element {
+    return (
         <div className="flex flex-row justify-between bg-black h-10 text-base m-1 text-white">
             <div className="m-2">shared-tree-demo</div>
             <div className="m-2">
-                {saved ? 'saved' : 'not saved'} | {connectionState} | users:{' '}
-                {fluidMembers}
+                {props.children}
             </div>
         </div>
     );
