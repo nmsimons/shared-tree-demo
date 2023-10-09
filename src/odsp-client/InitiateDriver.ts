@@ -7,11 +7,11 @@ import { OdspConnectionConfig } from './interfaces';
 import { OdspClient } from './OdspClient';
 import { OdspDriver } from './OdspDriver';
 
-const initDriver = async (driverConfig: {graphToken: string; sharePointToken: string; pushToken: string; userName: string; siteUrl: string; directory: string}) => {
+const initOdspClient = async (config: {graphToken: string; sharePointToken: string; pushToken: string; userName: string; siteUrl: string; directory: string}) => {
     
     const odspDriver: OdspDriver = await OdspDriver.createFromEnv({
-        username: driverConfig.userName,
-        directory: driverConfig.directory,
+        username: config.userName,
+        directory: config.directory,
         supportsBrowserAuth: true,
         odspEndpointName: 'odsp',
     });
@@ -20,14 +20,13 @@ const initDriver = async (driverConfig: {graphToken: string; sharePointToken: st
         getSharePointToken: odspDriver.getStorageToken as any,
         getPushServiceToken: odspDriver.getPushToken as any,
         getGraphToken: odspDriver.getGraphToken as any,
-        getMicrosoftGraphToken: driverConfig.graphToken,
-    };
+        getMicrosoftGraphToken: config.graphToken,
+    };    
 
-    OdspClient.init(connectionConfig, odspDriver.siteUrl);
-    return odspDriver;
+    return new OdspClient(odspDriver, connectionConfig);    
 };
 
-export const getOdspDriver = async (driverConfig: {graphToken: string; sharePointToken: string; pushToken: string; userName: string; siteUrl: string; directory: string}) => {
-    const odspDriver = await initDriver(driverConfig);    
-    return odspDriver;
+export const getOdspClient = async (config: {graphToken: string; sharePointToken: string; pushToken: string; userName: string; siteUrl: string; directory: string}) => {
+    const odspClient = await initOdspClient(config);    
+    return odspClient;
 };

@@ -42,7 +42,7 @@ export class OdspInstance {
     public readonly urlResolver: OdspUrlResolver;
 
     constructor(
-        private readonly serviceConnectionConfig: OdspConnectionConfig,
+        public readonly serviceConnectionConfig: OdspConnectionConfig,
         server: string
     ) {
         this.documentServiceFactory = new OdspDocumentServiceFactory(

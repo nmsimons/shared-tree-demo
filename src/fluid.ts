@@ -15,12 +15,9 @@ import { Guid } from 'guid-typescript';
 import { ConnectionState, FluidContainer } from 'fluid-framework';
 import {
     OdspContainerServices,
-    OdspCreateContainerConfig,
     OdspGetContainerConfig,
 } from './odsp-client/interfaces';
-import { OdspClient } from './odsp-client/OdspClient';
-import { getOdspDriver } from './odsp-client';
-import { generateTestUser } from './helpers';
+import { getOdspClient } from './odsp-client';
 
 import { getOdspConfig } from './msal/tokens';
 
@@ -112,8 +109,8 @@ export async function initializeContainer(): Promise<{
     container: FluidContainer;
     services: OdspContainerServices;
 }> {    
-    const odspConfig = await getOdspConfig();
-    const odspDriver = await getOdspDriver(odspConfig);
+    const odspConfig = await getOdspConfig();    
+    const odspClient = await getOdspClient(odspConfig);
     
     const getContainerId = (): { containerId: string; isNew: boolean } => {
         let isNew = false;        
@@ -131,31 +128,24 @@ export async function initializeContainer(): Promise<{
     let container: FluidContainer;
     let services: OdspContainerServices;
 
-    if (isNew) {
-
-        const containerConfig: OdspCreateContainerConfig = {
-            siteUrl: odspDriver.siteUrl,
-            driveId: odspDriver.driveId,
-            folderName: odspDriver.directory,
-            fileName: documentId,
-        };
+    if (isNew) {     
 
         const { fluidContainer, containerServices } =
-            await OdspClient.createContainer(containerConfig, containerSchema);
+            await odspClient.createContainer(documentId, containerSchema);
+
         container = fluidContainer;
         services = containerServices;
 
         const sharingLink = await containerServices.generateLink();
         const itemId = containerPath(sharingLink);
-        localStorage.setItem(itemId, sharingLink);
-        console.log('CONTAINER CREATED');
+        localStorage.setItem(itemId, sharingLink);        
         location.hash = itemId;
     } else {
         const containerConfig: OdspGetContainerConfig = {
             fileUrl: containerId, //pass file url
         };
 
-        const { fluidContainer, containerServices } = await OdspClient.getContainer(
+        const { fluidContainer, containerServices } = await odspClient.getContainer(
             containerConfig,
             containerSchema
         );

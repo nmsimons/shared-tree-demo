@@ -72,14 +72,14 @@ export async function getOdspConfig(): Promise<{
         tokenMap.set('userName', username);
         tokenMap.set('siteUrl', siteUrl);
 
-        // Return both tokens
+        // Return all tokens
         return {
             graphToken: response.accessToken,
             sharePointToken: sharePointTokenResult.accessToken,
             pushToken: pushTokenResult.accessToken,
             userName: response.account?.username as string,
             siteUrl: siteUrl,
-            directory: directory
+            directory: directory            
         };
     } catch (error) {
         if (error instanceof InteractionRequiredAuthError) {
@@ -109,7 +109,7 @@ export async function getOdspConfig(): Promise<{
                 pushToken: pushTokenResult.accessToken,
                 userName: response.account?.username as string,
                 siteUrl: siteUrl,
-                directory: directory
+                directory: directory,                
             };
         } else {
             // Handle any other error

@@ -9,7 +9,6 @@ import {
     OdspGetContainerConfig,
     OdspConnectionConfig,
     OdspResources,
-    OdspContainerConfig,
 } from './interfaces';
 import { OdspInstance } from './OdspInstance';
 import { OdspDriver } from './OdspDriver';
@@ -22,15 +21,19 @@ export class OdspClient {
     // eslint-disable-line @typescript-eslint/no-extraneous-class
     private static globalInstance: OdspInstance | undefined;
 
+    constructor(private odspDriver: OdspDriver, private odspConnectionConfig: OdspConnectionConfig) {
+        OdspClient.init(odspConnectionConfig, odspDriver.siteUrl);
+    }
+
     static init(config: OdspConnectionConfig, server: string) {
         if (OdspClient.globalInstance) {
             throw new Error('OdspClient cannot be initialized more than once');
         }
         OdspClient.globalInstance = new OdspInstance(config, server);
-    }
+    }    
 
-    static async createContainer(
-        containerConfig: OdspCreateContainerConfig,
+    async createContainer(        
+        fileName: string,
         containerSchema: ContainerSchema
     ): Promise<OdspResources> {
         if (!OdspClient.globalInstance) {
@@ -38,17 +41,24 @@ export class OdspClient {
                 'OdspClient has not been properly initialized before attempting to create a container'
             );
         }
+
+        const createContainerConfig: OdspCreateContainerConfig = {
+            siteUrl: this.odspDriver.siteUrl,
+            driveId: this.odspDriver.driveId,
+            folderName: this.odspDriver.directory,
+            fileName,
+        }        
+
         return OdspClient.globalInstance.createContainer(
-            containerConfig,
+            createContainerConfig,
             containerSchema
         );
     }
 
-    static async getContainer(
+    async getContainer(
         containerConfig: OdspGetContainerConfig,
         containerSchema: ContainerSchema
-    ): Promise<OdspResources> {
-        console.log('get container');
+    ): Promise<OdspResources> {        
         if (!OdspClient.globalInstance) {
             throw new Error(
                 'OdspClient has not been properly initialized before attempting to get a container'
