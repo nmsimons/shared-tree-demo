@@ -19,10 +19,10 @@ import {
     OdspGetContainerConfig,
 } from './odsp-client/interfaces';
 import { OdspClient } from './odsp-client/OdspClient';
-import { getodspDriver } from './odsp-client';
+import { getOdspDriver } from './odsp-client';
 import { generateTestUser } from './helpers';
 
-import { getDriverConfig } from './msal/tokens';
+import { getOdspConfig } from './msal/tokens';
 
 export class MySharedTree {
     public static getFactory(): SharedTreeFactory {
@@ -37,13 +37,6 @@ const containerSchema: ContainerSchema = {
     initialObjects: {
         tree: MySharedTree,
     },
-};
-
-const user = generateTestUser();
-
-export const azureUser = {
-    userId: user.id,
-    userName: user.id,
 };
 
 /**
@@ -118,15 +111,12 @@ const containerPath = (url: string) => {
 export async function initializeContainer(): Promise<{
     container: FluidContainer;
     services: OdspContainerServices;
-}> {
-    console.log('Initiating the driver------');
-    const driverConfig = await getDriverConfig();
-    const odspDriver = await getodspDriver(driverConfig);
-    console.log('INITIAL DRIVER', odspDriver);
-
+}> {    
+    const odspConfig = await getOdspConfig();
+    const odspDriver = await getOdspDriver(odspConfig);
+    
     const getContainerId = (): { containerId: string; isNew: boolean } => {
-        let isNew = false;
-        console.log('hash: ', location.hash);
+        let isNew = false;        
         if (location.hash.length === 0) {
             isNew = true;
         }
@@ -142,15 +132,13 @@ export async function initializeContainer(): Promise<{
     let services: OdspContainerServices;
 
     if (isNew) {
-        console.log('CREATING THE CONTAINER');
+
         const containerConfig: OdspCreateContainerConfig = {
             siteUrl: odspDriver.siteUrl,
             driveId: odspDriver.driveId,
             folderName: odspDriver.directory,
             fileName: documentId,
         };
-
-        console.log('CONTAINER CONFIG', containerConfig);
 
         const { fluidContainer, containerServices } =
             await OdspClient.createContainer(containerConfig, containerSchema);
@@ -173,7 +161,7 @@ export async function initializeContainer(): Promise<{
         );
 
         container = fluidContainer;
-        services = containerServices;
+        services = containerServices;        
     }
 
     if (container.connectionState !== ConnectionState.Connected) {

@@ -32,7 +32,7 @@ const pushScopes = [
 
 const msalInstance = new PublicClientApplication(msalConfig);
 
-export async function getDriverConfig(): Promise<{
+export async function getOdspConfig(): Promise<{
     graphToken: string;
     sharePointToken: string;
     pushToken: string;

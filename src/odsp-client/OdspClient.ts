@@ -9,8 +9,10 @@ import {
     OdspGetContainerConfig,
     OdspConnectionConfig,
     OdspResources,
+    OdspContainerConfig,
 } from './interfaces';
 import { OdspInstance } from './OdspInstance';
+import { OdspDriver } from './OdspDriver';
 
 /**
  * OdspClient static class with singular global instance that lets the developer define all Container

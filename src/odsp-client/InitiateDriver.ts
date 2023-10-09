@@ -8,36 +8,26 @@ import { OdspClient } from './OdspClient';
 import { OdspDriver } from './OdspDriver';
 
 const initDriver = async (driverConfig: {graphToken: string; sharePointToken: string; pushToken: string; userName: string; siteUrl: string; directory: string}) => {
-    console.log('Driver init------');
     
-    console.log(
-        'tokens-------------------' + driverConfig.graphToken,
-        driverConfig.sharePointToken,
-        driverConfig.pushToken,
-        driverConfig.userName,
-        driverConfig.siteUrl
-    );
-
-    const driver: OdspDriver = await OdspDriver.createFromEnv({
+    const odspDriver: OdspDriver = await OdspDriver.createFromEnv({
         username: driverConfig.userName,
         directory: driverConfig.directory,
         supportsBrowserAuth: true,
         odspEndpointName: 'odsp',
     });
-    console.log('Driver------', driver);
+    
     const connectionConfig: OdspConnectionConfig = {
-        getSharePointToken: driver.getStorageToken as any,
-        getPushServiceToken: driver.getPushToken as any,
-        getGraphToken: driver.getGraphToken as any,
+        getSharePointToken: odspDriver.getStorageToken as any,
+        getPushServiceToken: odspDriver.getPushToken as any,
+        getGraphToken: odspDriver.getGraphToken as any,
         getMicrosoftGraphToken: driverConfig.graphToken,
     };
 
-    OdspClient.init(connectionConfig, driver.siteUrl);
-    return driver;
+    OdspClient.init(connectionConfig, odspDriver.siteUrl);
+    return odspDriver;
 };
 
-export const getodspDriver = async (driverConfig: {graphToken: string; sharePointToken: string; pushToken: string; userName: string; siteUrl: string; directory: string}) => {
-    const odspDriver = await initDriver(driverConfig);
-    console.log('INITIAL DRIVER', odspDriver);
+export const getOdspDriver = async (driverConfig: {graphToken: string; sharePointToken: string; pushToken: string; userName: string; siteUrl: string; directory: string}) => {
+    const odspDriver = await initDriver(driverConfig);    
     return odspDriver;
 };

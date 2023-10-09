@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { App, Pile, Note, User } from './schema';
 import './output.css';
-import { SharedTree, azureUser, useTree } from './fluid';
+import { SharedTree, useTree } from './fluid';
 import {
     addNote,
     addPile,
@@ -31,9 +31,19 @@ export function App(props: {
     // it will update automatically anytime the tree changes.
     const root = useTree(props.data);
 
+    let userName = "";
+    let userId = "";
+
+    if (props.services.audience.getMyself()) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain, @typescript-eslint/no-non-null-assertion
+        userName = props.services.audience.getMyself()?.userName!;
+        // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain, @typescript-eslint/no-non-null-assertion
+        userId = props.services.audience.getMyself()?.userId!;
+    }
+
     const [currentUser] = useState({
-        name: azureUser.userName,
-        id: azureUser.userId,
+        name: userName,
+        id: userId,
     } as User);
 
     return (
