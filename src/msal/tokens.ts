@@ -5,8 +5,7 @@
 
 import {
     PublicClientApplication,
-    AuthenticationResult,
-    InteractionRequiredAuthError,
+    AuthenticationResult,    
 } from '@azure/msal-browser';
 
 const msalConfig = {
@@ -38,14 +37,8 @@ export async function getOdspConfig(): Promise<{
     siteUrl: string;
     directory: string
 }> {
-    const account = await msalInstance.getActiveAccount();
-
-    const response = await msalInstance.acquireTokenSilent(request);
-    
-    const username = account?.username as string;
-    const startIndex = username.indexOf('@') + 1;
-    const endIndex = username.indexOf('.');
-    const tenantName = username.substring(startIndex, endIndex);
+    const response = await msalInstance.acquireTokenSilent(request);    
+    const tenantName = response.tenantId;
     const siteUrl = `https://${tenantName}.sharepoint.com`;
     const directory = "shared-tree-demo";
 
@@ -73,34 +66,9 @@ export async function getOdspConfig(): Promise<{
             siteUrl: siteUrl,
             directory: directory            
         };
-    } catch (error) {
-        if (error instanceof InteractionRequiredAuthError) {
-            // If silent token acquisition fails, fall back to interactive flow
-            const sharePointRequest = {
-                scopes: sharePointScopes,
-            };
-            const sharePointTokenResult: AuthenticationResult =
-                await msalInstance.acquireTokenPopup(sharePointRequest);
-
-            const otherRequest = {
-                scopes: pushScopes,
-            };
-            const pushTokenResult: AuthenticationResult =
-                await msalInstance.acquireTokenPopup(otherRequest);           
-
-            // Return all tokens
-            return {
-                graphToken: response.accessToken,
-                sharePointToken: sharePointTokenResult.accessToken,
-                pushToken: pushTokenResult.accessToken,
-                userName: response.account?.username as string,
-                siteUrl: siteUrl,
-                directory: directory,                
-            };
-        } else {
-            // Handle any other error
-            console.error(error);
-            throw error;
-        }
+    } catch (error) {        
+        // Handle any other error
+        console.error(error);
+        throw error;        
     }
 }
