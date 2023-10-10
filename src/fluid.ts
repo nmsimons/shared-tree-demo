@@ -54,6 +54,7 @@ export const loadFluidData = async <TRoot extends FieldSchema>(
     const tree = container.initialObjects.tree as ISharedTree;
     const view = tree.schematize(config);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data = new SharedTree<App>(view, view.root as any);
 
     return { data, services, container };
@@ -105,23 +106,23 @@ const containerPath = (url: string) => {
     return itemId;
 };
 
+const getContainerId = (): { containerId: string; isNew: boolean } => {
+    let isNew = false;        
+    if (location.hash.length === 0) {
+        isNew = true;
+    }
+    const hash = location.hash;
+    const itemId = hash.charAt(0) === '#' ? hash.substring(1) : hash;
+    const containerId = localStorage.getItem(itemId) as string;
+    return { containerId, isNew };
+};
+
 export async function initializeContainer(): Promise<{
     container: FluidContainer;
     services: OdspContainerServices;
 }> {    
     const odspConfig = await getOdspConfig();    
     const odspClient = await getOdspClient(odspConfig);
-    
-    const getContainerId = (): { containerId: string; isNew: boolean } => {
-        let isNew = false;        
-        if (location.hash.length === 0) {
-            isNew = true;
-        }
-        const hash = location.hash;
-        const itemId = hash.charAt(0) === '#' ? hash.substring(1) : hash;
-        const containerId = localStorage.getItem(itemId) as string;
-        return { containerId, isNew };
-    };
 
     const { containerId, isNew } = getContainerId();
 

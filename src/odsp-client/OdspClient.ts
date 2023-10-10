@@ -22,13 +22,14 @@ export class OdspClient {
     private static globalInstance: OdspInstance | undefined;
 
     constructor(private odspDriver: OdspDriver, private odspConnectionConfig: OdspConnectionConfig) {
-        OdspClient.init(odspConnectionConfig, odspDriver.siteUrl);
+        OdspClient.init(odspConnectionConfig, odspDriver.siteUrl);        
     }
 
     static init(config: OdspConnectionConfig, server: string) {
         if (OdspClient.globalInstance) {
             throw new Error('OdspClient cannot be initialized more than once');
         }
+        
         OdspClient.globalInstance = new OdspInstance(config, server);
     }    
 
@@ -47,7 +48,7 @@ export class OdspClient {
             driveId: this.odspDriver.driveId,
             folderName: this.odspDriver.directory,
             fileName,
-        }        
+        }
 
         return OdspClient.globalInstance.createContainer(
             createContainerConfig,

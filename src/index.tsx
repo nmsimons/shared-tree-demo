@@ -9,9 +9,7 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
 import {
-    PublicClientApplication,
-    AuthenticationResult,
-    InteractionRequiredAuthError,
+    PublicClientApplication,    
 } from '@azure/msal-browser';
 
 const msalConfig = {

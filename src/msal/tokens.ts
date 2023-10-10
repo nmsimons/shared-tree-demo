@@ -8,7 +8,6 @@ import {
     AuthenticationResult,
     InteractionRequiredAuthError,
 } from '@azure/msal-browser';
-import { tokenMap } from '../odsp-client';
 
 const msalConfig = {
     auth: {
@@ -17,7 +16,6 @@ const msalConfig = {
     },
 };
 
-const graphScopes = ['FileStorageContainer.Selected'];
 const request = {scopes: ['FileStorageContainer.Selected']};
 
 const sharePointScopes = [
@@ -64,13 +62,7 @@ export async function getOdspConfig(): Promise<{
             scopes: pushScopes,
         };
         const pushTokenResult: AuthenticationResult =
-            await msalInstance.acquireTokenSilent(otherRequest);
-
-        tokenMap.set('graphToken', response.accessToken);
-        tokenMap.set('sharePointToken', sharePointTokenResult.accessToken);
-        tokenMap.set('pushToken', pushTokenResult.accessToken);
-        tokenMap.set('userName', username);
-        tokenMap.set('siteUrl', siteUrl);
+            await msalInstance.acquireTokenSilent(otherRequest);        
 
         // Return all tokens
         return {
@@ -94,15 +86,9 @@ export async function getOdspConfig(): Promise<{
                 scopes: pushScopes,
             };
             const pushTokenResult: AuthenticationResult =
-                await msalInstance.acquireTokenPopup(otherRequest);
+                await msalInstance.acquireTokenPopup(otherRequest);           
 
-            tokenMap.set('graphToken', response.accessToken);
-            tokenMap.set('sharePointToken', sharePointTokenResult.accessToken);
-            tokenMap.set('pushToken', pushTokenResult.accessToken);
-            tokenMap.set('userName', username);
-            tokenMap.set('siteUrl', siteUrl);
-
-            // Return both tokens
+            // Return all tokens
             return {
                 graphToken: response.accessToken,
                 sharePointToken: sharePointTokenResult.accessToken,
