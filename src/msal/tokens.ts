@@ -18,8 +18,7 @@ const msalConfig = {
 const request = {scopes: ['FileStorageContainer.Selected']};
 
 const sharePointScopes = [
-    'https://M365x82694150.sharepoint.com/Container.Selected',
-    'https://M365x82694150.sharepoint.com/AllSites.Write',
+    'https://M365x82694150.sharepoint.com/Container.Selected'
 ];
 
 const pushScopes = [
