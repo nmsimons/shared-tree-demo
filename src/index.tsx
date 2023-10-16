@@ -15,7 +15,8 @@ import {
 const msalConfig = {
     auth: {
         clientId: '19abc360-c059-48d8-854e-cfeef9a3c5b8',
-        authority: 'https://login.microsoftonline.com/common/',        
+        authority: 'https://login.microsoftonline.com/common/',
+        redirectUri: "http://localhost:3000"        
     },
 };
 
