@@ -1,4 +1,5 @@
 import {
+    AllowedUpdateType,
     SchemaAware,
     SchemaBuilder,
     ValueSchema,
@@ -60,3 +61,17 @@ export type App = SchemaAware.TypedNode<typeof appSchema>;
 export type Pile = SchemaAware.TypedNode<typeof pileSchema>;
 export type Note = SchemaAware.TypedNode<typeof noteSchema>;
 export type User = SchemaAware.TypedNode<typeof userSchema>;
+
+export const schemaConfig = {
+    schema,
+    initialTree: {
+        piles: [
+            {
+                id: '7301d9fc-f7ff-11ed-b67e-0242ac120002',
+                name: 'Ideas...',
+                notes: [],
+            },
+        ],
+    },
+    allowedSchemaModifications: AllowedUpdateType.SchemaCompatible,
+}
