@@ -51,7 +51,7 @@ export function moveNote(
     
     // Get the index of the note in the source pile
     // This index is only valid within this function
-    const index = Array.prototype.indexOf.call(sourcePile.notes, note);
+    const index = sourcePile.notes.indexOf(note);
     
     // If the note isn't in the source pile anymore, bail
     if (index == -1) return;
@@ -59,7 +59,7 @@ export function moveNote(
     destinationPile.notes.moveToIndex(
         destinationIndex,
         index,
-        index,
+        index + 1,
         sourcePile.notes
     );
 }
@@ -109,15 +109,15 @@ export function deletePile(pile: Pile, app: App): boolean {
     }
 
     // Delete the now empty pile
-    app.piles.removeAt(Array.prototype.indexOf.call(app.piles, pile));
+    app.piles.removeAt(app.piles.indexOf(pile));
     return true;
 }
 
 // Function to delete a note. This function tests to make sure the note is still in the
 // specified pile before attempting the delete.
 export function deleteNote(note: Note, pile: Pile) {
-    if (Array.prototype.indexOf.call(pile.notes, note) == -1) return;
-    pile.notes.removeAt(Array.prototype.indexOf.call(pile.notes, note));
+    if (pile.notes.indexOf(note) == -1) return;
+    pile.notes.removeAt(pile.notes.indexOf(note));
 }
 
 export function isVoter(note: Note, user: { name: string; id: string }) {
@@ -132,7 +132,7 @@ export function isVoter(note: Note, user: { name: string; id: string }) {
 export function toggleVote(note: Note, user: { name: string; id: string }) {
     const voter = isVoter(note, user);
     if (voter) {
-        note.votes.removeAt(Array.prototype.indexOf.call(note.votes, voter));
+        note.votes.removeAt(note.votes.indexOf(voter));
         note.lastChanged = new Date().getTime();
     } else {
         note.votes.insertAtEnd([user]);
