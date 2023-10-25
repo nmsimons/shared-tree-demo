@@ -176,7 +176,7 @@ function PileName(props: { pile: Pile }): JSX.Element {
 }
 
 function PileToolbar(props: { pile: Pile; app: App }): JSX.Element {
-    if (props.app.piles.indexOf(props.pile) !== 0) {
+    if (Array.prototype.indexOf.call(props.app.piles, props.pile) !== 0) {
         return (
             <div className="flex justify-between">
                 <PileName pile={props.pile} />
@@ -220,7 +220,7 @@ function Note(props: { note: Note; user: User; pile: Pile }): JSX.Element {
 
     useEffect(() => {
         toggle(true);
-    }, [props.pile.notes.indexOf(props.note)]);
+    }, [Array.prototype.indexOf.call(props.pile.notes, props.note)]);
 
     useEffect(() => {
         if (mounted.current) {
@@ -257,7 +257,7 @@ function Note(props: { note: Note; user: User; pile: Pile }): JSX.Element {
             moveNote(
                 droppedNote.note,
                 droppedNote.pile,
-                props.pile.notes.indexOf(props.note),
+                Array.prototype.indexOf.call(props.pile.notes, props.note),
                 props.pile
             );
             return { note: props.note };
