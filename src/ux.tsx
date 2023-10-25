@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useRef, useState } from 'react';
-import { App, Pile, Note, User } from './schema';
+import { App, Note, Pile, User } from './schema';
 import './output.css';
 import { SharedTree, useTree, azureUser } from './fluid';
 import {
@@ -18,10 +18,9 @@ import {
 import { AzureContainerServices } from '@fluidframework/azure-client';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 import { ConnectionState, IFluidContainer } from 'fluid-framework';
-import { parentField } from '@fluid-experimental/tree2';
 import { useTransition } from 'react-transition-state';
 
-export function App(props: {
+export function ReactApp(props: {
     data: SharedTree<App>;
     services: AzureContainerServices;
     container: IFluidContainer;
@@ -108,7 +107,7 @@ function Piles(props: { root: App; user: User }): JSX.Element {
     const pilesArray = [];
     for (const p of props.root.piles) {
         pilesArray.push(
-            <Pile key={p.id} pile={p} user={props.user} app={props.root} />
+            <PileSchema key={p.id} pile={p} user={props.user} app={props.root} />
         );
     }
 
@@ -156,7 +155,7 @@ function NewPile(props: { root: App }): JSX.Element {
     );
 }
 
-function Pile(props: { pile: Pile; user: User; app: App }): JSX.Element {
+function PileSchema(props: { pile: Pile; user: User; app: App }): JSX.Element {
     return (
         <div className="p-2 bg-gray-200">
             <PileToolbar pile={props.pile} app={props.app} />
@@ -177,7 +176,7 @@ function PileName(props: { pile: Pile }): JSX.Element {
 }
 
 function PileToolbar(props: { pile: Pile; app: App }): JSX.Element {
-    if (props.pile[parentField].index !== 0) {
+    if (props.app.piles.indexOf(props.pile) !== 0) {
         return (
             <div className="flex justify-between">
                 <PileName pile={props.pile} />
@@ -221,7 +220,7 @@ function Note(props: { note: Note; user: User; pile: Pile }): JSX.Element {
 
     useEffect(() => {
         toggle(true);
-    }, [props.note[parentField].index]);
+    }, [props.pile.notes.indexOf(props.note)]);
 
     useEffect(() => {
         if (mounted.current) {
@@ -258,7 +257,7 @@ function Note(props: { note: Note; user: User; pile: Pile }): JSX.Element {
             moveNote(
                 droppedNote.note,
                 droppedNote.pile,
-                props.note[parentField].index,
+                props.pile.notes.indexOf(props.note),
                 props.pile
             );
             return { note: props.note };

@@ -1,9 +1,10 @@
 import {
     AllowedUpdateType,
-    SchemaAware,
-    SchemaBuilder,
-    ValueSchema,
+    InitializeAndSchematizeConfiguration,
+    ProxyNode,
+    SchemaBuilder,    
 } from '@fluid-experimental/tree2';
+import { Guid } from 'guid-typescript';
 
 // Schema is defined using a builder object that generates a schema that is passed into the
 // SharedTree data structure when it is intialized. The following code
@@ -12,62 +13,54 @@ import {
 // as TypeScript types to make it easier to write the app in a type-safe manner.
 
 // Include a UUID to guarantee that this schema will be unique
-const builder = new SchemaBuilder('fc1db2e8-0a00-11ee-be56-0242ac120002');
-
-// Define the primitive this app uses
-export const float64 = builder.leaf('number', ValueSchema.Number);
-export const string = builder.leaf('string', ValueSchema.String);
+const sb = new SchemaBuilder({scope: 'fc1db2e8-0a00-11ee-be56-0242ac120002'});
 
 // Define a simple user type - in most apps this would probably not be
 // necessary as the user would be defined through an identity/auth service
-export const userSchema = builder.struct('demo:user', {
-    name: SchemaBuilder.fieldValue(string),
-    id: SchemaBuilder.fieldValue(string),
+export const UserSchema = sb.object('user', {
+    name: sb.string,
+    id: sb.string,
 });
 
 // Define the schema for the note object. This schema includes an id to make
 // building the React app simpler, several fields that use primitive types, and a sequence
 // of users (defined above) to track which users have voted on this note.
-export const noteSchema = builder.struct('demo:note', {
-    id: SchemaBuilder.fieldValue(string),
-    text: SchemaBuilder.fieldValue(string),
-    author: SchemaBuilder.fieldValue(userSchema),
-    votes: SchemaBuilder.fieldSequence(userSchema),
-    created: SchemaBuilder.fieldValue(float64),
-    lastChanged: SchemaBuilder.fieldValue(float64),
+export const NoteSchema = sb.object('note', {
+    id: sb.string,
+    text: sb.string,
+    author: UserSchema,
+    votes: sb.list(UserSchema),
+    created: sb.number,
+    lastChanged: sb.number,
 });
 
 // Define the schema for the container of notes. This type includes a sequence of notes.
-export const pileSchema = builder.struct('demo:pile', {
-    id: SchemaBuilder.fieldValue(string),
-    name: SchemaBuilder.fieldValue(string),
-    notes: SchemaBuilder.fieldSequence(noteSchema),
+export const PileSchema = sb.object('pile', {
+    id: sb.string,
+    name: sb.string,
+    notes: sb.list(NoteSchema),
 });
 
 // Define a root type. This only contains a sequence of piles but if the app needed
 // additional metadata or other app data, it is easy to add that here.
-export const appSchema = builder.struct('demo:app', {
-    piles: SchemaBuilder.fieldSequence(pileSchema),
+export const AppSchema = sb.object('app', {
+    piles: sb.list(PileSchema),
 });
 
-// Define the root of the schema as the app type.
-export const rootField = SchemaBuilder.fieldValue(appSchema);
-
-// Create the schema object to pass into the SharedTree
-export const schema = builder.intoDocumentSchema(rootField);
+const schema = sb.intoSchema(AppSchema);
 
 // Export the types defined here as TypeScript types.
-export type App = SchemaAware.TypedNode<typeof appSchema>;
-export type Pile = SchemaAware.TypedNode<typeof pileSchema>;
-export type Note = SchemaAware.TypedNode<typeof noteSchema>;
-export type User = SchemaAware.TypedNode<typeof userSchema>;
+export type App = ProxyNode<typeof AppSchema>;
+export type Pile = ProxyNode<typeof PileSchema>;
+export type Note = ProxyNode<typeof NoteSchema>;
+export type User = ProxyNode<typeof UserSchema>;
 
-export const schemaConfig = {
+export const schemaConfig: InitializeAndSchematizeConfiguration = {
     schema,
     initialTree: {
         piles: [
             {
-                id: '7301d9fc-f7ff-11ed-b67e-0242ac120002',
+                id: Guid.create().toString(),
                 name: 'Ideas...',
                 notes: [],
             },

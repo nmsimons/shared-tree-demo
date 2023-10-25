@@ -2,7 +2,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { loadFluidData } from './fluid';
-import { App } from './ux';
+import { ReactApp } from './ux';
 import { schemaConfig } from './schema';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -18,7 +18,7 @@ async function main() {
     ReactDOM.render(
         [
             <DndProvider backend={HTML5Backend}>
-                <App data={data} services={services} container={container} />
+                <ReactApp data={data} services={services} container={container} />
             </DndProvider>,
         ],
         document.getElementById('root')

@@ -10,18 +10,18 @@ import {
 } from '@fluidframework/azure-client';
 import { ContainerSchema, IFluidContainer } from 'fluid-framework';
 import {
-    FieldSchema,
     ISharedTree,
     InitializeAndSchematizeConfiguration,
     SharedTreeFactory,
-    ISharedTreeView
+    ISharedTreeView,
+    TreeFieldSchema
 } from '@fluid-experimental/tree2';
 
 import axios from 'axios';
 import React from 'react';
 import { App } from './schema';
 import { generateTestUser } from './helpers';
-import { IInsecureUser, InsecureTokenProvider } from '@fluidframework/test-runtime-utils';
+import { InsecureTokenProvider } from '@fluidframework/test-runtime-utils';
 
 /**
  * Token Provider implementation for connecting to an Azure Function endpoint for
@@ -125,7 +125,7 @@ const containerSchema: ContainerSchema = {
     },
 };
 
-async function initializeNewContainer<TRoot extends FieldSchema>(
+async function initializeNewContainer<TRoot extends TreeFieldSchema>(
     container: IFluidContainer,
     config: InitializeAndSchematizeConfiguration<TRoot>
 ): Promise<void> {
@@ -139,7 +139,7 @@ async function initializeNewContainer<TRoot extends FieldSchema>(
  *
  * @returns The loaded container and container services.
  */
-export const loadFluidData = async <TRoot extends FieldSchema>(
+export const loadFluidData = async <TRoot extends TreeFieldSchema>(
     config: InitializeAndSchematizeConfiguration<TRoot>
 ): Promise<{
     data: SharedTree<App>;
@@ -173,7 +173,7 @@ export const loadFluidData = async <TRoot extends FieldSchema>(
     }
 
     const tree = container.initialObjects.tree as ISharedTree;
-    const view = tree.schematize(config)
+    const view = tree.schematizeView(config);
     
     const data = new SharedTree<App>(view, view.root as any);    
 
