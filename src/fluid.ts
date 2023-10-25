@@ -175,7 +175,7 @@ export const loadFluidData = async <TRoot extends TreeFieldSchema>(
     const tree = container.initialObjects.tree as ISharedTree;
     const view = tree.schematizeView(config);
     
-    const data = new SharedTree<App>(view, view.root as any);    
+    const data = new SharedTree<App>(view, view.root2(config.schema) as any);    
 
     return { data, services, container };
 };

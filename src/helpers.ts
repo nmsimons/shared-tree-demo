@@ -104,7 +104,7 @@ export function deletePile(pile: Pile, app: App): boolean {
         defaultPile.notes.moveToEnd(
             0,
             pile.notes.length,
-            defaultPile.notes
+            pile.notes
         );
     }
 
