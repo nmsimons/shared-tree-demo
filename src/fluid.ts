@@ -2,10 +2,7 @@ import {
     AzureClient,
     AzureRemoteConnectionConfig,
     AzureContainerServices,
-    AzureClientProps,
-    AzureMember,
-    ITokenProvider,
-    ITokenResponse,
+    AzureClientProps,    
     AzureLocalConnectionConfig,
 } from '@fluidframework/azure-client';
 import { ContainerSchema, IFluidContainer } from 'fluid-framework';
@@ -17,60 +14,10 @@ import {
     TreeFieldSchema
 } from '@fluid-experimental/tree2';
 
-import axios from 'axios';
 import React from 'react';
 import { App } from './schema';
-import { generateTestUser } from './helpers';
 import { InsecureTokenProvider } from '@fluidframework/test-runtime-utils';
-
-/**
- * Token Provider implementation for connecting to an Azure Function endpoint for
- * Azure Fluid Relay token resolution.
- */
-export class AzureFunctionTokenProvider implements ITokenProvider {
-    /**
-     * Creates a new instance using configuration parameters.
-     * @param azFunctionUrl - URL to Azure Function endpoint
-     * @param user - User object
-     */
-    constructor(
-        private readonly azFunctionUrl: string,
-        private readonly user?: Pick<AzureMember, 'userName' | 'additionalDetails'>
-    ) {}
-
-    public async fetchOrdererToken(
-        tenantId: string,
-        documentId?: string
-    ): Promise<ITokenResponse> {
-        return {
-            jwt: await this.getToken(tenantId, documentId),
-        };
-    }
-
-    public async fetchStorageToken(
-        tenantId: string,
-        documentId: string
-    ): Promise<ITokenResponse> {
-        return {
-            jwt: await this.getToken(tenantId, documentId),
-        };
-    }
-
-    private async getToken(
-        tenantId: string,
-        documentId: string | undefined
-    ): Promise<string> {
-        const response = await axios.get(this.azFunctionUrl, {
-            params: {
-                tenantId,
-                documentId,
-                userName: this.user?.userName,
-                additionalDetails: this.user?.additionalDetails,
-            },
-        });
-        return response.data as string;
-    }
-}
+import { AzureFunctionTokenProvider, azureUser, user } from './auth';
 
 export class MySharedTree {
     public static getFactory(): SharedTreeFactory {
@@ -83,13 +30,6 @@ const useAzure = process.env.FLUID_CLIENT === 'azure';
 if (!useAzure) {
     console.warn(`Configured to use local tinylicious.`);
 }
-
-const user = generateTestUser();
-
-export const azureUser = {
-    userId: user.id,
-    userName: user.id,
-};
 
 const remoteConnectionConfig: AzureRemoteConnectionConfig = {
     type: 'remote',

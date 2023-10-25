@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { App, Note, Pile, User } from './schema';
 import './output.css';
-import { SharedTree, useTree, azureUser } from './fluid';
+import { SharedTree, useTree } from './fluid';
 import {
     addNote,
     addPile,
@@ -19,6 +19,7 @@ import { AzureContainerServices } from '@fluidframework/azure-client';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 import { ConnectionState, IFluidContainer } from 'fluid-framework';
 import { useTransition } from 'react-transition-state';
+import { azureUser } from './auth';
 
 export function ReactApp(props: {
     data: SharedTree<App>;
