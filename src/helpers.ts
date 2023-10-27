@@ -1,12 +1,11 @@
 import { node, TreeStatus } from '@fluid-experimental/tree2';
-import { App, Note, Pile, NoteSchema, PileSchema, Notes, NotesSchema } from './schema';
+import { App, Note, Pile, NoteSchema, PileSchema, Notes, Items } from './schema';
 import { Guid } from 'guid-typescript';
-import { IInsecureUser } from '@fluidframework/test-runtime-utils';
 
 // Takes a destination pile, content string, and author data and adds a new
 // note to the SharedTree with that data.
 export function addNote(
-    notes: Notes,
+    notes: Notes | Items,
     text: string,
     author: { name: string; id: string }
 ) {
@@ -39,9 +38,9 @@ export function updateNoteText(note: Note, text: string) {
 // in a different sequence. The index being passed here is the desired index after the move.
 export function moveNote(
     note: Note,
-    source: Notes,
+    source: Notes | Items,
     destinationIndex: number,
-    destination: Notes
+    destination: Notes | Items
 ) {
     // need to test that sourcePile and destinationPile haven't been deleted
     // because the move may have been initiated through a drag and drop which
@@ -54,13 +53,16 @@ export function moveNote(
     const index = source.indexOf(note);    
     
     // If the note isn't in the source pile anymore, bail
-    if (index == -1) return;   
-    
-    destination.moveToIndex(
+    if (index == -1) return;
+
+    const s = source as Notes
+    const d = destination as Notes
+           
+    d.moveToIndex(
         destinationIndex,
         index,
         index + 1,
-        source
+        s
     );
 }
 
@@ -72,19 +74,10 @@ export function addPile(app: App, name: string): Pile {
         notes: [],
     });   
 
-    app.piles.insertAtEnd([pile]);
-    return app.piles[app.piles.length - 1]; //yuck - this should just be return pile
-}
+    app.items.insertAtEnd([pile]);
 
-// Function that wraps the moveNote function to keep the UI code simple.
-export function moveNoteToNewPile(
-    note: Note,
-    source: Notes,
-    app: App,
-    name: string
-) {
-    const newPile = addPile(app, name);
-    moveNote(note, source, newPile.notes.length, newPile.notes);
+    app.items.length    
+    return app.items[app.items.length - 1] as Pile; //yuck - this should just be return pile
 }
 
 // Function that deletes a pile and moves the notes in that pile
@@ -93,7 +86,7 @@ export function deletePile(pile: Pile, app: App): boolean {
 
     // Test for the presence of notes and move them to the root
     if (pile.notes.length !== 0) {        
-        app.notes.moveToEnd(
+        app.items.moveToEnd(
             0,
             pile.notes.length,
             pile.notes
@@ -101,7 +94,7 @@ export function deletePile(pile: Pile, app: App): boolean {
     }
 
     // Delete the now empty pile
-    app.piles.removeAt(node.key(pile) as number);
+    app.items.removeAt(node.key(pile) as number);
     return true;
 }
 
@@ -111,53 +104,15 @@ export function deleteNote(note: Note) {
     parent.removeAt(node.key(note) as number);
 }
 
-export function isVoter(note: Note, user: { name: string; id: string }) {
-    for (const u of note.votes) {
-        if (u.id == user.id) {
-            return u;
-        }
-    }
-    return undefined;
-}
-
-export function toggleVote(note: Note, user: { name: string; id: string }) {
-    const voter = isVoter(note, user);
-    if (voter) {
-        note.votes.removeAt(note.votes.indexOf(voter));
+export function toggleVote(note: Note, userId: string ) {
+    const index = note.votes.indexOf(userId);
+    if (index > -1) {
+        note.votes.removeAt(index);
         note.lastChanged = new Date().getTime();
     } else {
-        note.votes.insertAtEnd([user]);
+        note.votes.insertAtEnd([userId]);
         note.lastChanged = new Date().getTime();
     }
 }
 
-export function getRotation(note: Note) {
-    const i = hashCode(note.id);
 
-    const rotationArray = [
-        'rotate-1',
-        '-rotate-2',
-        'rotate-2',
-        '-rotate-1',
-        '-rotate-3',
-        'rotate-3',
-    ];
-
-    return rotationArray[i % rotationArray.length];
-}
-
-export function hashCode(str: string): number {
-    let h = 0;
-    for (let i = 0; i < str.length; i++) {
-        h = 31 * h + str.charCodeAt(i);
-    }
-    return h;
-}
-
-export const generateTestUser = (): IInsecureUser => {
-    const user = {
-        id: Guid.create().toString(),
-        name: "[TEST USER]"
-    };
-    return user;
-};

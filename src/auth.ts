@@ -5,7 +5,7 @@ import {
 } from '@fluidframework/azure-client';
 
 import axios from 'axios';
-import { generateTestUser } from './helpers';
+import { generateTestUser } from './utils';
 
 /**
  * Token Provider implementation for connecting to an Azure Function endpoint for
