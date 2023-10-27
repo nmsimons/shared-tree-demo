@@ -34,37 +34,36 @@ export const NoteSchema = sb.object('note', {
     lastChanged: sb.number,
 });
 
+export const NotesSchema = sb.list(NoteSchema);
+
 // Define the schema for the container of notes. This type includes a sequence of notes.
 export const PileSchema = sb.object('pile', {
     id: sb.string,
     name: sb.string,
-    notes: sb.list(NoteSchema),
+    notes: NotesSchema,
 });
 
 // Define a root type. This only contains a sequence of piles but if the app needed
 // additional metadata or other app data, it is easy to add that here.
 export const AppSchema = sb.object('app', {
     piles: sb.list(PileSchema),
+    notes: NotesSchema
 });
-
-const schema = sb.intoSchema(AppSchema);
 
 // Export the types defined here as TypeScript types.
 export type App = ProxyNode<typeof AppSchema>;
 export type Pile = ProxyNode<typeof PileSchema>;
 export type Note = ProxyNode<typeof NoteSchema>;
 export type User = ProxyNode<typeof UserSchema>;
+export type Notes = ProxyNode<typeof NotesSchema>;
+
+const schema = sb.intoSchema(AppSchema);
 
 export const schemaConfig: InitializeAndSchematizeConfiguration = {
     schema,
     initialTree: {
-        piles: [
-            {
-                id: Guid.create().toString(),
-                name: 'Ideas...',
-                notes: [],
-            },
-        ],
+        piles: [],
+        notes: []
     },
     allowedSchemaModifications: AllowedUpdateType.SchemaCompatible,
 }
