@@ -107,20 +107,20 @@ function Header(props: {
 
 function RootItems(props: { root: App; user: User }): JSX.Element {
     const pilesArray = [];
-    for (const p of props.root.items) {
-        if (node.is(p, PileSchema)) {
+    for (const i of props.root.items) {
+        if (node.is(i, PileSchema)) {
             pilesArray.push(
-                <PileBase key={p.id} pile={p} user={props.user} app={props.root} />
+                <PileBase key={i.id} pile={i} user={props.user} app={props.root} />
             );
-        } else if (node.is(p, NoteSchema)) {
+        } else if (node.is(i, NoteSchema)) {
             pilesArray.push(
-                <NoteBase note={p} user={props.user} notes={props.root.items} />
+                <NoteBase key={i.id} note={i} user={props.user} notes={props.root.items} />
             );
         }        
     }   
 
     return (
-        <div id="piles" className="flex flex-row flex-wrap gap-4 m-4">
+        <div className="flex flex-row flex-wrap gap-4 m-4">
             {pilesArray}
         </div>
     );
@@ -207,12 +207,14 @@ function NoteBase(props: { note: Note; user: User; notes: Notes | Items }): JSX.
         };
     }, []);
 
+    const [originalIndex, ]  = useState(props.notes.indexOf(props.note))
+
     const [{ isDragging }, drag] = useDrag(() => ({
         type: 'Note',
         item: { note: props.note, user: props.user, notes: props.notes },
         collect: (monitor) => ({
-            isDragging: monitor.isDragging(),
-        }),
+            isDragging: monitor.isDragging(),            
+        }),        
     }));
 
     const [{ isActive }, drop] = useDrop(() => ({
@@ -227,7 +229,8 @@ function NoteBase(props: { note: Note; user: User; notes: Notes | Items }): JSX.
                 notes: Notes | Items;
             };
 
-            console.log("ux:", props.notes.indexOf(props.note), props.note.text);
+            console.log("source:", droppedNote.notes.indexOf(droppedNote.note), droppedNote.note.text, originalIndex);
+            console.log("dest:", props.notes.indexOf(props.note), props.note.text);
 
             moveNote(
                 droppedNote.note,
@@ -257,7 +260,7 @@ function NoteBase(props: { note: Note; user: User; notes: Notes | Items }): JSX.
                         ? 'border-l-4 border-dashed border-gray-500'
                         : 'border-l-4 border-dashed border-transparent'
                 }
-            >{props.notes.indexOf(props.note)}
+            >{props.notes.indexOf(props.note)}|{originalIndex}
                 <div
                     style={{ opacity: isDragging ? 0.5 : 1 }}
                     className={
@@ -321,13 +324,11 @@ function AddNoteButton(props: { pile: Pile; user: User }): JSX.Element {
                 user: User;
                 notes: Notes | Items;
             };
-            const i = node.key(droppedNote.note) as number
+            const i = node.key(droppedNote.note) as number            
 
-            const foo = props.pile;
+            console.log(props.pile.name, i);
 
-            console.log(foo.name, i);
-
-            foo.notes.moveToEnd(i, i + 1, droppedNote.notes as Notes)
+            props.pile.notes.moveToEnd(i, i + 1, droppedNote.notes as Notes)
             return { notes: props.pile.notes };
         },
     }));

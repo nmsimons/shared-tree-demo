@@ -42,8 +42,8 @@ export function moveNote(
     destinationIndex: number,
     destination: Notes | Items
 ) {
-
-    console.log(destinationIndex);
+    console.log("source:", source.indexOf(note), note.text);
+    console.log("dest:", destinationIndex);
 
     // need to test that source and destination haven't been deleted
     // because the move may have been initiated through a drag and drop which
