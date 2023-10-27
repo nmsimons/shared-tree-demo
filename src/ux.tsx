@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useRef, useState } from 'react';
-import { App, Note, Pile, User, Notes, Items, NoteSchema, PileSchema } from './schema';
+import { App, Note, Pile, User, Notes, Items, NoteSchema, PileSchema, NotesSchema } from './schema';
 import './output.css';
 import { SharedTree, useTree } from './fluid';
 import {
@@ -226,6 +226,9 @@ function NoteBase(props: { note: Note; user: User; notes: Notes | Items }): JSX.
                 user: User;
                 notes: Notes | Items;
             };
+
+            console.log("ux:", props.notes.indexOf(props.note), props.note.text);
+
             moveNote(
                 droppedNote.note,
                 droppedNote.notes,
@@ -254,7 +257,7 @@ function NoteBase(props: { note: Note; user: User; notes: Notes | Items }): JSX.
                         ? 'border-l-4 border-dashed border-gray-500'
                         : 'border-l-4 border-dashed border-transparent'
                 }
-            >
+            >{props.notes.indexOf(props.note)}
                 <div
                     style={{ opacity: isDragging ? 0.5 : 1 }}
                     className={
@@ -268,7 +271,7 @@ function NoteBase(props: { note: Note; user: User; notes: Notes | Items }): JSX.
                         note={props.note}
                         user={props.user}
                         notes={props.notes}
-                    />
+                    />                    
                     <NoteTextArea note={props.note} user={props.user} />
                 </div>
             </div>
@@ -318,12 +321,8 @@ function AddNoteButton(props: { notes: Notes; user: User }): JSX.Element {
                 user: User;
                 notes: Notes | Items;
             };
-            moveNote(
-                droppedNote.note,
-                droppedNote.notes,
-                props.notes.length,
-                props.notes
-            );
+            const i = node.key(droppedNote.note) as number
+            props.notes.moveToEnd(i, i + 1, droppedNote.notes as Notes)
             return { notes: props.notes };
         },
     }));

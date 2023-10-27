@@ -42,7 +42,10 @@ export function moveNote(
     destinationIndex: number,
     destination: Notes | Items
 ) {
-    // need to test that sourcePile and destinationPile haven't been deleted
+
+    console.log(destinationIndex);
+
+    // need to test that source and destination haven't been deleted
     // because the move may have been initiated through a drag and drop which
     // is asynchronous - the state may have changed during the drag but this function
     // is operating based on the state at the moment the drag began
