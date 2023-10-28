@@ -9,7 +9,8 @@ import {
     toggleVote,
     deleteNote,
     deletePile,
-    moveNote,    
+    moveNote,
+    movePile,    
     updateNoteText,
 } from './helpers';
 import { getRotation } from './utils';
@@ -131,15 +132,46 @@ function NewPileButton(props: { root: App }): JSX.Element {
         <IconButton
             color="white"
             background="black"
-            handleClick={() => addPile(props.root, '[new group]')}
+            handleClick={() => addPile(props.root.items, '[new group]')}
             icon={MiniThumb()}
         ></IconButton>
     );
 }
 
 function PileBase(props: { pile: Pile; user: User; app: App }): JSX.Element {
+    const [{ isDragging }, drag] = useDrag(() => ({
+        type: 'Pile',
+        item: { pile: props.pile },
+        collect: (monitor) => ({
+            isDragging: monitor.isDragging(),            
+        }),        
+    }));
+
+    const [{ isActive }, drop] = useDrop(() => ({
+        accept: 'Pile',
+        collect: (monitor) => ({
+            isActive: monitor.canDrop() && monitor.isOver(),
+        }),
+        drop(item) {
+            const droppedPile: { pile: Pile } = item as {
+                pile: Pile;                                
+            };
+
+            movePile(
+                droppedPile.pile,                
+                props.app.items.indexOf(props.pile),
+                props.app.items
+            );
+            return { pile: props.pile };
+        },
+    }));
+
+    function attachRef(el: ConnectableElement) {
+        drag(el);
+        drop(el);
+    }
     return (
-        <div className="p-2 bg-gray-200">
+        <div ref={attachRef} className="p-2 bg-gray-200">
             <PileToolbar pile={props.pile} app={props.app} />
             <NoteContainer pile={props.pile} user={props.user} />
         </div>
@@ -211,7 +243,7 @@ function NoteBase(props: { note: Note; user: User; notes: Notes | Items }): JSX.
 
     const [{ isDragging }, drag] = useDrag(() => ({
         type: 'Note',
-        item: { note: props.note, user: props.user, notes: props.notes },
+        item: { note: props.note },
         collect: (monitor) => ({
             isDragging: monitor.isDragging(),            
         }),        
@@ -222,26 +254,20 @@ function NoteBase(props: { note: Note; user: User; notes: Notes | Items }): JSX.
         collect: (monitor) => ({
             isActive: monitor.canDrop() && monitor.isOver(),
         }),
-        drop(item) {
-            const droppedNote: { note: Note; user: User; notes: Notes | Items } = item as {
-                note: Note;
-                user: User;
-                notes: Notes | Items;
+        drop(item) {            
+            const droppedNote: { note: Note } = item as {
+                note: Note;                                
             };
 
-            console.log("source:", droppedNote.notes.indexOf(droppedNote.note), droppedNote.note.text, originalIndex);
-            console.log("dest:", props.notes.indexOf(props.note), props.note.text);
-
             moveNote(
-                droppedNote.note,
-                droppedNote.notes,
+                droppedNote.note,                
                 props.notes.indexOf(props.note),
                 props.notes
             );
             return { note: props.note };
         },
     }));
-
+    
     function attachRef(el: ConnectableElement) {
         drag(el);
         drop(el);
@@ -319,16 +345,14 @@ function AddNoteButton(props: { pile: Pile; user: User }): JSX.Element {
             isActive: monitor.canDrop() && monitor.isOver(),
         }),
         drop(item) {
-            const droppedNote: { note: Note; user: User; notes: Notes | Items } = item as {
-                note: Note;
-                user: User;
-                notes: Notes | Items;
+            const droppedNote: { note: Note  } = item as {
+                note: Note;                
             };
             const i = node.key(droppedNote.note) as number            
 
             console.log(props.pile.name, i);
 
-            props.pile.notes.moveToEnd(i, i + 1, droppedNote.notes as Notes)
+            props.pile.notes.moveToEnd(i, i + 1, node.parent(droppedNote.note) as Notes)
             return { notes: props.pile.notes };
         },
     }));
@@ -408,7 +432,7 @@ function LikeButton(props: { note: Note; user: User }): JSX.Element {
             <IconButton
                 color={setColor()}
                 background={setBackground()}
-                handleClick={() => toggleVote(props.note, props.user.id)}
+                handleClick={() => toggleVote(props.note, props.user)}
                 icon={MiniThumb()}
             >
                 {props.note.votes.length}

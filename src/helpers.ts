@@ -1,5 +1,5 @@
 import { node, TreeStatus } from '@fluid-experimental/tree2';
-import { App, Note, Pile, NoteSchema, PileSchema, Notes, Items } from './schema';
+import { App, Note, Pile, NoteSchema, PileSchema, Notes, Items, NotesSchema, ItemsSchema, User } from './schema';
 import { Guid } from 'guid-typescript';
 
 // Takes a destination pile, content string, and author data and adds a new
@@ -37,50 +37,74 @@ export function updateNoteText(note: Note, text: string) {
 // Move a note from one position in a sequence to another position in the same sequence or
 // in a different sequence. The index being passed here is the desired index after the move.
 export function moveNote(
-    note: Note,
-    source: Notes | Items,
+    note: Note,    
     destinationIndex: number,
     destination: Notes | Items
 ) {
-    console.log("source:", source.indexOf(note), note.text);
-    console.log("dest:", destinationIndex);
-
-    // need to test that source and destination haven't been deleted
+    // need to test that the destination or the item being dragged hasn't been deleted
     // because the move may have been initiated through a drag and drop which
     // is asynchronous - the state may have changed during the drag but this function
     // is operating based on the state at the moment the drag began
-    if (node.status(source) != TreeStatus.InDocument || node.status(destination) != TreeStatus.InDocument) return;
-    
-    // Get the index of the note in the source pile
-    // This index is only valid within this function
-    const index = source.indexOf(note);    
-    
-    // If the note isn't in the source pile anymore, bail
-    if (index == -1) return;
+    if (node.status(destination) != TreeStatus.InDocument || node.status(note) != TreeStatus.InDocument ) return;
 
-    const s = source as Notes
     const d = destination as Notes
-           
-    d.moveToIndex(
-        destinationIndex,
-        index,
-        index + 1,
-        s
-    );
+    
+    const source = node.parent(note);
+    if (node.is(source, NotesSchema)) {
+        const index = source.indexOf(note);
+        d.moveToIndex(
+            destinationIndex,
+            index,
+            index + 1,
+            source
+        );
+    } else if (node.is(source, ItemsSchema)) {
+        const index = source.indexOf(note);
+        d.moveToIndex(
+            destinationIndex,
+            index,
+            index + 1,
+            source
+        );
+    }
+}
+
+// Move a note from one position in a sequence to another position in the same sequence or
+// in a different sequence. The index being passed here is the desired index after the move.
+export function movePile(
+    pile: Pile,    
+    destinationIndex: number,
+    destination: Items
+) {
+    // need to test that the destination and the pile hasn't been deleted
+    // because the move may have been initiated through a drag and drop which
+    // is asynchronous - the state may have changed during the drag but this function
+    // is operating based on the state at the moment the drag began
+    if (node.status(destination) != TreeStatus.InDocument || node.status(pile) != TreeStatus.InDocument) return;    
+    
+    const source = node.parent(pile);
+    if (node.is(source, ItemsSchema)) {
+        const index = source.indexOf(pile);
+        destination.moveToIndex(
+            destinationIndex,
+            index,
+            index + 1,        
+        );
+    }
 }
 
 // Add a new pile (container for notes) to the SharedTree.
-export function addPile(app: App, name: string): Pile {
+export function addPile(items: Items, name: string): Pile {
     const pile = PileSchema.create({
         id: Guid.create().toString(),
         name,
         notes: [],
     });   
 
-    app.items.insertAtEnd([pile]);
+    items.insertAtEnd([pile]);
 
-    app.items.length    
-    return app.items[app.items.length - 1] as Pile; //yuck - this should just be return pile
+    items.length    
+    return items[items.length - 1] as Pile; //yuck - this should just be return pile
 }
 
 // Function that deletes a pile and moves the notes in that pile
@@ -97,7 +121,8 @@ export function deletePile(pile: Pile, app: App): boolean {
     }
 
     // Delete the now empty pile
-    app.items.removeAt(node.key(pile) as number);
+    const parent = node.parent(pile) as Notes;
+    parent.removeAt(node.key(pile) as number);
     return true;
 }
 
@@ -107,13 +132,13 @@ export function deleteNote(note: Note) {
     parent.removeAt(node.key(note) as number);
 }
 
-export function toggleVote(note: Note, userId: string ) {
-    const index = note.votes.indexOf(userId);
+export function toggleVote(note: Note, user: User ) {
+    const index = note.votes.indexOf(user.id);
     if (index > -1) {
         note.votes.removeAt(index);
         note.lastChanged = new Date().getTime();
     } else {
-        note.votes.insertAtEnd([userId]);
+        note.votes.insertAtEnd([user.id]);
         note.lastChanged = new Date().getTime();
     }
 }
