@@ -1,5 +1,5 @@
 import { node, TreeStatus } from '@fluid-experimental/tree2';
-import { App, Note, Pile, NoteSchema, PileSchema, Notes, Items, ItemsSchema, User } from './schema';
+import { App, Note, Pile, NoteSchema, PileSchema, Notes, Items, User } from './schema';
 import { Guid } from 'guid-typescript';
 
 // Takes a destination list, content string, and author data and adds a new
@@ -78,6 +78,7 @@ export function addPile(items: Items, name: string): Pile {
 export function deletePile(pile: Pile, app: App) {    
 
     // Test for the presence of notes and move them to the root
+    // in the same position as the pile
     if (pile.notes.length !== 0) {        
         app.items.moveToIndex(
             node.key(pile) as number,

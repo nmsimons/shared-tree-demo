@@ -18,7 +18,7 @@ import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 import { ConnectionState, IFluidContainer } from 'fluid-framework';
 import { useTransition } from 'react-transition-state';
 import { azureUser } from './auth';
-import { SharedTreeNode, node } from '@fluid-experimental/tree2';
+import { node } from '@fluid-experimental/tree2';
 
 export function ReactApp(props: {
     data: SharedTree<App>;
@@ -114,7 +114,7 @@ function RootItems(props: { root: App; user: User }): JSX.Element {
             );
         } else if (node.is(i, NoteSchema)) {
             pilesArray.push(
-                <NoteBase key={i.id} note={i} user={props.user} notes={props.root.items} />
+                <RootNoteBase key={i.id} note={i} user={props.user} notes={props.root.items} />
             );
         }        
     }   
@@ -174,7 +174,7 @@ function PileBase(props: { pile: Pile; user: User; app: App }): JSX.Element {
         drop(el);
     }
     return (
-        <div ref={attachRef} className="p-2 bg-gray-200">
+        <div ref={attachRef} className="p-2 bg-gray-200 h-64">
             <PileToolbar pile={props.pile} app={props.app} />
             <NoteContainer pile={props.pile} user={props.user} />
         </div>
@@ -214,6 +214,14 @@ function NoteContainer(props: { pile: Pile; user: User }): JSX.Element {
     );
 
     return <div className="flex flex-row flex-wrap gap-8 p-2">{notesArray}</div>;
+}
+
+function RootNoteBase(props: { note: Note; user: User; notes: Notes | Items }): JSX.Element {
+    return (
+        <div className='bg-transparent flex flex-col justify-center h-64'>            
+            <NoteBase {...props} />            
+        </div>
+    )
 }
 
 function NoteBase(props: { note: Note; user: User; notes: Notes | Items }): JSX.Element {
