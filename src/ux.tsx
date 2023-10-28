@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useRef, useState } from 'react';
-import { App, Note, Pile, User, Notes, Items, NoteSchema, PileSchema, NotesSchema } from './schema';
+import { App, Note, Pile, User, Notes, Items, NoteSchema, PileSchema, ItemsSchema } from './schema';
 import './output.css';
 import { SharedTree, useTree } from './fluid';
 import {
@@ -9,8 +9,7 @@ import {
     toggleVote,
     deleteNote,
     deletePile,
-    moveNote,
-    movePile,    
+    moveItem,    
     updateNoteText,
 } from './helpers';
 import { getRotation } from './utils';
@@ -19,7 +18,7 @@ import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 import { ConnectionState, IFluidContainer } from 'fluid-framework';
 import { useTransition } from 'react-transition-state';
 import { azureUser } from './auth';
-import { node } from '@fluid-experimental/tree2';
+import { SharedTreeNode, node } from '@fluid-experimental/tree2';
 
 export function ReactApp(props: {
     data: SharedTree<App>;
@@ -141,28 +140,32 @@ function NewPileButton(props: { root: App }): JSX.Element {
 function PileBase(props: { pile: Pile; user: User; app: App }): JSX.Element {
     const [{ isDragging }, drag] = useDrag(() => ({
         type: 'Pile',
-        item: { pile: props.pile },
+        item: props.pile,
         collect: (monitor) => ({
             isDragging: monitor.isDragging(),            
         }),        
     }));
 
-    const [{ isActive }, drop] = useDrop(() => ({
-        accept: 'Pile',
-        collect: (monitor) => ({
-            isActive: monitor.canDrop() && monitor.isOver(),
-        }),
-        drop(item) {
-            const droppedPile: { pile: Pile } = item as {
-                pile: Pile;                                
-            };
+    const [{ isOver, canDrop }, drop] = useDrop(() => ({
+        accept: ['Note', 'Pile'],
+        collect: (monitor) => ({            
+            isOver: !!monitor.isOver(),
+            canDrop: !!monitor.canDrop(),
+        }),        
+        drop: (item, monitor) => {
 
-            movePile(
-                droppedPile.pile,                
+            const didDrop = monitor.didDrop()
+            if (didDrop) {
+            return
+            }
+
+            const droppedPile = item as Pile;
+            moveItem(
+                droppedPile,                
                 props.app.items.indexOf(props.pile),
                 props.app.items
             );
-            return { pile: props.pile };
+            return;
         },
     }));
 
@@ -224,7 +227,7 @@ function NoteBase(props: { note: Note; user: User; notes: Notes | Items }): JSX.
 
     useEffect(() => {
         toggle(true);
-    }, [props.notes.indexOf(props.note)]);
+    }, [node.parent(props.note)]);
 
     useEffect(() => {
         if (mounted.current) {
@@ -239,32 +242,35 @@ function NoteBase(props: { note: Note; user: User; notes: Notes | Items }): JSX.
         };
     }, []);
 
-    const [originalIndex, ]  = useState(props.notes.indexOf(props.note))
-
     const [{ isDragging }, drag] = useDrag(() => ({
         type: 'Note',
-        item: { note: props.note },
+        item: props.note,
         collect: (monitor) => ({
             isDragging: monitor.isDragging(),            
         }),        
     }));
 
-    const [{ isActive }, drop] = useDrop(() => ({
-        accept: 'Note',
-        collect: (monitor) => ({
-            isActive: monitor.canDrop() && monitor.isOver(),
+    const [{ isOver, canDrop }, drop] = useDrop(() => ({
+        accept: ['Note', 'Pile'],
+        collect: (monitor) => ({            
+            isOver: !!monitor.isOver(),
+            canDrop: !!monitor.canDrop(),
         }),
-        drop(item) {            
-            const droppedNote: { note: Note } = item as {
-                note: Note;                                
-            };
-
-            moveNote(
-                droppedNote.note,                
+        canDrop: (item) => {
+            if (node.is(item, NoteSchema)) return true;
+            if (node.is(props.notes, ItemsSchema)){                                
+                return true;
+            }             
+            return false;
+        },        
+        drop: (item) => {            
+            const droppedNote = item as Note;
+            moveItem(
+                droppedNote,                
                 props.notes.indexOf(props.note),
                 props.notes
             );
-            return { note: props.note };
+            return;
         },
     }));
     
@@ -282,18 +288,18 @@ function NoteBase(props: { note: Note; user: User; notes: Notes | Items }): JSX.
             <div
                 ref={attachRef}
                 className={
-                    isActive
+                    (isOver && canDrop)
                         ? 'border-l-4 border-dashed border-gray-500'
                         : 'border-l-4 border-dashed border-transparent'
                 }
-            >{props.notes.indexOf(props.note)}|{originalIndex}
+            >
                 <div
                     style={{ opacity: isDragging ? 0.5 : 1 }}
                     className={
                         'transition-all flex flex-col bg-yellow-100 h-48 w-48 shadow-md hover:shadow-lg hover:rotate-0 p-2 ' +
                         getRotation(props.note) +
                         ' ' +
-                        (isActive ? 'translate-x-3' : '')
+                        ((isOver && canDrop) ? 'translate-x-3' : '')
                     }
                 >
                     <NoteToolbar
@@ -344,16 +350,11 @@ function AddNoteButton(props: { pile: Pile; user: User }): JSX.Element {
         collect: (monitor) => ({
             isActive: monitor.canDrop() && monitor.isOver(),
         }),
-        drop(item) {
-            const droppedNote: { note: Note  } = item as {
-                note: Note;                
-            };
-            const i = node.key(droppedNote.note) as number            
-
-            console.log(props.pile.name, i);
-
-            props.pile.notes.moveToEnd(i, i + 1, node.parent(droppedNote.note) as Notes)
-            return { notes: props.pile.notes };
+        drop: (item) => {
+            const droppedNote= item as Note;
+            const i = node.key(droppedNote) as number;            
+            props.pile.notes.moveToEnd(i, i + 1, node.parent(droppedNote) as Notes)
+            return;
         },
     }));
 
