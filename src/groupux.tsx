@@ -4,6 +4,7 @@ import { deleteGroup, moveItem } from './helpers';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 import { NoteContainer } from './noteux';
 import { DeleteButton } from './buttonux';
+import { dragType } from './utils';
 
 export function GroupView(props: {
     pile: Group;
@@ -12,7 +13,7 @@ export function GroupView(props: {
     select: any;
 }): JSX.Element {
     const [{ isDragging }, drag] = useDrag(() => ({
-        type: 'Pile',
+        type: dragType.GROUP,
         item: props.pile,
         collect: (monitor) => ({
             isDragging: monitor.isDragging(),
@@ -20,7 +21,7 @@ export function GroupView(props: {
     }));
 
     const [{ isOver, canDrop }, drop] = useDrop(() => ({
-        accept: ['Note', 'Pile'],
+        accept: [dragType.NOTE, dragType.GROUP],
         collect: (monitor) => ({
             isOver: !!monitor.isOver({ shallow: true }),
             canDrop: !!monitor.canDrop(),
@@ -80,6 +81,7 @@ export function GroupView(props: {
         </div>
     );
 }
+
 function GroupName(props: { pile: Group }): JSX.Element {
     return (
         <input
@@ -90,6 +92,7 @@ function GroupName(props: { pile: Group }): JSX.Element {
         />
     );
 }
+
 function GroupToolbar(props: { pile: Group; app: App }): JSX.Element {
     return (
         <div className="flex justify-between">
@@ -98,6 +101,7 @@ function GroupToolbar(props: { pile: Group; app: App }): JSX.Element {
         </div>
     );
 }
+
 export function DeletePileButton(props: { pile: Group; app: App }): JSX.Element {
     return (
         <DeleteButton

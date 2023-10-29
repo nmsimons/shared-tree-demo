@@ -7,9 +7,8 @@ import { schemaConfig } from './schema';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
-
-
 async function main() {
+    
     // create the root element for React
     const app = document.createElement('div');
     app.id = 'app';

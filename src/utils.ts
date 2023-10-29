@@ -32,3 +32,8 @@ export const generateTestUser = (): IInsecureUser => {
     };
     return user;
 };
+
+export enum dragType {
+    NOTE = "Note",
+    GROUP = "Group"
+}

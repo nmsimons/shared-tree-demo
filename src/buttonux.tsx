@@ -30,6 +30,7 @@ export function NewGroupButton(props: { root: App, selection: Selection[] }): JS
         </IconButton>
     );
 }
+
 export function NewNoteButton(props: { root: App; user: User }): JSX.Element {
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -46,6 +47,7 @@ export function NewNoteButton(props: { root: App; user: User }): JSX.Element {
         </IconButton>
     );
 }
+
 export function DeleteNotesButton(props: { selection: Selection[] }): JSX.Element {
     const handleClick = (selection: Selection[]) => {
         for (const s of selection) {
@@ -108,10 +110,12 @@ export function IconButton(props: {
         </button>
     );
 }
+
 IconButton.defaultProps = {
     color: 'text-gray-600',
     background: 'bg-transparent',
 };
+
 function IconButtonText(props: { children: React.ReactNode }): JSX.Element {
     if (props.children == undefined) {
         return <span></span>;
@@ -119,6 +123,7 @@ function IconButtonText(props: { children: React.ReactNode }): JSX.Element {
         return <span className="text-sm pl-2 leading-none">{props.children}</span>;
     }
 }
+
 function MiniX(): JSX.Element {
     return <Icon path={mdiClose} size={0.75} />;
 }
@@ -126,6 +131,7 @@ function MiniX(): JSX.Element {
 export function MiniThumb(): JSX.Element {
     return <Icon path={mdiThumbUp} size={0.75} />;
 }
+
 export function Floater(props: { children: React.ReactNode }): JSX.Element {
     return (
         <>

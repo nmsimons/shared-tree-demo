@@ -7,7 +7,7 @@ import {
     moveItem,
     updateNoteText,
 } from './helpers';
-import { getRotation } from './utils';
+import { dragType, getRotation } from './utils';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 import { useTransition } from 'react-transition-state';
 import { node } from '@fluid-experimental/tree2';
@@ -50,6 +50,7 @@ export function RootNoteWrapper(props: {
         </div>
     );
 }
+
 function NoteView(props: {
     note: Note;
     user: User;
@@ -94,7 +95,7 @@ function NoteView(props: {
     }, []);
 
     const [{ isDragging }, drag] = useDrag(() => ({
-        type: 'Note',
+        type: dragType.NOTE,
         item: props.note,
         collect: (monitor) => ({
             isDragging: monitor.isDragging(),
@@ -102,7 +103,7 @@ function NoteView(props: {
     }));
 
     const [{ isOver, canDrop }, drop] = useDrop(() => ({
-        accept: ['Note', 'Pile'],
+        accept: [dragType.NOTE, dragType.GROUP],
         collect: (monitor) => ({
             isOver: !!monitor.isOver(),
             canDrop: !!monitor.canDrop(),
@@ -238,7 +239,7 @@ function NoteToolbar(props: {
 
 function AddNoteButton(props: { pile: Group; user: User }): JSX.Element {
     const [{ isActive }, drop] = useDrop(() => ({
-        accept: 'Note',
+        accept: dragType.NOTE,
         collect: (monitor) => ({
             isActive: monitor.canDrop() && monitor.isOver(),
         }),

@@ -84,7 +84,7 @@ export function addGroup(items: Items, name: string): Group {
     return items[0] as Group; //yuck - this should just be return group
 }
 
-// Function that deletes a pile and moves the notes in that group
+// Function that deletes a group and moves the notes in that group
 // to the default group instead of deleting them as well
 export function deleteGroup(group: Group, app: App) {
     // Test for the presence of notes and move them to the root
@@ -98,7 +98,7 @@ export function deleteGroup(group: Group, app: App) {
         );
     }
 
-    // Delete the now empty pile
+    // Delete the now empty group
     const parent = node.parent(group) as Items;
     parent.removeAt(node.key(group) as number);
 }
