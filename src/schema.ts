@@ -36,13 +36,13 @@ export const NoteSchema = sb.object('note', {
 export const NotesSchema = sb.list(NoteSchema);
 
 // Define the schema for the container of notes. This type includes a sequence of notes.
-export const PileSchema = sb.object('pile', {
+export const GroupSchema = sb.object('pile', {
     id: sb.string,
     name: sb.string,
     notes: NotesSchema,
 });
 
-export const ItemsSchema = sb.list([PileSchema, NoteSchema]);
+export const ItemsSchema = sb.list([GroupSchema, NoteSchema]);
 
 // Define a root type.
 export const AppSchema = sb.object('app', {
@@ -51,7 +51,7 @@ export const AppSchema = sb.object('app', {
 
 // Export the types defined here as TypeScript types.
 export type App = ProxyNode<typeof AppSchema>;
-export type Pile = ProxyNode<typeof PileSchema>;
+export type Group = ProxyNode<typeof GroupSchema>;
 export type Note = ProxyNode<typeof NoteSchema>;
 export type User = ProxyNode<typeof UserSchema>;
 export type Notes = ProxyNode<typeof NotesSchema>;

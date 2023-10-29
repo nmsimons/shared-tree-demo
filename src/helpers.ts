@@ -2,9 +2,9 @@ import { node, TreeStatus } from '@fluid-experimental/tree2';
 import {
     App,
     Note,
-    Pile,
+    Group,
     NoteSchema,
-    PileSchema,
+    GroupSchema,
     Notes,
     Items,
     User,
@@ -46,7 +46,7 @@ export function updateNoteText(note: Note, text: string) {
 // Move a note from one position in a sequence to another position in the same sequence or
 // in a different sequence. The index being passed here is the desired index after the move.
 export function moveItem(
-    item: Note | Pile,
+    item: Note | Group,
     destinationIndex: number,
     destination: Notes | Items
 ) {
@@ -68,8 +68,8 @@ export function moveItem(
 }
 
 // Add a new pile (container for notes) to the SharedTree.
-export function addPile(items: Items, name: string): Pile {
-    const pile = PileSchema.create({
+export function addPile(items: Items, name: string): Group {
+    const pile = GroupSchema.create({
         id: Guid.create().toString(),
         name,
         notes: [],
@@ -78,12 +78,12 @@ export function addPile(items: Items, name: string): Pile {
     items.insertAtEnd([pile]);
 
     items.length;
-    return items[items.length - 1] as Pile; //yuck - this should just be return pile
+    return items[items.length - 1] as Group; //yuck - this should just be return pile
 }
 
 // Function that deletes a pile and moves the notes in that pile
 // to the default pile instead of deleting them as well
-export function deletePile(pile: Pile, app: App) {
+export function deletePile(pile: Group, app: App) {
     // Test for the presence of notes and move them to the root
     // in the same position as the pile
     if (pile.notes.length !== 0) {
