@@ -28,14 +28,17 @@ import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 import { ConnectionState, IFluidContainer } from 'fluid-framework';
 import { useTransition } from 'react-transition-state';
 import { azureUser } from './auth';
-import { node } from '@fluid-experimental/tree2';
+import { TreeStatus, node } from '@fluid-experimental/tree2';
 import Icon from '@mdi/react';
 import {
     mdiThumbUp,
     mdiClose,
     mdiShapeRectanglePlus,
     mdiNotePlusOutline,
+    mdiNoteRemoveOutline,
 } from '@mdi/js';
+
+export type Selection = {update: any, note: Note, isNew: boolean, isMulti: boolean, remove: boolean}
 
 export function ReactApp(props: {
     data: SharedTree<App>;
@@ -52,17 +55,78 @@ export function ReactApp(props: {
         id: azureUser.userId,
     } as User);
 
+    const [selection, setSelection] = useState<Selection[]>([]);    
+
+    const updateSelection = (item: Selection) => {        
+        const newSelection: Selection[] = [];
+
+        if (item.isMulti) {
+            newSelection.push(...selection);
+        }
+
+        // Handle removed items            
+        if (item.remove) {            
+            for(const obj of selection){
+                if (obj.note.id == item.note.id && newSelection.length <= 1){                    
+                    item.update(false);
+                    setSelection([]);
+                    return;
+                } else if (obj.note.id == item.note.id && newSelection.length > 1) {                    
+                    item.update(false);
+                    newSelection.splice(newSelection.indexOf(obj), 1);
+                    setSelection(newSelection);
+                    return;
+                }
+            }
+            return;                    
+        } 
+
+        // Deal with current selection.
+        // New items always call this function to test
+        // if they should be selected.        
+        for(const obj of selection){
+            if (obj.note === item.note && item.isNew){
+                item.update(true);                
+                newSelection.push(item);
+                setSelection(newSelection); 
+            } else if (obj.note !== item.note && !item.isNew && !item.isMulti) {
+                obj.update(false);                
+            }
+        }
+
+        // New items do not get added automatically right now
+        if (!item.isNew) {
+            item.update(true);
+            newSelection.push(item);
+            setSelection(newSelection);  
+        }        
+    }
+
+    const clearSelection = () => {
+        console.log("YOUOYOYO")
+        for(const obj of selection){
+            obj.update(false);
+        }
+        setSelection([]);
+    }
+
+    const handleClick = (e: React.MouseEvent) => {
+        clearSelection();
+    }
+
     return (
-        <div id="main" className="flex flex-col bg-white h-full w-full">
+        <div onClick={(e) => handleClick(e)} id="main" className="flex flex-col bg-white h-full w-full">
             <Header
                 services={props.services}
                 container={props.container}
                 root={root}
+                selection={selection}
             />
-            <RootItems root={root} user={currentUser} />
+            <RootItems root={root} user={currentUser} select={updateSelection} />
             <Floater>
                 <NewPileButton root={root} />
                 <NewNoteButton root={root} user={currentUser} />
+                <DeleteNotesButton selection={selection} />
             </Floater>
         </div>
     );
@@ -72,6 +136,7 @@ function Header(props: {
     services: AzureContainerServices;
     container: IFluidContainer;
     root: App;
+    selection: {update: any, note: Note}[];
 }): JSX.Element {
     const [fluidMembers, setFluidMembers] = useState(
         props.services.audience.getMembers().size
@@ -116,13 +181,13 @@ function Header(props: {
         return () => {
             props.services.audience.off('membersChanged', updateMembers);
         };
-    }, []);
+    }, []);    
 
     return (
         <>
             <div className="h-10 w-full"></div>
             <div className="fixed flex flex-row justify-between bg-black h-10 text-base text-white z-40 w-full">
-                <div className="m-2">shared-tree-demo</div>
+                <div className="m-2">shared-tree-demo</div>                
                 <div className="m-2">
                     {saved ? 'saved' : 'not saved'} | {connectionState} | users:{' '}
                     {fluidMembers}
@@ -132,20 +197,21 @@ function Header(props: {
     );
 }
 
-function RootItems(props: { root: App; user: User }): JSX.Element {
+function RootItems(props: { root: App; user: User; select: any }): JSX.Element {
     const pilesArray = [];
     for (const i of props.root.items) {
         if (node.is(i, PileSchema)) {
             pilesArray.push(
-                <PileBase key={i.id} pile={i} user={props.user} app={props.root} />
+                <PileView key={i.id} pile={i} user={props.user} app={props.root} select={props.select} />
             );
         } else if (node.is(i, NoteSchema)) {
             pilesArray.push(
-                <RootNoteBase
+                <RootNoteWrapper
                     key={i.id}
                     note={i}
                     user={props.user}
                     notes={props.root.items}
+                    select={props.select}
                 />
             );
         }
@@ -180,7 +246,25 @@ function NewNoteButton(props: { root: App; user: User }): JSX.Element {
     );
 }
 
-function PileBase(props: { pile: Pile; user: User; app: App }): JSX.Element {
+function DeleteNotesButton(props: { selection: Selection[] }): JSX.Element {
+    const handleClick = (selection: Selection[]) => {
+        for(const s of selection) {
+            deleteNote(s.note);
+        }
+    }
+    return (
+        <IconButton
+            color="white"
+            background="black"
+            handleClick={() => handleClick(props.selection)}
+            icon={<Icon path={mdiNoteRemoveOutline} size={0.75} />}
+        >
+            Delete Note
+        </IconButton>
+    );
+}
+
+function PileView(props: { pile: Pile; user: User; app: App; select: any }): JSX.Element {
     const [{ isDragging }, drag] = useDrag(() => ({
         type: 'Pile',
         item: props.pile,
@@ -220,8 +304,14 @@ function PileBase(props: { pile: Pile; user: User; app: App }): JSX.Element {
         drag(el);
         drop(el);
     }
+
+    const handleClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+    }
+
     return (
         <div
+            onClick={(e) => handleClick(e)}
             ref={attachRef}
             className={
                 'transition-all border-l-4 border-dashed ' +
@@ -235,7 +325,7 @@ function PileBase(props: { pile: Pile; user: User; app: App }): JSX.Element {
                 }
             >
                 <PileToolbar pile={props.pile} app={props.app} />
-                <NoteContainer pile={props.pile} user={props.user} />
+                <NoteContainer pile={props.pile} user={props.user} select={props.select} />
             </div>
         </div>
     );
@@ -261,15 +351,16 @@ function PileToolbar(props: { pile: Pile; app: App }): JSX.Element {
     );
 }
 
-function NoteContainer(props: { pile: Pile; user: User }): JSX.Element {
+function NoteContainer(props: { pile: Pile; user: User; select: any }): JSX.Element {
     const notesArray = [];
     for (const n of props.pile.notes) {
         notesArray.push(
-            <NoteBase
+            <NoteView
                 key={n.id}
                 note={n}
                 user={props.user}
                 notes={props.pile.notes}
+                select={props.select}
             />
         );
     }
@@ -281,28 +372,32 @@ function NoteContainer(props: { pile: Pile; user: User }): JSX.Element {
     return <div className="flex flex-row flex-wrap gap-8 p-2">{notesArray}</div>;
 }
 
-function RootNoteBase(props: {
+function RootNoteWrapper(props: {
     note: Note;
     user: User;
     notes: Notes | Items;
+    select: any;
 }): JSX.Element {
     return (
         <div className="bg-transparent flex flex-col justify-center h-64">
-            <NoteBase {...props} />
+            <NoteView {...props} />
         </div>
     );
 }
 
-function NoteBase(props: {
+function NoteView(props: {
     note: Note;
     user: User;
     notes: Notes | Items;
+    select: any;
 }): JSX.Element {
     const mounted = useRef(false);
 
     const [{ status }, toggle] = useTransition({
         timeout: 1000,
     });
+
+    const [selected, setSelected] = useState(false);
 
     toggle(false);
 
@@ -321,6 +416,10 @@ function NoteBase(props: {
         return () => {
             mounted.current = false;
         };
+    }, []);
+
+    useEffect(() => {
+        props.select({update: updateSelection, note: props.note, isNew: true, isMulti: true, remove: false})             
     }, []);
 
     const [{ isDragging }, drag] = useDrag(() => ({
@@ -351,13 +450,34 @@ function NoteBase(props: {
         },
     }));
 
-    function attachRef(el: ConnectableElement) {
+    const attachRef = (el: ConnectableElement) => {
         drag(el);
         drop(el);
     }
+    
+    const updateSelection = (value: boolean) => {
+        setSelected(value);
+    }
 
+    const getBackgroundColor = () => {
+        if (selected) return "bg-yellow-400"
+        return "bg-yellow-100"
+    }
+
+    const handleClick = (e: React.MouseEvent) => {
+        e.stopPropagation();                
+        if (e.ctrlKey){
+            props.select({update: updateSelection, note: props.note, isNew: false, isMulti: true, remove: false});
+        } else if (e.shiftKey) {
+            props.select({update: updateSelection, note: props.note, isNew: false, isMulti: true, remove: true});
+        } else {
+            props.select({update: updateSelection, note: props.note, isNew: false, isMulti: false, remove: false});
+        }             
+    }
+    
     return (
         <div
+            onClick={(e) => handleClick(e)}
             className={`transition duration-500${
                 status === 'exiting' ? ' transform ease-out scale-110' : ''
             }`}
@@ -372,8 +492,8 @@ function NoteBase(props: {
             >
                 <div
                     style={{ opacity: isDragging ? 0.5 : 1 }}
-                    className={
-                        'transition-all flex flex-col bg-yellow-100 h-48 w-48 shadow-md hover:shadow-lg hover:rotate-0 p-2 ' +
+                    className={                        
+                        'transition-all flex flex-col ' + getBackgroundColor() + ' h-48 w-48 shadow-md hover:shadow-lg hover:rotate-0 p-2 ' +
                         getRotation(props.note) +
                         ' ' +
                         (isOver && canDrop ? 'translate-x-3' : '')
@@ -403,6 +523,7 @@ function NoteTextArea(props: { note: Note; user: User }): JSX.Element {
         <textarea
             className="p-2 bg-transparent h-full w-full resize-none"
             value={props.note.text}
+            onClick={(event) => (event.stopPropagation())}
             onChange={(event) => updateNoteText(props.note, event.target.value)}
         />
     );
@@ -545,12 +666,18 @@ function DeletePileButton(props: { pile: Pile; app: App }): JSX.Element {
 }
 
 function DeleteButton(props: { handleClick: any }): JSX.Element {
+
+    const handleClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        props.handleClick();
+    }
+
     return (
         <button
             className={
                 'bg-transparent hover:bg-gray-600 text-black hover:text-white font-bold px-2 py-1 rounded inline-flex items-center h-6'
             }
-            onClick={props.handleClick}
+            onClick={(e) => handleClick(e)}
         >
             {MiniX()}
         </button>
@@ -564,6 +691,12 @@ function IconButton(props: {
     color?: string;
     background?: string;
 }): JSX.Element {
+
+    const handleClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        props.handleClick();
+    }
+
     return (
         <button
             className={
@@ -572,7 +705,7 @@ function IconButton(props: {
                 props.background +
                 ' bg-transparent hover:bg-gray-600 hover:text-white font-bold px-2 py-1 rounded inline-flex items-center h-6'
             }
-            onClick={props.handleClick}
+            onClick={(e) => handleClick(e)}
         >
             {props.icon}
             <IconButtonText>{props.children}</IconButtonText>

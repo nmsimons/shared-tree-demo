@@ -103,7 +103,7 @@ export function deletePile(pile: Pile, app: App) {
 // Function to delete a note.
 export function deleteNote(note: Note) {
     const parent = node.parent(note) as Notes;
-    parent.removeAt(node.key(note) as number);
+    if (parent) parent.removeAt(node.key(note) as number);
 }
 
 export function toggleVote(note: Note, user: User) {
