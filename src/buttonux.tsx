@@ -1,21 +1,17 @@
 import React from 'react';
 import { App, User } from './schema';
-import {
-    addNote,
-    addPile,
-    deleteNote
-} from './helpers';
+import { addNote, addPile, deleteNote } from './helpers';
 import Icon from '@mdi/react';
 import {
     mdiThumbUp,
     mdiClose,
     mdiShapeRectanglePlus,
     mdiNotePlusOutline,
-    mdiNoteRemoveOutline
+    mdiNoteRemoveOutline,
 } from '@mdi/js';
 import { Selection } from './ux';
 
-export function NewPileButton(props: { root: App; }): JSX.Element {
+export function NewPileButton(props: { root: App }): JSX.Element {
     return (
         <IconButton
             color="white"
@@ -27,7 +23,7 @@ export function NewPileButton(props: { root: App; }): JSX.Element {
         </IconButton>
     );
 }
-export function NewNoteButton(props: { root: App; user: User; }): JSX.Element {
+export function NewNoteButton(props: { root: App; user: User }): JSX.Element {
     return (
         <IconButton
             color="white"
@@ -39,7 +35,7 @@ export function NewNoteButton(props: { root: App; user: User; }): JSX.Element {
         </IconButton>
     );
 }
-export function DeleteNotesButton(props: { selection: Selection[]; }): JSX.Element {
+export function DeleteNotesButton(props: { selection: Selection[] }): JSX.Element {
     const handleClick = (selection: Selection[]) => {
         for (const s of selection) {
             deleteNote(s.note);
@@ -57,8 +53,7 @@ export function DeleteNotesButton(props: { selection: Selection[]; }): JSX.Eleme
     );
 }
 
-export function DeleteButton(props: { handleClick: any; }): JSX.Element {
-
+export function DeleteButton(props: { handleClick: any }): JSX.Element {
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         props.handleClick();
@@ -66,7 +61,9 @@ export function DeleteButton(props: { handleClick: any; }): JSX.Element {
 
     return (
         <button
-            className={'bg-transparent hover:bg-gray-600 text-black hover:text-white font-bold px-2 py-1 rounded inline-flex items-center h-6'}
+            className={
+                'bg-transparent hover:bg-gray-600 text-black hover:text-white font-bold px-2 py-1 rounded inline-flex items-center h-6'
+            }
             onClick={(e) => handleClick(e)}
         >
             {MiniX()}
@@ -81,7 +78,6 @@ export function IconButton(props: {
     color?: string;
     background?: string;
 }): JSX.Element {
-
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         props.handleClick();
@@ -89,10 +85,12 @@ export function IconButton(props: {
 
     return (
         <button
-            className={props.color +
+            className={
+                props.color +
                 ' ' +
                 props.background +
-                ' bg-transparent hover:bg-gray-600 hover:text-white font-bold px-2 py-1 rounded inline-flex items-center h-6'}
+                ' bg-transparent hover:bg-gray-600 hover:text-white font-bold px-2 py-1 rounded inline-flex items-center h-6'
+            }
             onClick={(e) => handleClick(e)}
         >
             {props.icon}
@@ -104,7 +102,7 @@ IconButton.defaultProps = {
     color: 'text-gray-600',
     background: 'bg-transparent',
 };
-function IconButtonText(props: { children: React.ReactNode; }): JSX.Element {
+function IconButtonText(props: { children: React.ReactNode }): JSX.Element {
     if (props.children == undefined) {
         return <span></span>;
     } else {
@@ -118,7 +116,7 @@ function MiniX(): JSX.Element {
 export function MiniThumb(): JSX.Element {
     return <Icon path={mdiThumbUp} size={0.75} />;
 }
-export function Floater(props: { children: React.ReactNode; }): JSX.Element {
+export function Floater(props: { children: React.ReactNode }): JSX.Element {
     return (
         <>
             <div className="h-24"></div>

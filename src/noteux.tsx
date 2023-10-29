@@ -1,16 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { Note, Group, User, Notes, Items, NoteSchema, ItemsSchema } from './schema';
 import {
-    Note,
-    Group,
-    User,
-    Notes,
-    Items,
-    NoteSchema, ItemsSchema
-} from './schema';
-import {
-    addNote, toggleVote,
-    deleteNote, moveItem,
-    updateNoteText
+    addNote,
+    toggleVote,
+    deleteNote,
+    moveItem,
+    updateNoteText,
 } from './helpers';
 import { getRotation } from './utils';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
@@ -18,8 +13,11 @@ import { useTransition } from 'react-transition-state';
 import { node } from '@fluid-experimental/tree2';
 import { IconButton, MiniThumb, DeleteButton } from './buttonux';
 
-
-export function NoteContainer(props: { pile: Group; user: User; select: any; }): JSX.Element {
+export function NoteContainer(props: {
+    pile: Group;
+    user: User;
+    select: any;
+}): JSX.Element {
     const notesArray = [];
     for (const n of props.pile.notes) {
         notesArray.push(
@@ -28,7 +26,8 @@ export function NoteContainer(props: { pile: Group; user: User; select: any; }):
                 note={n}
                 user={props.user}
                 notes={props.pile.notes}
-                select={props.select} />
+                select={props.select}
+            />
         );
     }
 
@@ -38,6 +37,7 @@ export function NoteContainer(props: { pile: Group; user: User; select: any; }):
 
     return <div className="flex flex-row flex-wrap gap-8 p-2">{notesArray}</div>;
 }
+
 export function RootNoteWrapper(props: {
     note: Note;
     user: User;
@@ -84,7 +84,13 @@ function NoteView(props: {
     }, []);
 
     useEffect(() => {
-        props.select({ update: updateSelection, note: props.note, isNew: true, isMulti: true, remove: false });
+        props.select({
+            update: updateSelection,
+            note: props.note,
+            isNew: true,
+            isMulti: true,
+            remove: false,
+        });
     }, []);
 
     const [{ isDragging }, drag] = useDrag(() => ({
@@ -125,50 +131,78 @@ function NoteView(props: {
     };
 
     const getBackgroundColor = () => {
-        if (selected) return "bg-yellow-400";
-        return "bg-yellow-100";
+        if (selected) return 'bg-yellow-400';
+        return 'bg-yellow-100';
     };
 
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         if (e.ctrlKey) {
-            props.select({ update: updateSelection, note: props.note, isNew: false, isMulti: true, remove: false });
-        } else if (e.shiftKey) {
-            props.select({ update: updateSelection, note: props.note, isNew: false, isMulti: true, remove: true });
+            props.select({
+                update: updateSelection,
+                note: props.note,
+                isNew: false,
+                isMulti: true,
+                remove: false,
+            });
+        } else if (selected) {
+            props.select({
+                update: updateSelection,
+                note: props.note,
+                isNew: false,
+                isMulti: true,
+                remove: true,
+            });
         } else {
-            props.select({ update: updateSelection, note: props.note, isNew: false, isMulti: false, remove: false });
+            props.select({
+                update: updateSelection,
+                note: props.note,
+                isNew: false,
+                isMulti: false,
+                remove: false,
+            });
         }
     };
 
     return (
         <div
             onClick={(e) => handleClick(e)}
-            className={`transition duration-500${status === 'exiting' ? ' transform ease-out scale-110' : ''}`}
+            className={`transition duration-500${
+                status === 'exiting' ? ' transform ease-out scale-110' : ''
+            }`}
         >
             <div
                 ref={attachRef}
-                className={isOver && canDrop
-                    ? 'border-l-4 border-dashed border-gray-500'
-                    : 'border-l-4 border-dashed border-transparent'}
+                className={
+                    isOver && canDrop
+                        ? 'border-l-4 border-dashed border-gray-500'
+                        : 'border-l-4 border-dashed border-transparent'
+                }
             >
                 <div
                     style={{ opacity: isDragging ? 0.5 : 1 }}
-                    className={'transition-all flex flex-col ' + getBackgroundColor() + ' h-48 w-48 shadow-md hover:shadow-lg hover:rotate-0 p-2 ' +
+                    className={
+                        'transition-all flex flex-col ' +
+                        getBackgroundColor() +
+                        ' h-48 w-48 shadow-md hover:shadow-lg hover:rotate-0 p-2 ' +
                         getRotation(props.note) +
                         ' ' +
-                        (isOver && canDrop ? 'translate-x-3' : '')}
+                        (isOver && canDrop ? 'translate-x-3' : '')
+                    }
                 >
                     <NoteToolbar
                         note={props.note}
                         user={props.user}
-                        notes={props.notes} />
+                        notes={props.notes}
+                    />
                     <NoteTextArea note={props.note} user={props.user} />
                 </div>
             </div>
         </div>
     );
 }
-function NoteTextArea(props: { note: Note; user: User; }): JSX.Element {
+
+function NoteTextArea(props: { note: Note; user: User }): JSX.Element {
     // The text field updates the Fluid data model on every keystroke in this demo.
     // This works well with small strings but doesn't scale to very large strings.
     // A Future iteration of SharedTree will include support for collaborative strings
@@ -179,10 +213,12 @@ function NoteTextArea(props: { note: Note; user: User; }): JSX.Element {
         <textarea
             className="p-2 bg-transparent h-full w-full resize-none"
             value={props.note.text}
-            onClick={(event) => (event.stopPropagation())}
-            onChange={(event) => updateNoteText(props.note, event.target.value)} />
+            onClick={(event) => event.stopPropagation()}
+            onChange={(event) => updateNoteText(props.note, event.target.value)}
+        />
     );
 }
+
 function NoteToolbar(props: {
     note: Note;
     user: User;
@@ -194,11 +230,13 @@ function NoteToolbar(props: {
             <DeleteNoteButton
                 note={props.note}
                 user={props.user}
-                notes={props.notes} />
+                notes={props.notes}
+            />
         </div>
     );
 }
-function AddNoteButton(props: { pile: Group; user: User; }): JSX.Element {
+
+function AddNoteButton(props: { pile: Group; user: User }): JSX.Element {
     const [{ isActive }, drop] = useDrop(() => ({
         accept: 'Note',
         collect: (monitor) => ({
@@ -222,16 +260,20 @@ function AddNoteButton(props: { pile: Group; user: User; }): JSX.Element {
     return (
         <div
             ref={drop}
-            className={isActive
-                ? 'border-l-4 border-dashed border-gray-500'
-                : 'border-l-4 border-dashed border-transparent'}
+            className={
+                isActive
+                    ? 'border-l-4 border-dashed border-gray-500'
+                    : 'border-l-4 border-dashed border-transparent'
+            }
         >
             <div
-                className={'transition-all text-2xl place-content-center font-bold flex flex-col text-center cursor-pointer bg-transparent border-white border-dashed border-8 ' +
+                className={
+                    'transition-all text-2xl place-content-center font-bold flex flex-col text-center cursor-pointer bg-transparent border-white border-dashed border-8 ' +
                     size +
                     ' p-4 hover:border-black' +
                     ' ' +
-                    (isActive ? 'translate-x-3' : '')}
+                    (isActive ? 'translate-x-3' : '')
+                }
                 onClick={() => addNote(props.pile.notes, '', props.user)}
             >
                 {buttonText}
@@ -239,7 +281,8 @@ function AddNoteButton(props: { pile: Group; user: User; }): JSX.Element {
         </div>
     );
 }
-function LikeButton(props: { note: Note; user: User; }): JSX.Element {
+
+function LikeButton(props: { note: Note; user: User }): JSX.Element {
     const mounted = useRef(false);
 
     const [{ status }, toggle] = useTransition({
@@ -288,11 +331,14 @@ function LikeButton(props: { note: Note; user: User; }): JSX.Element {
                 {props.note.votes.length}
             </IconButton>
             <span
-                className={`transition duration-500${status === 'exiting' ? ' animate-ping' : ''} absolute inline-flex h-full w-full rounded bg-transparent opacity-75 -z-10 bg-green-600`}
+                className={`transition duration-500${
+                    status === 'exiting' ? ' animate-ping' : ''
+                } absolute inline-flex h-full w-full rounded bg-transparent opacity-75 -z-10 bg-green-600`}
             ></span>
         </div>
     );
 }
+
 function DeleteNoteButton(props: {
     note: Note;
     user: User;

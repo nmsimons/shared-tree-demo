@@ -1,12 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from 'react';
-import {
-    App,
-    Note,
-    User,
-    NoteSchema,
-    GroupSchema,
-} from './schema';
+import { App, Note, User, NoteSchema, GroupSchema } from './schema';
 import './output.css';
 import { SharedTree, useTree } from './fluid';
 import { AzureContainerServices } from '@fluidframework/azure-client';
@@ -15,9 +9,20 @@ import { azureUser } from './auth';
 import { node } from '@fluid-experimental/tree2';
 import { GroupView } from './groupux';
 import { RootNoteWrapper } from './noteux';
-import { Floater, NewPileButton, NewNoteButton, DeleteNotesButton } from './buttonux';
+import {
+    Floater,
+    NewPileButton,
+    NewNoteButton,
+    DeleteNotesButton,
+} from './buttonux';
 
-export type Selection = {update: any, note: Note, isNew: boolean, isMulti: boolean, remove: boolean}
+export type Selection = {
+    update: any;
+    note: Note;
+    isNew: boolean;
+    isMulti: boolean;
+    remove: boolean;
+};
 
 export function ReactApp(props: {
     data: SharedTree<App>;
@@ -34,42 +39,42 @@ export function ReactApp(props: {
         id: azureUser.userId,
     } as User);
 
-    const [selection, setSelection] = useState<Selection[]>([]);    
+    const [selection, setSelection] = useState<Selection[]>([]);
 
-    const updateSelection = (item: Selection) => {        
+    const updateSelection = (item: Selection) => {
         const newSelection: Selection[] = [];
 
         if (item.isMulti) {
             newSelection.push(...selection);
         }
 
-        // Handle removed items            
-        if (item.remove) {            
-            for(const obj of selection){
-                if (obj.note.id == item.note.id && newSelection.length <= 1){                    
+        // Handle removed items
+        if (item.remove) {
+            for (const obj of selection) {
+                if (obj.note.id == item.note.id && newSelection.length <= 1) {
                     item.update(false);
                     setSelection([]);
                     return;
-                } else if (obj.note.id == item.note.id && newSelection.length > 1) {                    
+                } else if (obj.note.id == item.note.id && newSelection.length > 1) {
                     item.update(false);
                     newSelection.splice(newSelection.indexOf(obj), 1);
                     setSelection(newSelection);
                     return;
                 }
             }
-            return;                    
-        } 
+            return;
+        }
 
         // Deal with current selection.
         // New items always call this function to test
-        // if they should be selected.        
-        for(const obj of selection){
-            if (obj.note === item.note && item.isNew){
-                item.update(true);                
+        // if they should be selected.
+        for (const obj of selection) {
+            if (obj.note === item.note && item.isNew) {
+                item.update(true);
                 newSelection.push(item);
-                setSelection(newSelection); 
+                setSelection(newSelection);
             } else if (obj.note !== item.note && !item.isNew && !item.isMulti) {
-                obj.update(false);                
+                obj.update(false);
             }
         }
 
@@ -77,23 +82,27 @@ export function ReactApp(props: {
         if (!item.isNew) {
             item.update(true);
             newSelection.push(item);
-            setSelection(newSelection);  
-        }        
-    }
+            setSelection(newSelection);
+        }
+    };
 
-    const clearSelection = () => {        
-        for(const obj of selection){
+    const clearSelection = () => {
+        for (const obj of selection) {
             obj.update(false);
         }
         setSelection([]);
-    }
+    };
 
     const handleClick = (e: React.MouseEvent) => {
         clearSelection();
-    }
+    };
 
     return (
-        <div onClick={(e) => handleClick(e)} id="main" className="flex flex-col bg-white h-full w-full">
+        <div
+            onClick={(e) => handleClick(e)}
+            id="main"
+            className="flex flex-col bg-white h-full w-full"
+        >
             <Header
                 services={props.services}
                 container={props.container}
@@ -114,7 +123,7 @@ function Header(props: {
     services: AzureContainerServices;
     container: IFluidContainer;
     root: App;
-    selection: {update: any, note: Note}[];
+    selection: { update: any; note: Note }[];
 }): JSX.Element {
     const [fluidMembers, setFluidMembers] = useState(
         props.services.audience.getMembers().size
@@ -159,13 +168,13 @@ function Header(props: {
         return () => {
             props.services.audience.off('membersChanged', updateMembers);
         };
-    }, []);    
+    }, []);
 
     return (
         <>
             <div className="h-10 w-full"></div>
             <div className="fixed flex flex-row justify-between bg-black h-10 text-base text-white z-40 w-full">
-                <div className="m-2">shared-tree-demo</div>                
+                <div className="m-2">shared-tree-demo</div>
                 <div className="m-2">
                     {saved ? 'saved' : 'not saved'} | {connectionState} | users:{' '}
                     {fluidMembers}
@@ -180,7 +189,13 @@ function RootItems(props: { root: App; user: User; select: any }): JSX.Element {
     for (const i of props.root.items) {
         if (node.is(i, GroupSchema)) {
             pilesArray.push(
-                <GroupView key={i.id} pile={i} user={props.user} app={props.root} select={props.select} />
+                <GroupView
+                    key={i.id}
+                    pile={i}
+                    user={props.user}
+                    app={props.root}
+                    select={props.select}
+                />
             );
         } else if (node.is(i, NoteSchema)) {
             pilesArray.push(
@@ -197,5 +212,3 @@ function RootItems(props: { root: App; user: User; select: any }): JSX.Element {
 
     return <div className="flex flex-row flex-wrap gap-4 m-4">{pilesArray}</div>;
 }
-
-
