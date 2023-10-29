@@ -3,7 +3,7 @@
         // DO NOT EDIT
         "outDir": "./dist",
         "target": "es6",
-        "module": "CommonJS",
+        "module": "es6",
         "sourceMap": true,
         // Set your preferences here for TypeScript
         "strict": true,

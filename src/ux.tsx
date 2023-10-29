@@ -1,6 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useRef, useState } from 'react';
-import { App, Note, Pile, User, Notes, Items, NoteSchema, PileSchema, ItemsSchema } from './schema';
+import {
+    App,
+    Note,
+    Pile,
+    User,
+    Notes,
+    Items,
+    NoteSchema,
+    PileSchema,
+    ItemsSchema,
+} from './schema';
 import './output.css';
 import { SharedTree, useTree } from './fluid';
 import {
@@ -9,7 +19,7 @@ import {
     toggleVote,
     deleteNote,
     deletePile,
-    moveItem,    
+    moveItem,
     updateNoteText,
 } from './helpers';
 import { getRotation } from './utils';
@@ -19,6 +29,13 @@ import { ConnectionState, IFluidContainer } from 'fluid-framework';
 import { useTransition } from 'react-transition-state';
 import { azureUser } from './auth';
 import { node } from '@fluid-experimental/tree2';
+import Icon from '@mdi/react';
+import {
+    mdiThumbUp,
+    mdiClose,
+    mdiShapeRectanglePlus,
+    mdiNotePlusOutline,
+} from '@mdi/js';
 
 export function ReactApp(props: {
     data: SharedTree<App>;
@@ -37,8 +54,16 @@ export function ReactApp(props: {
 
     return (
         <div id="main" className="flex flex-col bg-white h-full w-full">
-            <Header services={props.services} container={props.container} root={root} />
-            <RootItems root={root} user={currentUser} />            
+            <Header
+                services={props.services}
+                container={props.container}
+                root={root}
+            />
+            <RootItems root={root} user={currentUser} />
+            <Floater>
+                <NewPileButton root={root} />
+                <NewNoteButton root={root} user={currentUser} />
+            </Floater>
         </div>
     );
 }
@@ -46,7 +71,7 @@ export function ReactApp(props: {
 function Header(props: {
     services: AzureContainerServices;
     container: IFluidContainer;
-    root: App 
+    root: App;
 }): JSX.Element {
     const [fluidMembers, setFluidMembers] = useState(
         props.services.audience.getMembers().size
@@ -94,14 +119,16 @@ function Header(props: {
     }, []);
 
     return (
-        <div className="flex flex-row justify-between bg-black h-10 text-base m-1 text-white">
-            <div className="m-2">shared-tree-demo</div>
-            <NewPileButton root={props.root} />
-            <div className="m-2">
-                {saved ? 'saved' : 'not saved'} | {connectionState} | users:{' '}
-                {fluidMembers}
+        <>
+            <div className="h-10 w-full"></div>
+            <div className="fixed flex flex-row justify-between bg-black h-10 text-base text-white z-40 w-full">
+                <div className="m-2">shared-tree-demo</div>
+                <div className="m-2">
+                    {saved ? 'saved' : 'not saved'} | {connectionState} | users:{' '}
+                    {fluidMembers}
+                </div>
             </div>
-        </div>
+        </>
     );
 }
 
@@ -114,16 +141,17 @@ function RootItems(props: { root: App; user: User }): JSX.Element {
             );
         } else if (node.is(i, NoteSchema)) {
             pilesArray.push(
-                <RootNoteBase key={i.id} note={i} user={props.user} notes={props.root.items} />
+                <RootNoteBase
+                    key={i.id}
+                    note={i}
+                    user={props.user}
+                    notes={props.root.items}
+                />
             );
-        }        
-    }   
+        }
+    }
 
-    return (
-        <div className="flex flex-row flex-wrap gap-4 m-4">
-            {pilesArray}
-        </div>
-    );
+    return <div className="flex flex-row flex-wrap gap-4 m-4">{pilesArray}</div>;
 }
 
 function NewPileButton(props: { root: App }): JSX.Element {
@@ -132,8 +160,23 @@ function NewPileButton(props: { root: App }): JSX.Element {
             color="white"
             background="black"
             handleClick={() => addPile(props.root.items, '[new group]')}
-            icon={MiniThumb()}
-        ></IconButton>
+            icon={<Icon path={mdiShapeRectanglePlus} size={0.75} />}
+        >
+            Add Group
+        </IconButton>
+    );
+}
+
+function NewNoteButton(props: { root: App; user: User }): JSX.Element {
+    return (
+        <IconButton
+            color="white"
+            background="black"
+            handleClick={() => addNote(props.root.items, '', props.user)}
+            icon={<Icon path={mdiNotePlusOutline} size={0.75} />}
+        >
+            Add Note
+        </IconButton>
     );
 }
 
@@ -142,26 +185,30 @@ function PileBase(props: { pile: Pile; user: User; app: App }): JSX.Element {
         type: 'Pile',
         item: props.pile,
         collect: (monitor) => ({
-            isDragging: monitor.isDragging(),            
-        }),        
+            isDragging: monitor.isDragging(),
+        }),
     }));
 
     const [{ isOver, canDrop }, drop] = useDrop(() => ({
         accept: ['Note', 'Pile'],
-        collect: (monitor) => ({            
-            isOver: !!monitor.isOver(),
+        collect: (monitor) => ({
+            isOver: !!monitor.isOver({ shallow: true }),
             canDrop: !!monitor.canDrop(),
-        }),        
+        }),
         drop: (item, monitor) => {
-
-            const didDrop = monitor.didDrop()
+            const didDrop = monitor.didDrop();
             if (didDrop) {
-            return
+                return;
+            }
+
+            const isOver = monitor.isOver({ shallow: true });
+            if (!isOver) {
+                return;
             }
 
             const droppedPile = item as Pile;
             moveItem(
-                droppedPile,                
+                droppedPile,
                 props.app.items.indexOf(props.pile),
                 props.app.items
             );
@@ -174,9 +221,22 @@ function PileBase(props: { pile: Pile; user: User; app: App }): JSX.Element {
         drop(el);
     }
     return (
-        <div ref={attachRef} className="p-2 bg-gray-200 h-64">
-            <PileToolbar pile={props.pile} app={props.app} />
-            <NoteContainer pile={props.pile} user={props.user} />
+        <div
+            ref={attachRef}
+            className={
+                'transition-all border-l-4 border-dashed ' +
+                (isOver && canDrop ? 'border-gray-500' : 'border-transparent')
+            }
+        >
+            <div
+                className={
+                    'p-2 bg-gray-200 min-h-64 transition-all ' +
+                    (isOver && canDrop ? 'translate-x-3' : '')
+                }
+            >
+                <PileToolbar pile={props.pile} app={props.app} />
+                <NoteContainer pile={props.pile} user={props.user} />
+            </div>
         </div>
     );
 }
@@ -205,7 +265,12 @@ function NoteContainer(props: { pile: Pile; user: User }): JSX.Element {
     const notesArray = [];
     for (const n of props.pile.notes) {
         notesArray.push(
-            <NoteBase key={n.id} note={n} user={props.user} notes={props.pile.notes} />
+            <NoteBase
+                key={n.id}
+                note={n}
+                user={props.user}
+                notes={props.pile.notes}
+            />
         );
     }
 
@@ -216,15 +281,23 @@ function NoteContainer(props: { pile: Pile; user: User }): JSX.Element {
     return <div className="flex flex-row flex-wrap gap-8 p-2">{notesArray}</div>;
 }
 
-function RootNoteBase(props: { note: Note; user: User; notes: Notes | Items }): JSX.Element {
+function RootNoteBase(props: {
+    note: Note;
+    user: User;
+    notes: Notes | Items;
+}): JSX.Element {
     return (
-        <div className='bg-transparent flex flex-col justify-center h-64'>            
-            <NoteBase {...props} />            
+        <div className="bg-transparent flex flex-col justify-center h-64">
+            <NoteBase {...props} />
         </div>
-    )
+    );
 }
 
-function NoteBase(props: { note: Note; user: User; notes: Notes | Items }): JSX.Element {
+function NoteBase(props: {
+    note: Note;
+    user: User;
+    notes: Notes | Items;
+}): JSX.Element {
     const mounted = useRef(false);
 
     const [{ status }, toggle] = useTransition({
@@ -254,34 +327,30 @@ function NoteBase(props: { note: Note; user: User; notes: Notes | Items }): JSX.
         type: 'Note',
         item: props.note,
         collect: (monitor) => ({
-            isDragging: monitor.isDragging(),            
-        }),        
+            isDragging: monitor.isDragging(),
+        }),
     }));
 
     const [{ isOver, canDrop }, drop] = useDrop(() => ({
         accept: ['Note', 'Pile'],
-        collect: (monitor) => ({            
+        collect: (monitor) => ({
             isOver: !!monitor.isOver(),
             canDrop: !!monitor.canDrop(),
         }),
         canDrop: (item) => {
             if (node.is(item, NoteSchema)) return true;
-            if (node.is(props.notes, ItemsSchema)){                                
+            if (node.is(props.notes, ItemsSchema)) {
                 return true;
-            }             
+            }
             return false;
-        },        
-        drop: (item) => {            
+        },
+        drop: (item) => {
             const droppedNote = item as Note;
-            moveItem(
-                droppedNote,                
-                props.notes.indexOf(props.note),
-                props.notes
-            );
+            moveItem(droppedNote, props.notes.indexOf(props.note), props.notes);
             return;
         },
     }));
-    
+
     function attachRef(el: ConnectableElement) {
         drag(el);
         drop(el);
@@ -296,7 +365,7 @@ function NoteBase(props: { note: Note; user: User; notes: Notes | Items }): JSX.
             <div
                 ref={attachRef}
                 className={
-                    (isOver && canDrop)
+                    isOver && canDrop
                         ? 'border-l-4 border-dashed border-gray-500'
                         : 'border-l-4 border-dashed border-transparent'
                 }
@@ -307,14 +376,14 @@ function NoteBase(props: { note: Note; user: User; notes: Notes | Items }): JSX.
                         'transition-all flex flex-col bg-yellow-100 h-48 w-48 shadow-md hover:shadow-lg hover:rotate-0 p-2 ' +
                         getRotation(props.note) +
                         ' ' +
-                        ((isOver && canDrop) ? 'translate-x-3' : '')
+                        (isOver && canDrop ? 'translate-x-3' : '')
                     }
                 >
                     <NoteToolbar
                         note={props.note}
                         user={props.user}
                         notes={props.notes}
-                    />                    
+                    />
                     <NoteTextArea note={props.note} user={props.user} />
                 </div>
             </div>
@@ -339,7 +408,11 @@ function NoteTextArea(props: { note: Note; user: User }): JSX.Element {
     );
 }
 
-function NoteToolbar(props: { note: Note; user: User; notes: Notes | Items }): JSX.Element {
+function NoteToolbar(props: {
+    note: Note;
+    user: User;
+    notes: Notes | Items;
+}): JSX.Element {
     return (
         <div className="flex justify-between">
             <LikeButton note={props.note} user={props.user} />
@@ -359,9 +432,9 @@ function AddNoteButton(props: { pile: Pile; user: User }): JSX.Element {
             isActive: monitor.canDrop() && monitor.isOver(),
         }),
         drop: (item) => {
-            const droppedNote= item as Note;
-            const i = node.key(droppedNote) as number;            
-            props.pile.notes.moveToEnd(i, i + 1, node.parent(droppedNote) as Notes)
+            const droppedNote = item as Note;
+            const i = node.key(droppedNote) as number;
+            props.pile.notes.moveToEnd(i, i + 1, node.parent(droppedNote) as Notes);
             return;
         },
     }));
@@ -430,7 +503,7 @@ function LikeButton(props: { note: Note; user: User }): JSX.Element {
 
     const setBackground = () => {
         if (props.note.votes.indexOf(props.user.id) > -1) {
-            return 'bg-green-600';
+            return 'bg-emerald-600';
         } else {
             return undefined;
         }
@@ -449,7 +522,7 @@ function LikeButton(props: { note: Note; user: User }): JSX.Element {
             <span
                 className={`transition duration-500${
                     status === 'exiting' ? ' animate-ping' : ''
-                } absolute inline-flex h-full w-full rounded bg-transparent opacity-75 -z-10`}
+                } absolute inline-flex h-full w-full rounded bg-transparent opacity-75 -z-10 bg-green-600`}
             ></span>
         </div>
     );
@@ -460,11 +533,7 @@ function DeleteNoteButton(props: {
     user: User;
     notes: Notes | Items;
 }): JSX.Element {
-    return (
-        <DeleteButton
-            handleClick={() => deleteNote(props.note)}
-        ></DeleteButton>
-    );
+    return <DeleteButton handleClick={() => deleteNote(props.note)}></DeleteButton>;
 }
 
 function DeletePileButton(props: { pile: Pile; app: App }): JSX.Element {
@@ -525,27 +594,28 @@ function IconButtonText(props: { children: React.ReactNode }): JSX.Element {
 }
 
 function MiniX(): JSX.Element {
-    return (
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            className="w-4 h-4"
-        >
-            <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-        </svg>
-    );
+    return <Icon path={mdiClose} size={0.75} />;
 }
 
 function MiniThumb(): JSX.Element {
+    return <Icon path={mdiThumbUp} size={0.75} />;
+}
+
+function Floater(props: { children: React.ReactNode }): JSX.Element {
     return (
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            className="w-4 h-4"
-        >
-            <path d="M1 8.25a1.25 1.25 0 112.5 0v7.5a1.25 1.25 0 11-2.5 0v-7.5zM11 3V1.7c0-.268.14-.526.395-.607A2 2 0 0114 3c0 .995-.182 1.948-.514 2.826-.204.54.166 1.174.744 1.174h2.52c1.243 0 2.261 1.01 2.146 2.247a23.864 23.864 0 01-1.341 5.974C17.153 16.323 16.072 17 14.9 17h-3.192a3 3 0 01-1.341-.317l-2.734-1.366A3 3 0 006.292 15H5V8h.963c.685 0 1.258-.483 1.612-1.068a4.011 4.011 0 012.166-1.73c.432-.143.853-.386 1.011-.814.16-.432.248-.9.248-1.388z" />
-        </svg>
+        <>
+            <div className="h-24"></div>
+            <div className="transition transform fixed z-100 bottom-0 inset-x-0 pb-2 sm:pb-5 opacity-100 scale-100 translate-y-0 ease-out duration-500 text-white">
+                <div className="max-w-screen-md mx-auto px-2 sm:px-4">
+                    <div className="p-2 rounded-lg bg-black shadow-lg sm:p-3">
+                        <div className="flex items-center justify-between flex-wrap">
+                            <div className="w-0 flex-1 flex items-center">
+                                {props.children}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </>
     );
 }

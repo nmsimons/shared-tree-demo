@@ -20,7 +20,7 @@
         "@fluid-experimental/tree2": "2.0.0-dev.7.2.0.205722",
         "@fluidframework/azure-client": "2.0.0-dev.7.2.0.205722",
         "@fluidframework/telemetry-utils": "2.0.0-dev.7.2.0.205722",
-        "@fluidframework/test-runtime-utils": "2.0.0-dev.7.2.0.205722",        
+        "@fluidframework/test-runtime-utils": "2.0.0-dev.7.2.0.205722",
         "@mdi/font": "^6.9.96",
         "@mdi/js": "^6.9.96",
         "@mdi/react": "^1.6.1",
@@ -36,7 +36,7 @@
         "react-dnd": "^16.0.1",
         "react-dnd-html5-backend": "^16.0.1",
         "react-dom": "^18.0.0",
-        "react-transition-state": "^2.1.0"        
+        "react-transition-state": "^2.1.0"
     },
     "devDependencies": {
         "@fluid-experimental/devtools": "2.0.0-dev.7.2.0.205722",

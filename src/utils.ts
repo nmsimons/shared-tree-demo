@@ -2,7 +2,6 @@ import { Note } from './schema';
 import { Guid } from 'guid-typescript';
 import { IInsecureUser } from '@fluidframework/test-runtime-utils';
 
-
 export function getRotation(note: Note) {
     const i = hashCode(note.id);
 
@@ -29,7 +28,7 @@ function hashCode(str: string): number {
 export const generateTestUser = (): IInsecureUser => {
     const user = {
         id: Guid.create().toString(),
-        name: "[TEST USER]"
+        name: '[TEST USER]',
     };
     return user;
 };

@@ -2,7 +2,7 @@ import {
     AllowedUpdateType,
     InitializeAndSchematizeConfiguration,
     ProxyNode,
-    SchemaBuilder,    
+    SchemaBuilder,
 } from '@fluid-experimental/tree2';
 
 // Schema is defined using a builder object that generates a schema that is passed into the
@@ -12,11 +12,11 @@ import {
 // as TypeScript types to make it easier to write the app in a type-safe manner.
 
 // Include a UUID to guarantee that this schema will be uniquely identifiable
-const sb = new SchemaBuilder({scope: 'fc1db2e8-0a00-11ee-be56-0242ac120002'});
+const sb = new SchemaBuilder({ scope: 'fc1db2e8-0a00-11ee-be56-0242ac120002' });
 
 // Define a simple user type - in most apps this would probably not be
 // necessary as the user would be defined through an identity/auth service
-export const UserSchema = sb.object('user', {    
+export const UserSchema = sb.object('user', {
     id: sb.string,
     name: sb.string,
 });
@@ -42,11 +42,11 @@ export const PileSchema = sb.object('pile', {
     notes: NotesSchema,
 });
 
-export const ItemsSchema = sb.list([PileSchema, NoteSchema])
+export const ItemsSchema = sb.list([PileSchema, NoteSchema]);
 
 // Define a root type.
 export const AppSchema = sb.object('app', {
-    items: ItemsSchema,    
+    items: ItemsSchema,
 });
 
 // Export the types defined here as TypeScript types.
@@ -60,7 +60,7 @@ export type Items = ProxyNode<typeof ItemsSchema>;
 export const schemaConfig: InitializeAndSchematizeConfiguration = {
     schema: sb.intoSchema(AppSchema),
     initialTree: {
-        items: [],        
+        items: [],
     },
     allowedSchemaModifications: AllowedUpdateType.SchemaCompatible,
-}
+};

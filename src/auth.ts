@@ -1,7 +1,7 @@
-import {    
+import {
     AzureMember,
     ITokenProvider,
-    ITokenResponse,    
+    ITokenResponse,
 } from '@fluidframework/azure-client';
 
 import axios from 'axios';
