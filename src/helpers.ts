@@ -64,40 +64,43 @@ export function moveItem(
 
     const source = node.parent(item) as Items;
     const index = source.indexOf(item);
-    d.moveToIndex(destinationIndex, index, index + 1, source);
+
+    if (destinationIndex == Infinity) {
+        d.moveToEnd(index, index + 1, source);
+    } else {
+        d.moveToIndex(destinationIndex, index, index + 1, source);
+    }
 }
 
-// Add a new pile (container for notes) to the SharedTree.
-export function addPile(items: Items, name: string): Group {
-    const pile = GroupSchema.create({
+// Add a new group (container for notes) to the SharedTree.
+export function addGroup(items: Items, name: string): Group {
+    const group = GroupSchema.create({
         id: Guid.create().toString(),
         name,
         notes: [],
     });
 
-    items.insertAtEnd([pile]);
-
-    items.length;
-    return items[items.length - 1] as Group; //yuck - this should just be return pile
+    items.insertAtStart([group]);
+    return items[0] as Group; //yuck - this should just be return group
 }
 
-// Function that deletes a pile and moves the notes in that pile
-// to the default pile instead of deleting them as well
-export function deletePile(pile: Group, app: App) {
+// Function that deletes a pile and moves the notes in that group
+// to the default group instead of deleting them as well
+export function deleteGroup(group: Group, app: App) {
     // Test for the presence of notes and move them to the root
-    // in the same position as the pile
-    if (pile.notes.length !== 0) {
+    // in the same position as the group
+    if (group.notes.length !== 0) {
         app.items.moveToIndex(
-            node.key(pile) as number,
+            node.key(group) as number,
             0,
-            pile.notes.length,
-            pile.notes
+            group.notes.length,
+            group.notes
         );
     }
 
     // Delete the now empty pile
-    const parent = node.parent(pile) as Items;
-    parent.removeAt(node.key(pile) as number);
+    const parent = node.parent(group) as Items;
+    parent.removeAt(node.key(group) as number);
 }
 
 // Function to delete a note.

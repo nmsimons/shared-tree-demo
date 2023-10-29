@@ -1,6 +1,6 @@
 import React from 'react';
 import { App, Group, User } from './schema';
-import { deletePile, moveItem } from './helpers';
+import { deleteGroup, moveItem } from './helpers';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 import { NoteContainer } from './noteux';
 import { DeleteButton } from './buttonux';
@@ -101,7 +101,7 @@ function GroupToolbar(props: { pile: Group; app: App }): JSX.Element {
 export function DeletePileButton(props: { pile: Group; app: App }): JSX.Element {
     return (
         <DeleteButton
-            handleClick={() => deletePile(props.pile, props.app)}
+            handleClick={() => deleteGroup(props.pile, props.app)}
         ></DeleteButton>
     );
 }

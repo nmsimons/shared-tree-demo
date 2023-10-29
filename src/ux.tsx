@@ -11,7 +11,7 @@ import { GroupView } from './groupux';
 import { RootNoteWrapper } from './noteux';
 import {
     Floater,
-    NewPileButton,
+    NewGroupButton,
     NewNoteButton,
     DeleteNotesButton,
 } from './buttonux';
@@ -84,22 +84,10 @@ export function ReactApp(props: {
             newSelection.push(item);
             setSelection(newSelection);
         }
-    };
-
-    const clearSelection = () => {
-        for (const obj of selection) {
-            obj.update(false);
-        }
-        setSelection([]);
-    };
-
-    const handleClick = (e: React.MouseEvent) => {
-        clearSelection();
-    };
+    };    
 
     return (
-        <div
-            onClick={(e) => handleClick(e)}
+        <div            
             id="main"
             className="flex flex-col bg-white h-full w-full"
         >
@@ -111,7 +99,7 @@ export function ReactApp(props: {
             />
             <RootItems root={root} user={currentUser} select={updateSelection} />
             <Floater>
-                <NewPileButton root={root} />
+                <NewGroupButton root={root} selection={selection} />
                 <NewNoteButton root={root} user={currentUser} />
                 <DeleteNotesButton selection={selection} />
             </Floater>

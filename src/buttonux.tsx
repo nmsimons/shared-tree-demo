@@ -1,6 +1,6 @@
 import React from 'react';
 import { App, User } from './schema';
-import { addNote, addPile, deleteNote } from './helpers';
+import { addNote, addGroup as addGroup, deleteNote, moveItem } from './helpers';
 import Icon from '@mdi/react';
 import {
     mdiThumbUp,
@@ -11,12 +11,19 @@ import {
 } from '@mdi/js';
 import { Selection } from './ux';
 
-export function NewPileButton(props: { root: App }): JSX.Element {
+export function NewGroupButton(props: { root: App, selection: Selection[] }): JSX.Element {
+    const handleClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        const group = addGroup(props.root.items, '[new group]')
+        for(const s of props.selection) {
+            moveItem(s.note, Infinity, group.notes);
+        }
+    };    
     return (
         <IconButton
             color="white"
             background="black"
-            handleClick={() => addPile(props.root.items, '[new group]')}
+            handleClick={(e: React.MouseEvent) => handleClick(e)}
             icon={<Icon path={mdiShapeRectanglePlus} size={0.75} />}
         >
             Add Group
@@ -24,11 +31,15 @@ export function NewPileButton(props: { root: App }): JSX.Element {
     );
 }
 export function NewNoteButton(props: { root: App; user: User }): JSX.Element {
+    const handleClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        addNote(props.root.items, '', props.user)
+    };    
     return (
         <IconButton
             color="white"
             background="black"
-            handleClick={() => addNote(props.root.items, '', props.user)}
+            handleClick={(e: React.MouseEvent) => handleClick(e)}
             icon={<Icon path={mdiNotePlusOutline} size={0.75} />}
         >
             Add Note
@@ -56,9 +67,8 @@ export function DeleteNotesButton(props: { selection: Selection[] }): JSX.Elemen
 export function DeleteButton(props: { handleClick: any }): JSX.Element {
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        props.handleClick();
+        props.handleClick(e);
     };
-
     return (
         <button
             className={
@@ -80,7 +90,7 @@ export function IconButton(props: {
 }): JSX.Element {
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        props.handleClick();
+        props.handleClick(e);
     };
 
     return (
