@@ -16,7 +16,7 @@ import {
     DeleteNotesButton,
 } from './buttonux';
 
-export type Selection = {
+export type SelectedNote = {
     update: any;
     note: Note;
     isNew: boolean;
@@ -39,26 +39,26 @@ export function ReactApp(props: {
         id: azureUser.userId,
     });
 
-    const [selection, setSelection] = useState<Selection[]>([]);
+    const [noteSelection, setNoteSelection] = useState<SelectedNote[]>([]);
 
-    const updateSelection = (item: Selection) => {
-        const newSelection: Selection[] = [];
+    const updateNoteSelection = (item: SelectedNote) => {
+        const newNoteSelection: SelectedNote[] = [];
 
         if (item.isMulti) {
-            newSelection.push(...selection);
+            newNoteSelection.push(...noteSelection);
         }
 
         // Handle removed items
         if (item.remove) {
-            for (const obj of selection) {
-                if (obj.note.id == item.note.id && newSelection.length <= 1) {
+            for (const obj of noteSelection) {
+                if (obj.note.id == item.note.id && newNoteSelection.length <= 1) {
                     item.update(false);
-                    setSelection([]);
+                    setNoteSelection([]);
                     return;
-                } else if (obj.note.id == item.note.id && newSelection.length > 1) {
+                } else if (obj.note.id == item.note.id && newNoteSelection.length > 1) {
                     item.update(false);
-                    newSelection.splice(newSelection.indexOf(obj), 1);
-                    setSelection(newSelection);
+                    newNoteSelection.splice(newNoteSelection.indexOf(obj), 1);
+                    setNoteSelection(newNoteSelection);
                     return;
                 }
             }
@@ -68,21 +68,21 @@ export function ReactApp(props: {
         // Deal with current selection.
         // New items always call this function to test
         // if they should be selected.
-        for (const obj of selection) {
+        for (const obj of noteSelection) {
             if (obj.note === item.note && item.isNew) {
                 item.update(true);
-                newSelection.push(item);
-                setSelection(newSelection);
+                newNoteSelection.push(item);
+                setNoteSelection(newNoteSelection);
             } else if (obj.note !== item.note && !item.isNew && !item.isMulti) {
                 obj.update(false);
             }
         }
 
-        // New items do not get added automatically right now
+        // New items do not get added automatically 
         if (!item.isNew) {
             item.update(true);
-            newSelection.push(item);
-            setSelection(newSelection);
+            newNoteSelection.push(item);
+            setNoteSelection(newNoteSelection);
         }
     };    
 
@@ -95,13 +95,13 @@ export function ReactApp(props: {
                 services={props.services}
                 container={props.container}
                 root={root}
-                selection={selection}
+                selection={noteSelection}
             />
-            <RootItems root={root} user={currentUser.id} select={updateSelection} />
+            <RootItems root={root} user={currentUser.id} select={updateNoteSelection} />
             <Floater>
-                <NewGroupButton root={root} selection={selection} />
+                <NewGroupButton root={root} selection={noteSelection} />
                 <NewNoteButton root={root} user={currentUser.id} />
-                <DeleteNotesButton selection={selection} />
+                <DeleteNotesButton selection={noteSelection} />
             </Floater>
         </div>
     );

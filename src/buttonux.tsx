@@ -9,9 +9,9 @@ import {
     mdiNotePlusOutline,
     mdiNoteRemoveOutline,
 } from '@mdi/js';
-import { Selection } from './ux';
+import { SelectedNote } from './ux';
 
-export function NewGroupButton(props: { root: App, selection: Selection[] }): JSX.Element {
+export function NewGroupButton(props: { root: App, selection: SelectedNote[] }): JSX.Element {
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         const group = addGroup(props.root.items, '[new group]')
@@ -48,8 +48,8 @@ export function NewNoteButton(props: { root: App; user: string }): JSX.Element {
     );
 }
 
-export function DeleteNotesButton(props: { selection: Selection[] }): JSX.Element {
-    const handleClick = (selection: Selection[]) => {
+export function DeleteNotesButton(props: { selection: SelectedNote[] }): JSX.Element {
+    const handleClick = (selection: SelectedNote[]) => {
         for (const s of selection) {
             deleteNote(s.note);
         }

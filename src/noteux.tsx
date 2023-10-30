@@ -65,6 +65,18 @@ function NoteView(props: {
 
     const [selected, setSelected] = useState(false);
 
+    const [bgColor, setBgColor] = useState('bg-yellow-100');
+
+    const [rotation] = useState(getRotation(props.note));
+
+    useEffect(() => {
+        if (selected) {
+            setBgColor('bg-yellow-400');
+        } else {
+            setBgColor('bg-yellow-100');
+        }       
+    }, [selected])
+
     toggle(false);
 
     useEffect(() => {
@@ -129,12 +141,7 @@ function NoteView(props: {
 
     const updateSelection = (value: boolean) => {
         setSelected(value);
-    };
-
-    const getBackgroundColor = () => {
-        if (selected) return 'bg-yellow-400';
-        return 'bg-yellow-100';
-    };
+    };    
 
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -184,9 +191,9 @@ function NoteView(props: {
                     style={{ opacity: isDragging ? 0.5 : 1 }}
                     className={
                         'transition-all flex flex-col ' +
-                        getBackgroundColor() +
+                        bgColor +
                         ' h-48 w-48 shadow-md hover:shadow-lg hover:rotate-0 p-2 ' +
-                        getRotation(props.note) +
+                        rotation +
                         ' ' +
                         (isOver && canDrop ? 'translate-x-3' : '')
                     }
