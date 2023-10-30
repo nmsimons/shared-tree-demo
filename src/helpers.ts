@@ -31,8 +31,8 @@ export function addNote(
     });
 
     // Insert the note into the SharedTree. This code always inserts the note at the end of the
-    // notes sequence in the provided pile object. As this function can operate on multiple items
-    // in the tree, the note is passed as an array.
+    // notes sequence in the provided pile object. As this function can insert multiple items,
+    // the note is passed in an array.
     notes.insertAtEnd([note]);
 }
 

@@ -5,7 +5,7 @@ import './output.css';
 import { SharedTree, useTree } from './fluid';
 import { AzureContainerServices } from '@fluidframework/azure-client';
 import { ConnectionState, IFluidContainer } from 'fluid-framework';
-import { azureUser } from './auth';
+import { azureUser } from './tokenProvider';
 import { node } from '@fluid-experimental/tree2';
 import { GroupView } from './groupux';
 import { RootNoteWrapper } from './noteux';

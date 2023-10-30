@@ -1,9 +1,6 @@
 import {
     AzureClient,
-    AzureRemoteConnectionConfig,
     AzureContainerServices,
-    AzureClientProps,
-    AzureLocalConnectionConfig,
 } from '@fluidframework/azure-client';
 import { ContainerSchema, IFluidContainer } from 'fluid-framework';
 import {
@@ -16,43 +13,13 @@ import {
 
 import React from 'react';
 import { App } from './schema';
-import { InsecureTokenProvider } from '@fluidframework/test-runtime-utils';
-import { AzureFunctionTokenProvider, azureUser, user } from './auth';
+import { clientProps } from './clientProps';
 
 export class MySharedTree {
     public static getFactory(): SharedTreeFactory {
         return new SharedTreeFactory();
     }
 }
-
-// Define the server (Azure or local) we will be using
-const useAzure = process.env.FLUID_CLIENT === 'azure';
-if (!useAzure) {
-    console.warn(`Configured to use local tinylicious.`);
-}
-
-const remoteConnectionConfig: AzureRemoteConnectionConfig = {
-    type: 'remote',
-    tenantId: process.env.AZURE_TENANT_ID!,
-    tokenProvider: new AzureFunctionTokenProvider(
-        process.env.AZURE_FUNCTION_TOKEN_PROVIDER_URL!,
-        azureUser
-    ),
-    endpoint: process.env.AZURE_ORDERER!,
-};
-
-const localConnectionConfig: AzureLocalConnectionConfig = {
-    type: 'local',
-    tokenProvider: new InsecureTokenProvider('VALUE_NOT_USED', user),
-    endpoint: 'http://localhost:7070',
-};
-
-const connectionConfig: AzureRemoteConnectionConfig | AzureLocalConnectionConfig =
-    useAzure ? remoteConnectionConfig : localConnectionConfig;
-
-const clientProps: AzureClientProps = {
-    connection: connectionConfig,
-};
 
 const client = new AzureClient(clientProps);
 
