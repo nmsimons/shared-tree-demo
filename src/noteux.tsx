@@ -7,7 +7,7 @@ import {
     moveItem,
     updateNoteText,
 } from './helpers';
-import { dragType, getRotation, selectAction } from './utils';
+import { dragType, getRotation, selectAction, testNoteSelection, updateNoteSelection } from './utils';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 import { useTransition } from 'react-transition-state';
 import { node } from '@fluid-experimental/tree2';
@@ -16,7 +16,8 @@ import { IconButton, MiniThumb, DeleteButton } from './buttonux';
 export function NoteContainer(props: {
     pile: Group;
     user: string;
-    select: any;
+    selection: Note[];
+    setSelection: any;
 }): JSX.Element {
     const notesArray = [];
     for (const n of props.pile.notes) {
@@ -26,7 +27,8 @@ export function NoteContainer(props: {
                 note={n}
                 user={props.user}
                 notes={props.pile.notes}
-                select={props.select}
+                selection={props.selection}
+                setSelection={props.setSelection}
             />
         );
     }
@@ -42,7 +44,8 @@ export function RootNoteWrapper(props: {
     note: Note;
     user: string;
     notes: Notes | Items;
-    select: any;
+    selection: Note[];
+    setSelection: any;
 }): JSX.Element {
     return (
         <div className="bg-transparent flex flex-col justify-center h-64">
@@ -55,7 +58,8 @@ function NoteView(props: {
     note: Note;
     user: string;
     notes: Notes | Items;
-    select: any;
+    selection: Note[];
+    setSelection: any;
 }): JSX.Element {
     const mounted = useRef(false);
 
@@ -71,13 +75,7 @@ function NoteView(props: {
 
     useEffect(() => {
         mounted.current = true;
-
-        props.select({
-            update: updateSelection,
-            note: props.note,
-            action: selectAction.NEW,
-        });
-
+        testNoteSelection(props.note, props.selection, setSelected);
         return () => {
             mounted.current = false;
         };
@@ -90,6 +88,10 @@ function NoteView(props: {
             setBgColor('bg-yellow-100');
         }       
     }, [selected])
+
+    useEffect(() => {
+        testNoteSelection(props.note, props.selection, setSelected);
+    }, [props.selection])
 
     toggle(false);
 
@@ -134,32 +136,16 @@ function NoteView(props: {
     const attachRef = (el: ConnectableElement) => {
         drag(el);
         drop(el);
-    };
-
-    const updateSelection = (value: boolean) => {
-        setSelected(value);
     };    
 
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         if (e.ctrlKey) {
-            props.select({
-                update: updateSelection,
-                note: props.note,
-                action: selectAction.MULTI,
-            });
+            updateNoteSelection(props.note, props.selection, props.setSelection, selectAction.MULTI);            
         } else if (selected) {
-            props.select({
-                update: updateSelection,
-                note: props.note,
-                action: selectAction.REMOVE,
-            });
+            updateNoteSelection(props.note, props.selection, props.setSelection, selectAction.REMOVE);            
         } else {
-            props.select({
-                update: updateSelection,
-                note: props.note,
-                action: selectAction.SINGLE,
-            });
+            updateNoteSelection(props.note, props.selection, props.setSelection, selectAction.SINGLE);            
         }
     };
 
@@ -194,14 +180,14 @@ function NoteView(props: {
                         user={props.user}
                         notes={props.notes}
                     />
-                    <NoteTextArea note={props.note} user={props.user} select={props.select} updateSelection={updateSelection} />
+                    <NoteTextArea note={props.note} user={props.user} selection={props.selection} setSelection={props.setSelection} />
                 </div>
             </div>
         </div>
     );
 }
 
-function NoteTextArea(props: { note: Note; user: string; select: any; updateSelection: any }): JSX.Element {
+function NoteTextArea(props: { note: Note; user: string; selection: Note[]; setSelection: any}): JSX.Element {
     // The text field updates the Fluid data model on every keystroke in this demo.
     // This works well with small strings but doesn't scale to very large strings.
     // A Future iteration of SharedTree will include support for collaborative strings
@@ -212,17 +198,9 @@ function NoteTextArea(props: { note: Note; user: string; select: any; updateSele
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         if (e.ctrlKey) {
-            props.select({
-                update: props.updateSelection,
-                note: props.note,
-                action: selectAction.MULTI,
-            });
+            updateNoteSelection(props.note, props.selection, props.setSelection, selectAction.MULTI);            
         } else {
-            props.select({
-                update: props.updateSelection,
-                note: props.note,
-                action: selectAction.SINGLE,
-            });
+            updateNoteSelection(props.note, props.selection, props.setSelection, selectAction.SINGLE);            
         }
     };
 

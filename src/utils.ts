@@ -38,9 +38,55 @@ export enum dragType {
     GROUP = "Group"
 }
 
-export enum selectAction {
-    NEW,
+export enum selectAction {    
     MULTI,
     REMOVE,
     SINGLE
 }
+
+
+export const testNoteSelection = (
+    item: Note,
+    selection: Note[],
+    setSelected: any
+) => {
+    if (selection.indexOf(item) == -1) {
+        setSelected(false);
+    } else {
+        setSelected(true);
+    }
+    return;
+};
+
+
+export const updateNoteSelection = (
+    item: Note,
+    selection: Note[],
+    setSelection: any,
+    action: selectAction,    
+) => {
+    // Since selection is going to change
+    // create a new selection array
+    const newNoteSelection: Note[] = [];
+
+    // Persist existing selection since this is
+    // a multi select or a remove
+    if (action != selectAction.SINGLE) {
+        newNoteSelection.push(...selection);
+    }
+
+    // Handle removed items and bail
+    if (action == selectAction.REMOVE) {
+        for (const obj of selection) {
+            if (obj === item) {
+                newNoteSelection.splice(newNoteSelection.indexOf(obj), 1);
+            }
+        }
+        setSelection(newNoteSelection);
+        return;
+    }
+
+    // Select the item and put it in the selection array
+    newNoteSelection.push(item);
+    setSelection(newNoteSelection);
+};    

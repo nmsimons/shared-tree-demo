@@ -1,5 +1,5 @@
 import React from 'react';
-import { App } from './schema';
+import { App, Note } from './schema';
 import { addNote, addGroup as addGroup, deleteNote, moveItem } from './helpers';
 import Icon from '@mdi/react';
 import {
@@ -9,14 +9,13 @@ import {
     mdiNotePlusOutline,
     mdiNoteRemoveOutline,
 } from '@mdi/js';
-import { SelectedNote } from './ux';
 
-export function NewGroupButton(props: { root: App, selection: SelectedNote[] }): JSX.Element {
+export function NewGroupButton(props: { root: App, selection: Note[] }): JSX.Element {
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         const group = addGroup(props.root.items, '[new group]')
         for(const s of props.selection) {
-            moveItem(s.note, Infinity, group.notes);
+            moveItem(s, Infinity, group.notes);
         }
     };    
     return (
@@ -48,10 +47,10 @@ export function NewNoteButton(props: { root: App; user: string }): JSX.Element {
     );
 }
 
-export function DeleteNotesButton(props: { selection: SelectedNote[] }): JSX.Element {
-    const handleClick = (selection: SelectedNote[]) => {
+export function DeleteNotesButton(props: { selection: Note[] }): JSX.Element {
+    const handleClick = (selection: Note[]) => {
         for (const s of selection) {
-            deleteNote(s.note);
+            deleteNote(s);
         }
     };
     return (

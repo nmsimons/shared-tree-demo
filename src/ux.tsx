@@ -15,13 +15,6 @@ import {
     NewNoteButton,
     DeleteNotesButton,
 } from './buttonux';
-import { selectAction } from './utils';
-
-export type SelectedNote = {
-    update: any; // function that changes the selection state of the item
-    note: Note; // data object
-    action: selectAction;
-};
 
 export function ReactApp(props: {
     data: SharedTree<App>;
@@ -38,64 +31,7 @@ export function ReactApp(props: {
         id: azureUser.userId,
     });
 
-    const [noteSelection, setNoteSelection] = useState<SelectedNote[]>([]);
-
-    const [selectedNote, setSelectedNote] = useState<SelectedNote>();
-
-    useEffect(() => {
-        if (selectedNote) updateNoteSelection(selectedNote, noteSelection);
-    }, [selectedNote])
-
-    const updateNoteSelection = (item: SelectedNote, selection: SelectedNote[]) => {
-        const newNoteSelection: SelectedNote[] = [];
-
-        if (item.action != selectAction.SINGLE) {
-            newNoteSelection.push(...selection);
-        }
-
-        // Handle removed items and bail
-        if (item.action == selectAction.REMOVE) {
-            for (const obj of selection) {
-                if (obj.note.id == item.note.id) {
-                    item.update(false);
-                    newNoteSelection.splice(newNoteSelection.indexOf(obj), 1);                                        
-                }
-            }
-            setNoteSelection(newNoteSelection);
-            return;
-        }
-
-        // If only one item should be selected,
-        // remove selection on all other items
-        if (item.action == selectAction.SINGLE) {
-            for (const obj of selection) {
-                if (obj.note !== item.note) {
-                    obj.update(false);
-                }
-            }
-        }        
-        
-        // New items always call this function to test
-        // if they should be selected.
-        if (item.action == selectAction.NEW) {
-            for (const obj of selection) {
-                if (obj.note === item.note) {                    
-                    newNoteSelection.splice(newNoteSelection.indexOf(obj), 1); // remove the old instance of the new item
-                    item.update(true);
-                    newNoteSelection.push(item);                
-                } 
-            }
-        }        
-
-        // Add item to selected and select it
-        // New items do not get added 
-        if (item.action != selectAction.NEW) {
-            item.update(true);
-            newNoteSelection.push(item);            
-        }
-
-        setNoteSelection(newNoteSelection);
-    };    
+    const [noteSelection, setNoteSelection] = useState<Note[]>([]);
 
     return (
         <div            
@@ -108,7 +44,7 @@ export function ReactApp(props: {
                 root={root}
                 selection={noteSelection}
             />
-            <RootItems root={root} user={currentUser.id} select={setSelectedNote} />
+            <RootItems root={root} user={currentUser.id} selection={noteSelection} setSelection={setNoteSelection}  />
             <Floater>
                 <NewGroupButton root={root} selection={noteSelection} />
                 <NewNoteButton root={root} user={currentUser.id} />
@@ -122,7 +58,7 @@ function Header(props: {
     services: AzureContainerServices;
     container: IFluidContainer;
     root: App;
-    selection: { update: any; note: Note }[];
+    selection: Note[];
 }): JSX.Element {
     const [fluidMembers, setFluidMembers] = useState(
         props.services.audience.getMembers().size
@@ -183,7 +119,7 @@ function Header(props: {
     );
 }
 
-function RootItems(props: { root: App; user: string; select: any }): JSX.Element {
+function RootItems(props: { root: App; user: string; selection: Note[]; setSelection: any }): JSX.Element {
     const pilesArray = [];
     for (const i of props.root.items) {
         if (node.is(i, GroupSchema)) {
@@ -193,7 +129,8 @@ function RootItems(props: { root: App; user: string; select: any }): JSX.Element
                     pile={i}
                     user={props.user}
                     app={props.root}
-                    select={props.select}
+                    selection={props.selection}
+                    setSelection={props.setSelection}
                 />
             );
         } else if (node.is(i, NoteSchema)) {
@@ -203,7 +140,8 @@ function RootItems(props: { root: App; user: string; select: any }): JSX.Element
                     note={i}
                     user={props.user}
                     notes={props.root.items}
-                    select={props.select}
+                    selection={props.selection}
+                    setSelection={props.setSelection}
                 />
             );
         }

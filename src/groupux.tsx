@@ -1,5 +1,5 @@
 import React from 'react';
-import { App, Group } from './schema';
+import { App, Group, Note } from './schema';
 import { deleteGroup, moveItem } from './helpers';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 import { NoteContainer } from './noteux';
@@ -10,7 +10,8 @@ export function GroupView(props: {
     pile: Group;
     user: string;
     app: App;
-    select: any;
+    selection: Note[];
+    setSelection: any;
 }): JSX.Element {
     const [{ isDragging }, drag] = useDrag(() => ({
         type: dragType.GROUP,
@@ -75,7 +76,8 @@ export function GroupView(props: {
                 <NoteContainer
                     pile={props.pile}
                     user={props.user}
-                    select={props.select}
+                    selection={props.selection}
+                    setSelection={props.setSelection}
                 />
             </div>
         </div>
