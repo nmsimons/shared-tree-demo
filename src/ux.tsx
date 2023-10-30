@@ -15,13 +15,12 @@ import {
     NewNoteButton,
     DeleteNotesButton,
 } from './buttonux';
+import { selectAction } from './utils';
 
 export type SelectedNote = {
-    update: any;
-    note: Note;
-    isNew: boolean;
-    isMulti: boolean;
-    remove: boolean;
+    update: any; // function that changes the selection state of the item
+    note: Note; // data object
+    action: selectAction;
 };
 
 export function ReactApp(props: {
@@ -41,49 +40,61 @@ export function ReactApp(props: {
 
     const [noteSelection, setNoteSelection] = useState<SelectedNote[]>([]);
 
-    const updateNoteSelection = (item: SelectedNote) => {
+    const [selectedNote, setSelectedNote] = useState<SelectedNote>();
+
+    useEffect(() => {
+        if (selectedNote) updateNoteSelection(selectedNote, noteSelection);
+    }, [selectedNote])
+
+    const updateNoteSelection = (item: SelectedNote, selection: SelectedNote[]) => {
         const newNoteSelection: SelectedNote[] = [];
 
-        if (item.isMulti) {
-            newNoteSelection.push(...noteSelection);
+        if (item.action != selectAction.SINGLE) {
+            newNoteSelection.push(...selection);
         }
 
-        // Handle removed items
-        if (item.remove) {
-            for (const obj of noteSelection) {
-                if (obj.note.id == item.note.id && newNoteSelection.length <= 1) {
+        // Handle removed items and bail
+        if (item.action == selectAction.REMOVE) {
+            for (const obj of selection) {
+                if (obj.note.id == item.note.id) {
                     item.update(false);
-                    setNoteSelection([]);
-                    return;
-                } else if (obj.note.id == item.note.id && newNoteSelection.length > 1) {
-                    item.update(false);
-                    newNoteSelection.splice(newNoteSelection.indexOf(obj), 1);
-                    setNoteSelection(newNoteSelection);
-                    return;
+                    newNoteSelection.splice(newNoteSelection.indexOf(obj), 1);                                        
                 }
             }
+            setNoteSelection(newNoteSelection);
             return;
         }
 
-        // Deal with current selection.
+        // If only one item should be selected,
+        // remove selection on all other items
+        if (item.action == selectAction.SINGLE) {
+            for (const obj of selection) {
+                if (obj.note !== item.note) {
+                    obj.update(false);
+                }
+            }
+        }        
+        
         // New items always call this function to test
         // if they should be selected.
-        for (const obj of noteSelection) {
-            if (obj.note === item.note && item.isNew) {
-                item.update(true);
-                newNoteSelection.push(item);
-                setNoteSelection(newNoteSelection);
-            } else if (obj.note !== item.note && !item.isNew && !item.isMulti) {
-                obj.update(false);
+        if (item.action == selectAction.NEW) {
+            for (const obj of selection) {
+                if (obj.note === item.note) {                    
+                    newNoteSelection.splice(newNoteSelection.indexOf(obj), 1); // remove the old instance of the new item
+                    item.update(true);
+                    newNoteSelection.push(item);                
+                } 
             }
+        }        
+
+        // Add item to selected and select it
+        // New items do not get added 
+        if (item.action != selectAction.NEW) {
+            item.update(true);
+            newNoteSelection.push(item);            
         }
 
-        // New items do not get added automatically 
-        if (!item.isNew) {
-            item.update(true);
-            newNoteSelection.push(item);
-            setNoteSelection(newNoteSelection);
-        }
+        setNoteSelection(newNoteSelection);
     };    
 
     return (
@@ -97,7 +108,7 @@ export function ReactApp(props: {
                 root={root}
                 selection={noteSelection}
             />
-            <RootItems root={root} user={currentUser.id} select={updateNoteSelection} />
+            <RootItems root={root} user={currentUser.id} select={setSelectedNote} />
             <Floater>
                 <NewGroupButton root={root} selection={noteSelection} />
                 <NewNoteButton root={root} user={currentUser.id} />

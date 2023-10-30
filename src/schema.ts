@@ -23,7 +23,7 @@ export const NoteSchema = sb.object('note', {
     author: sb.string,
     votes: sb.list(sb.string),
     created: sb.number,
-    lastChanged: sb.number,
+    lastChanged: sb.number,        
 });
 
 // Schema for a list of Notes. This could be defined inline

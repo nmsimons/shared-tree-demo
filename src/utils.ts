@@ -37,3 +37,10 @@ export enum dragType {
     NOTE = "Note",
     GROUP = "Group"
 }
+
+export enum selectAction {
+    NEW,
+    MULTI,
+    REMOVE,
+    SINGLE
+}
