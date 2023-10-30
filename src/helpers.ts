@@ -6,8 +6,7 @@ import {
     NoteSchema,
     GroupSchema,
     Notes,
-    Items,
-    User,
+    Items,    
 } from './schema';
 import { Guid } from 'guid-typescript';
 
@@ -16,7 +15,7 @@ import { Guid } from 'guid-typescript';
 export function addNote(
     notes: Notes | Items,
     text: string,
-    author: { name: string; id: string }
+    author: string
 ) {
     const timeStamp = new Date().getTime();
 
@@ -109,13 +108,13 @@ export function deleteNote(note: Note) {
     if (parent) parent.removeAt(node.key(note) as number);
 }
 
-export function toggleVote(note: Note, user: User) {
-    const index = note.votes.indexOf(user.id);
+export function toggleVote(note: Note, user: string) {
+    const index = note.votes.indexOf(user);
     if (index > -1) {
         note.votes.removeAt(index);
         note.lastChanged = new Date().getTime();
     } else {
-        note.votes.insertAtEnd([user.id]);
+        note.votes.insertAtEnd([user]);
         note.lastChanged = new Date().getTime();
     }
 }

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from 'react';
-import { App, Note, User, NoteSchema, GroupSchema } from './schema';
+import { App, Note, NoteSchema, GroupSchema } from './schema';
 import './output.css';
 import { SharedTree, useTree } from './fluid';
 import { AzureContainerServices } from '@fluidframework/azure-client';
@@ -37,7 +37,7 @@ export function ReactApp(props: {
     const [currentUser] = useState({
         name: azureUser.userName,
         id: azureUser.userId,
-    } as User);
+    });
 
     const [selection, setSelection] = useState<Selection[]>([]);
 
@@ -97,10 +97,10 @@ export function ReactApp(props: {
                 root={root}
                 selection={selection}
             />
-            <RootItems root={root} user={currentUser} select={updateSelection} />
+            <RootItems root={root} user={currentUser.id} select={updateSelection} />
             <Floater>
                 <NewGroupButton root={root} selection={selection} />
-                <NewNoteButton root={root} user={currentUser} />
+                <NewNoteButton root={root} user={currentUser.id} />
                 <DeleteNotesButton selection={selection} />
             </Floater>
         </div>
@@ -172,7 +172,7 @@ function Header(props: {
     );
 }
 
-function RootItems(props: { root: App; user: User; select: any }): JSX.Element {
+function RootItems(props: { root: App; user: string; select: any }): JSX.Element {
     const pilesArray = [];
     for (const i of props.root.items) {
         if (node.is(i, GroupSchema)) {

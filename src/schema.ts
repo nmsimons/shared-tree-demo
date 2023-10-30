@@ -14,20 +14,13 @@ import {
 // Include a UUID to guarantee that this schema will be uniquely identifiable
 const sb = new SchemaBuilder({ scope: 'fc1db2e8-0a00-11ee-be56-0242ac120002' });
 
-// Define a simple user type - in most apps this would probably not be
-// necessary as the user would be defined through an identity/auth service
-export const UserSchema = sb.object('user', {
-    id: sb.string,
-    name: sb.string,
-});
-
 // Define the schema for the note object. This schema includes an id to make
 // building the React app simpler, several fields that use primitive types, and a sequence
 // of users (defined above) to track which users have voted on this note.
 export const NoteSchema = sb.object('note', {
     id: sb.string,
     text: sb.string,
-    author: UserSchema,
+    author: sb.string,
     votes: sb.list(sb.string),
     created: sb.number,
     lastChanged: sb.number,
@@ -53,7 +46,6 @@ export const AppSchema = sb.object('app', {
 export type App = ProxyNode<typeof AppSchema>;
 export type Group = ProxyNode<typeof GroupSchema>;
 export type Note = ProxyNode<typeof NoteSchema>;
-export type User = ProxyNode<typeof UserSchema>;
 export type Notes = ProxyNode<typeof NotesSchema>;
 export type Items = ProxyNode<typeof ItemsSchema>;
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Note, Group, User, Notes, Items, NoteSchema, ItemsSchema } from './schema';
+import { Note, Group, Notes, Items, NoteSchema, ItemsSchema } from './schema';
 import {
     addNote,
     toggleVote,
@@ -15,7 +15,7 @@ import { IconButton, MiniThumb, DeleteButton } from './buttonux';
 
 export function NoteContainer(props: {
     pile: Group;
-    user: User;
+    user: string;
     select: any;
 }): JSX.Element {
     const notesArray = [];
@@ -40,7 +40,7 @@ export function NoteContainer(props: {
 
 export function RootNoteWrapper(props: {
     note: Note;
-    user: User;
+    user: string;
     notes: Notes | Items;
     select: any;
 }): JSX.Element {
@@ -53,7 +53,7 @@ export function RootNoteWrapper(props: {
 
 function NoteView(props: {
     note: Note;
-    user: User;
+    user: string;
     notes: Notes | Items;
     select: any;
 }): JSX.Element {
@@ -203,7 +203,7 @@ function NoteView(props: {
     );
 }
 
-function NoteTextArea(props: { note: Note; user: User }): JSX.Element {
+function NoteTextArea(props: { note: Note; user: string }): JSX.Element {
     // The text field updates the Fluid data model on every keystroke in this demo.
     // This works well with small strings but doesn't scale to very large strings.
     // A Future iteration of SharedTree will include support for collaborative strings
@@ -222,7 +222,7 @@ function NoteTextArea(props: { note: Note; user: User }): JSX.Element {
 
 function NoteToolbar(props: {
     note: Note;
-    user: User;
+    user: string;
     notes: Notes | Items;
 }): JSX.Element {
     return (
@@ -237,7 +237,7 @@ function NoteToolbar(props: {
     );
 }
 
-function AddNoteButton(props: { pile: Group; user: User }): JSX.Element {
+function AddNoteButton(props: { pile: Group; user: string }): JSX.Element {
     const [{ isActive }, drop] = useDrop(() => ({
         accept: dragType.NOTE,
         collect: (monitor) => ({
@@ -283,7 +283,7 @@ function AddNoteButton(props: { pile: Group; user: User }): JSX.Element {
     );
 }
 
-function LikeButton(props: { note: Note; user: User }): JSX.Element {
+function LikeButton(props: { note: Note; user: string }): JSX.Element {
     const mounted = useRef(false);
 
     const [{ status }, toggle] = useTransition({
@@ -306,7 +306,7 @@ function LikeButton(props: { note: Note; user: User }): JSX.Element {
     }, []);
 
     const setColor = () => {
-        if (props.note.votes.indexOf(props.user.id) > -1) {
+        if (props.note.votes.indexOf(props.user) > -1) {
             return 'text-white';
         } else {
             return undefined;
@@ -314,7 +314,7 @@ function LikeButton(props: { note: Note; user: User }): JSX.Element {
     };
 
     const setBackground = () => {
-        if (props.note.votes.indexOf(props.user.id) > -1) {
+        if (props.note.votes.indexOf(props.user) > -1) {
             return 'bg-emerald-600';
         } else {
             return undefined;
@@ -342,7 +342,7 @@ function LikeButton(props: { note: Note; user: User }): JSX.Element {
 
 function DeleteNoteButton(props: {
     note: Note;
-    user: User;
+    user: string;
     notes: Notes | Items;
 }): JSX.Element {
     return <DeleteButton handleClick={() => deleteNote(props.note)}></DeleteButton>;

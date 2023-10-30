@@ -1,5 +1,5 @@
 import React from 'react';
-import { App, User } from './schema';
+import { App } from './schema';
 import { addNote, addGroup as addGroup, deleteNote, moveItem } from './helpers';
 import Icon from '@mdi/react';
 import {
@@ -31,7 +31,7 @@ export function NewGroupButton(props: { root: App, selection: Selection[] }): JS
     );
 }
 
-export function NewNoteButton(props: { root: App; user: User }): JSX.Element {
+export function NewNoteButton(props: { root: App; user: string }): JSX.Element {
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         addNote(props.root.items, '', props.user)
