@@ -84,7 +84,7 @@ export function addGroup(items: Items, name: string): Group {
 }
 
 // Function that deletes a group and moves the notes in that group
-// to the default group instead of deleting them as well
+// to the root instead of deleting them as well
 export function deleteGroup(group: Group, app: App) {
     // Test for the presence of notes and move them to the root
     // in the same position as the group
