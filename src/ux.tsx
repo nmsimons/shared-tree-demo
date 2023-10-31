@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { App, Note, NoteSchema, GroupSchema } from './schema';
 import './output.css';
-import { SharedTree, useTree } from './fluid';
+import { SharedTree } from './fluid';
 import { AzureContainerServices } from '@fluidframework/azure-client';
 import { ConnectionState, IFluidContainer } from 'fluid-framework';
 import { azureUser } from './tokenProvider';
@@ -24,14 +24,24 @@ export function ReactApp(props: {
     // Passes the SharedTree into the custom hook and returns
     // the root of the tree. This data can be used to populate the UI and
     // it will update automatically anytime the tree changes.
-    const root = useTree(props.data);
-
     const [currentUser] = useState({
         name: azureUser.userName,
         id: azureUser.userId,
     });
 
     const [noteSelection, setNoteSelection] = useState<Note[]>([]);
+    
+    const [invalidations, setInvalidations] = useState(0);
+
+    const root = props.data.root;  
+
+    // Register for tree deltas when the component mounts
+    useEffect(() => {
+        // Returns the cleanup function to be invoked when the component unmounts.
+        return node.on(root, 'afterChange', () => {
+            setInvalidations(invalidations + Math.random());
+        });
+    }, [invalidations]);
 
     return (
         <div            

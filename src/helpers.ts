@@ -90,7 +90,7 @@ export function deleteGroup(group: Group, app: App) {
     // in the same position as the group
     if (group.notes.length !== 0) {
         app.items.moveRangeToIndex(
-            node.key(group) as number,
+            node.key(group) as number,            
             0,
             group.notes.length,            
             group.notes
