@@ -65,9 +65,9 @@ export function moveItem(
     const index = source.indexOf(item);
 
     if (destinationIndex == Infinity) {
-        d.moveToEnd(index, index + 1, source);
+        d.moveToEnd(index, source);
     } else {
-        d.moveToIndex(destinationIndex, index, index + 1, source);
+        d.moveToIndex(destinationIndex, index, source);
     }
 }
 
@@ -89,10 +89,10 @@ export function deleteGroup(group: Group, app: App) {
     // Test for the presence of notes and move them to the root
     // in the same position as the group
     if (group.notes.length !== 0) {
-        app.items.moveToIndex(
+        app.items.moveRangeToIndex(
             node.key(group) as number,
             0,
-            group.notes.length,
+            group.notes.length,            
             group.notes
         );
     }

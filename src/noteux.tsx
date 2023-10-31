@@ -240,7 +240,7 @@ function AddNoteButton(props: { pile: Group; user: string }): JSX.Element {
         drop: (item) => {
             const droppedNote = item as Note;
             const i = node.key(droppedNote) as number;
-            props.pile.notes.moveToEnd(i, i + 1, node.parent(droppedNote) as Notes);
+            props.pile.notes.moveToEnd(i, node.parent(droppedNote) as Notes);
             return;
         },
     }));
