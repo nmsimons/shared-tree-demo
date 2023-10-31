@@ -4,9 +4,9 @@ import { addNote, addGroup as addGroup, deleteNote, moveItem } from './helpers';
 import {
     ThumbLikeFilled,
     DismissFilled,
-    NoteAddRegular,
+    NoteRegular,
     DeleteRegular,
-    AppsAddInFilled
+    RectangleLandscapeRegular
 } from '@fluentui/react-icons';
 
 export function NewGroupButton(props: { root: App, selection: Note[] }): JSX.Element {
@@ -22,7 +22,7 @@ export function NewGroupButton(props: { root: App, selection: Note[] }): JSX.Ele
             color="white"
             background="black"
             handleClick={(e: React.MouseEvent) => handleClick(e)}
-            icon={<AppsAddInFilled />}
+            icon={<RectangleLandscapeRegular />}
         >
             Add Group
         </IconButton>
@@ -39,7 +39,7 @@ export function NewNoteButton(props: { root: App; user: string }): JSX.Element {
             color="white"
             background="black"
             handleClick={(e: React.MouseEvent) => handleClick(e)}
-            icon={<NoteAddRegular />}
+            icon={<NoteRegular />}
         >
             Add Note
         </IconButton>
