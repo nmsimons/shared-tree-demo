@@ -1,14 +1,13 @@
 import React from 'react';
 import { App, Note } from './schema';
 import { addNote, addGroup as addGroup, deleteNote, moveItem } from './helpers';
-import Icon from '@mdi/react';
 import {
-    mdiThumbUp,
-    mdiClose,
-    mdiShapeRectanglePlus,
-    mdiNotePlusOutline,
-    mdiNoteRemoveOutline,
-} from '@mdi/js';
+    ThumbLikeFilled,
+    DismissFilled,
+    NoteAddRegular,
+    DeleteRegular,
+    AppsAddInFilled
+} from '@fluentui/react-icons';
 
 export function NewGroupButton(props: { root: App, selection: Note[] }): JSX.Element {
     const handleClick = (e: React.MouseEvent) => {
@@ -23,7 +22,7 @@ export function NewGroupButton(props: { root: App, selection: Note[] }): JSX.Ele
             color="white"
             background="black"
             handleClick={(e: React.MouseEvent) => handleClick(e)}
-            icon={<Icon path={mdiShapeRectanglePlus} size={0.75} />}
+            icon={<AppsAddInFilled />}
         >
             Add Group
         </IconButton>
@@ -40,7 +39,7 @@ export function NewNoteButton(props: { root: App; user: string }): JSX.Element {
             color="white"
             background="black"
             handleClick={(e: React.MouseEvent) => handleClick(e)}
-            icon={<Icon path={mdiNotePlusOutline} size={0.75} />}
+            icon={<NoteAddRegular />}
         >
             Add Note
         </IconButton>
@@ -58,7 +57,7 @@ export function DeleteNotesButton(props: { selection: Note[] }): JSX.Element {
             color="white"
             background="black"
             handleClick={() => handleClick(props.selection)}
-            icon={<Icon path={mdiNoteRemoveOutline} size={0.75} />}
+            icon={<DeleteRegular />}
         >
             Delete Note
         </IconButton>
@@ -124,11 +123,13 @@ function IconButtonText(props: { children: React.ReactNode }): JSX.Element {
 }
 
 function MiniX(): JSX.Element {
-    return <Icon path={mdiClose} size={0.75} />;
+    //return <Icon path={mdiClose} size={0.75} />;
+    return <DismissFilled />;
 }
 
 export function MiniThumb(): JSX.Element {
-    return <Icon path={mdiThumbUp} size={0.75} />;
+    //return <Icon path={mdiThumbUp} size={0.75} />;
+    return <ThumbLikeFilled />;
 }
 
 export function Floater(props: { children: React.ReactNode }): JSX.Element {
