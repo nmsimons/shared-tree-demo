@@ -20,22 +20,19 @@ export function ReactApp(props: {
     data: SharedTree<App>;
     services: AzureContainerServices;
     container: IFluidContainer;
-}): JSX.Element {
-    // Passes the SharedTree into the custom hook and returns
-    // the root of the tree. This data can be used to populate the UI and
-    // it will update automatically anytime the tree changes.
+}): JSX.Element {    
     const [currentUser] = useState({
         name: azureUser.userName,
         id: azureUser.userId,
     });
-
     const [noteSelection, setNoteSelection] = useState<Note[]>([]);
-    
     const [invalidations, setInvalidations] = useState(0);
-
     const root = props.data.root;  
 
-    // Register for tree deltas when the component mounts
+    // Register for tree deltas when the component mounts.
+    // Any time the tree changes, the app will update
+    // For more complex apps, this code can be included
+    // on lower level components.
     useEffect(() => {
         // Returns the cleanup function to be invoked when the component unmounts.
         return node.on(root, 'afterChange', () => {

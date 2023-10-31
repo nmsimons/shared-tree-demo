@@ -31,7 +31,7 @@ export const generateTestUser = (): IInsecureUser => {
         name: '[TEST USER]',
     };
     return user;
-};
+}
 
 export enum dragType {
     NOTE = "Note",
@@ -44,7 +44,6 @@ export enum selectAction {
     SINGLE
 }
 
-
 export const testNoteSelection = (
     item: Note,
     selection: Note[],
@@ -56,8 +55,7 @@ export const testNoteSelection = (
         setSelected(true);
     }
     return;
-};
-
+}
 
 export const updateNoteSelection = (
     item: Note,
@@ -89,4 +87,4 @@ export const updateNoteSelection = (
     // Select the item and put it in the selection array
     newNoteSelection.push(item);
     setSelection(newNoteSelection);
-};    
+}
