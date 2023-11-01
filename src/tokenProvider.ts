@@ -60,5 +60,5 @@ export const user = generateTestUser();
 
 export const azureUser = {
     userId: user.id,
-    userName: user.id,
+    userName: user.name,
 };

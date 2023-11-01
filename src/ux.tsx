@@ -1,12 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from 'react';
-import { App, Note, NoteSchema, GroupSchema } from './schema';
+import { App, Note, NoteSchema, GroupSchema } from './app_schema';
+import { Session } from './session_schema';
 import './output.css';
 import { SharedTree } from './fluid';
-import { AzureContainerServices } from '@fluidframework/azure-client';
-import { ConnectionState, IFluidContainer } from 'fluid-framework';
-import { azureUser } from './tokenProvider';
-import { node } from '@fluid-experimental/tree2';
+import { ConnectionState, IFluidContainer, IMember, IServiceAudience } from 'fluid-framework';
 import { GroupView } from './groupux';
 import { RootNoteWrapper } from './noteux';
 import {
@@ -15,19 +13,25 @@ import {
     NewNoteButton,
     DeleteNotesButton,
 } from './buttonux';
+import { node } from '@fluid-experimental/tree2';
+import { cleanSessionData } from './utils';
 
 export function ReactApp(props: {
     data: SharedTree<App>;
-    services: AzureContainerServices;
+    session: SharedTree<Session>;
+    audience: IServiceAudience<IMember>;
     container: IFluidContainer;
 }): JSX.Element {    
-    const [currentUser] = useState({
-        name: azureUser.userName,
-        id: azureUser.userId,
-    });
+    
     const [noteSelection, setNoteSelection] = useState<Note[]>([]);
     const [invalidations, setInvalidations] = useState(0);
-    const root = props.data.root;  
+    const [currentUser, setCurrentUser] = useState("");
+    const [connectionState, setConnectionState] = useState('');
+    const [saved, setSaved] = useState(!props.container.isDirty);
+    const [fluidMembers, setFluidMembers] = useState<string[]>([]);        
+
+    const appRoot = props.data.root;
+    const sessionRoot = props.session.root;  
 
     // Register for tree deltas when the component mounts.
     // Any time the tree changes, the app will update
@@ -35,44 +39,10 @@ export function ReactApp(props: {
     // on lower level components.
     useEffect(() => {
         // Returns the cleanup function to be invoked when the component unmounts.
-        return node.on(root, 'afterChange', () => {
+        return node.on(appRoot, 'afterChange', () => {            
             setInvalidations(invalidations + Math.random());
         });
-    }, [invalidations]);
-
-    return (
-        <div            
-            id="main"
-            className="flex flex-col bg-white h-full w-full"
-        >
-            <Header
-                services={props.services}
-                container={props.container}
-                root={root}
-                selection={noteSelection}
-            />
-            <RootItems root={root} user={currentUser.id} selection={noteSelection} setSelection={setNoteSelection}  />
-            <Floater>
-                <NewGroupButton root={root} selection={noteSelection} />
-                <NewNoteButton root={root} user={currentUser.id} />
-                <DeleteNotesButton selection={noteSelection} />
-            </Floater>
-        </div>
-    );
-}
-
-function Header(props: {
-    services: AzureContainerServices;
-    container: IFluidContainer;
-    root: App;
-    selection: Note[];
-}): JSX.Element {
-    const [fluidMembers, setFluidMembers] = useState(
-        props.services.audience.getMembers().size
-    );
-
-    const [connectionState, setConnectionState] = useState('');
-    const [saved, setSaved] = useState(!props.container.isDirty);
+    }, [invalidations]);    
 
     useEffect(() => {
         const updateConnectionState = () => {
@@ -103,41 +73,72 @@ function Header(props: {
 
     useEffect(() => {
         const updateMembers = () => {
-            setFluidMembers(props.services.audience.getMembers().size);
+            setFluidMembers(Array.from(props.audience.getMembers().keys()));
+            setCurrentUser(props.audience.getMyself()?.userId as string)
+            cleanSessionData(sessionRoot, fluidMembers)
         };
         updateMembers();
-        props.services.audience.on('membersChanged', updateMembers);
+        props.audience.on('membersChanged', updateMembers);
         return () => {
-            props.services.audience.off('membersChanged', updateMembers);
+            props.audience.off('membersChanged', updateMembers);
         };
     }, []);
 
+
+    return (
+        <div            
+            id="main"
+            className="flex flex-col bg-white h-full w-full"
+        >
+            <Header
+                saved={saved}
+                connectionState={connectionState}
+                fluidMembers={fluidMembers}
+                clientId={currentUser}
+            />
+            <RootItems root={appRoot} clientId={currentUser} selection={noteSelection} setSelection={setNoteSelection} session={sessionRoot} />
+            <Floater>
+                <NewGroupButton root={appRoot} selection={noteSelection} />
+                <NewNoteButton root={appRoot} clientId={currentUser} />
+                <DeleteNotesButton selection={noteSelection} />
+            </Floater>
+        </div>
+    );
+}
+
+function Header(props: {
+    saved: boolean;
+    connectionState: string;
+    fluidMembers: string[];
+    clientId: string;
+}): JSX.Element {
     return (
         <>
             <div className="h-10 w-full"></div>
             <div className="fixed flex flex-row justify-between bg-black h-10 text-base text-white z-40 w-full">
-                <div className="m-2">shared-tree-demo</div>
+                <div className="m-2">shared-tree-demo: {props.clientId}</div>
                 <div className="m-2">
-                    {saved ? 'saved' : 'not saved'} | {connectionState} | users:{' '}
-                    {fluidMembers}
+                    {props.saved ? 'saved' : 'not saved'} | {props.connectionState} | users:{' '}
+                    {props.fluidMembers.length}
                 </div>
             </div>
         </>
     );
 }
 
-function RootItems(props: { root: App; user: string; selection: Note[]; setSelection: any }): JSX.Element {
+function RootItems(props: { root: App; clientId: string; selection: Note[]; setSelection: any; session: Session }): JSX.Element {
     const pilesArray = [];
     for (const i of props.root.items) {
         if (node.is(i, GroupSchema)) {
             pilesArray.push(
                 <GroupView
                     key={i.id}
-                    pile={i}
-                    user={props.user}
+                    group={i}
+                    clientId={props.clientId}
                     app={props.root}
                     selection={props.selection}
                     setSelection={props.setSelection}
+                    session={props.session}
                 />
             );
         } else if (node.is(i, NoteSchema)) {
@@ -145,10 +146,11 @@ function RootItems(props: { root: App; user: string; selection: Note[]; setSelec
                 <RootNoteWrapper
                     key={i.id}
                     note={i}
-                    user={props.user}
+                    clientId={props.clientId}
                     notes={props.root.items}
                     selection={props.selection}
                     setSelection={props.setSelection}
+                    session={props.session}
                 />
             );
         }
