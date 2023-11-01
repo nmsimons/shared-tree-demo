@@ -181,21 +181,27 @@ function NoteView(props: {
                 props.note,
                 selectAction.MULTI,
                 props.session,
-                props.clientId
+                props.clientId,
+                props.selection,
+                props.setSelection
             );
         } else if (selected) {            
             updateRemoteNoteSelection(
                 props.note,
                 selectAction.REMOVE,
                 props.session,
-                props.clientId
+                props.clientId,
+                props.selection,
+                props.setSelection
             );
         } else {            
             updateRemoteNoteSelection(
                 props.note,
                 selectAction.SINGLE,
                 props.session,
-                props.clientId
+                props.clientId,
+                props.selection,
+                props.setSelection
             );
         }
     };
@@ -276,14 +282,18 @@ function NoteTextArea(props: {
                 props.note,
                 selectAction.MULTI,
                 props.session,
-                props.clientId
+                props.clientId,
+                props.selection,
+                props.setSelection
             );
         } else {            
             updateRemoteNoteSelection(
                 props.note,
                 selectAction.SINGLE,
                 props.session,
-                props.clientId
+                props.clientId,
+                props.selection,
+                props.setSelection
             );
         }
     };

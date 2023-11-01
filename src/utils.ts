@@ -109,8 +109,12 @@ export const updateRemoteNoteSelection = (
     item: Note,    
     action: selectAction,
     session: Session,
-    clientId: string,    
-) => {    
+    clientId: string,
+    localSelection: Note[],
+    setLocalSelection: any,    
+) => {
+    
+    updateNoteSelection(item, localSelection, setLocalSelection, action);
 
     // Handle removed items and bail
     if (action == selectAction.REMOVE) {
@@ -161,4 +165,4 @@ export const cleanSessionData = (session: Session, audience: string[]) => {
     for (const c of deleteMe) {
         session.clients.removeAt(session.clients.indexOf(c) as number);
     }
-};
+}

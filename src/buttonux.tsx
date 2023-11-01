@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { App, Note } from './app_schema';
 import { addNote, addGroup as addGroup, deleteNote, moveItem } from './helpers';
 import {
@@ -8,7 +8,6 @@ import {
     DeleteRegular,
     RectangleLandscapeRegular
 } from '@fluentui/react-icons';
-import { Session } from './session_schema';
 
 export function NewGroupButton(props: { root: App, selection: Note[] }): JSX.Element {
     const handleClick = (e: React.MouseEvent) => {
@@ -49,9 +48,11 @@ export function NewNoteButton(props: { root: App; clientId: string }): JSX.Eleme
     );
 }
 
-export function DeleteNotesButton(props: { session: Session }): JSX.Element {
+export function DeleteNotesButton(props: { selection: Note[] }): JSX.Element {
     const handleClick = () => {
-        // delete all the selected notes
+        for (const n of props.selection) {
+            deleteNote(n);
+        }
     };
     return (
         <IconButton
