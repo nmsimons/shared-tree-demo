@@ -15,12 +15,19 @@ async function main() {
     const root = createRoot(app);
 
     // Initialize Fluid data
-    const { appData, sessionData, services, container } = await loadFluidData();    
+    const { appData, sessionData, services, container, undoStack, redoStack, unsubscribe } = await loadFluidData();    
 
     // Render the app    
     root.render(
         <DndProvider backend={HTML5Backend}>
-            <ReactApp data={appData} session={sessionData} audience={services.audience} container={container} />
+            <ReactApp 
+                data={appData} 
+                session={sessionData} 
+                audience={services.audience} 
+                container={container} 
+                undoStack={undoStack}
+                redoStack={redoStack}
+                unsubscribe={unsubscribe} />
         </DndProvider>
     );
 }

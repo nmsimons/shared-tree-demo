@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { App, Note, NoteSchema, GroupSchema } from './app_schema';
 import { Session } from './session_schema';
 import './output.css';
@@ -13,7 +13,7 @@ import {
     NewNoteButton,
     DeleteNotesButton,
 } from './buttonux';
-import { node } from '@fluid-experimental/tree2';
+import { RevertResult, Revertible, node } from '@fluid-experimental/tree2';
 import { cleanSessionData } from './utils';
 
 export function ReactApp(props: {
@@ -21,6 +21,9 @@ export function ReactApp(props: {
     session: SharedTree<Session>;
     audience: IServiceAudience<IMember>;
     container: IFluidContainer;
+    undoStack: Revertible[];
+    redoStack: Revertible[];
+    unsubscribe: () => void;
 }): JSX.Element {    
     
     const [noteSelection, setNoteSelection] = useState<Note[]>([]);
@@ -95,6 +98,8 @@ export function ReactApp(props: {
                 connectionState={connectionState}
                 fluidMembers={fluidMembers}
                 clientId={currentUser}
+                undoStack={props.undoStack}
+                redoStack={props.redoStack}
             />
             <RootItems root={appRoot} clientId={currentUser} selection={noteSelection} setSelection={setNoteSelection} session={sessionRoot} />
             <Floater>
@@ -111,14 +116,34 @@ function Header(props: {
     connectionState: string;
     fluidMembers: string[];
     clientId: string;
+    undoStack: Revertible[];
+    redoStack: Revertible[];
 }): JSX.Element {
     console.log(props.fluidMembers.length);
+
+    const { undoStack, redoStack } = props;
+    const undo = useCallback(() => {
+        const result = undoStack.pop()?.revert();
+        if (result === RevertResult.Failure) {
+            console.log("undo failed");
+        }
+    }, [undoStack]);
+
+    const redo = useCallback(() => {
+        const result = redoStack.pop()?.revert();
+        if (result === RevertResult.Failure) {
+            console.log("redo failed");
+        }
+    }, [redoStack]);
+
     return (
         <>
             <div className="h-10 w-full"></div>
             <div className="fixed flex flex-row justify-between bg-black h-10 text-base text-white z-40 w-full">
                 <div className="m-2">shared-tree-demo: {props.clientId}</div>
                 <div className="m-2">
+                    <button onClick={undo} disabled={undoStack.length === 0}>{'undo'}</button> |
+                    <button onClick={redo} disabled={redoStack.length === 0}>{'redo'}</button> |
                     {props.saved ? 'saved' : 'not saved'} | {props.connectionState} | users:{' '}
                     {props.fluidMembers.length}
                 </div>
