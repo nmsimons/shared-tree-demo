@@ -7,7 +7,7 @@ import {
     GroupSchema,
     Notes,
     Items,    
-} from './schema';
+} from './app_schema';
 import { Guid } from 'guid-typescript';
 
 // Takes a destination list, content string, and author data and adds a new

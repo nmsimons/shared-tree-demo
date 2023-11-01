@@ -3,7 +3,6 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { loadFluidData } from './fluid';
 import { ReactApp } from './ux';
-import { schemaConfig } from './schema';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
@@ -16,12 +15,12 @@ async function main() {
     const root = createRoot(app);
 
     // Initialize Fluid data
-    const { data, services, container } = await loadFluidData(schemaConfig);
+    const { appData, sessionData, services, container } = await loadFluidData();    
     
     // Render the app    
     root.render(
         <DndProvider backend={HTML5Backend}>
-            <ReactApp data={data} services={services} container={container} />
+            <ReactApp data={appData} session={sessionData} audience={services.audience} container={container} />
         </DndProvider>
     );
 }

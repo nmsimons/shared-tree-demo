@@ -57,7 +57,7 @@ export type Items = ProxyNode<typeof ItemsSchema>;
 
 // Export the tree config appropriate for this schema
 // This is passed into the SharedTree when it is initialized
-export const schemaConfig: InitializeAndSchematizeConfiguration = {
+export const appSchemaConfig: InitializeAndSchematizeConfiguration = {
     schema: sb.intoSchema(AppSchema),
     initialTree: {
         items: [],
