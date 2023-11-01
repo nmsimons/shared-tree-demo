@@ -1,6 +1,7 @@
-import { Note } from './schema';
+import { Note } from './app_schema';
 import { Guid } from 'guid-typescript';
 import { IInsecureUser } from '@fluidframework/test-runtime-utils';
+import { Session, ClientSchema, Client } from './session_schema';
 
 export function getRotation(note: Note) {
     const i = hashCode(note.id);
@@ -47,7 +48,7 @@ export enum selectAction {
 export const testNoteSelection = (
     item: Note,
     selection: Note[],
-    setSelected: any
+    setSelected: any,    
 ) => {
     if (selection.indexOf(item) == -1) {
         setSelected(false);
@@ -61,7 +62,7 @@ export const updateNoteSelection = (
     item: Note,
     selection: Note[],
     setSelection: any,
-    action: selectAction,    
+    action: selectAction,
 ) => {
     // Since selection is going to change
     // create a new selection array
@@ -88,3 +89,78 @@ export const updateNoteSelection = (
     newNoteSelection.push(item);
     setSelection(newNoteSelection);
 }
+
+export const testRemoteNoteSelection = (
+    item: Note,
+    session: Session,
+    clientId: string,
+    setRemoteSelected: any,
+) => {
+    for (const c of session.clients) {
+        if (c.clientId != clientId) {            
+            if (c.selected.indexOf(item.id) != -1){
+                setRemoteSelected(true);
+                return;               
+            }
+        }
+    }
+    setRemoteSelected(false);
+}
+
+export const updateRemoteNoteSelection = (
+    item: Note,    
+    action: selectAction,
+    session: Session,
+    clientId: string,    
+) => {    
+
+    // Handle removed items and bail
+    if (action == selectAction.REMOVE) {
+        for (const c of session.clients) {
+            if (c.clientId === clientId) {
+                const i = c.selected.indexOf(item.id);
+                if (i != -1) c.selected.removeAt(i);
+                return;                
+            }
+        }             
+        return;
+    }
+
+    if (action == selectAction.MULTI) {
+        for (const c of session.clients) {
+            if (c.clientId === clientId) {
+                const i = c.selected.indexOf(item.id);
+                if (i == -1) c.selected.insertAtEnd([item.id]);
+                return;
+            }
+        }
+    }
+
+    if (action == selectAction.SINGLE) {
+        for (const c of session.clients) {
+            if (c.clientId === clientId) {
+                if (c.selected.length > 0) c.selected.removeRange(0);
+                c.selected.insertAtStart([item.id]);
+                return;                
+            }
+        }
+    }
+
+    const s = ClientSchema.create({
+        clientId: clientId,
+        selected: [item.id]
+    })
+
+    session.clients.insertAtEnd([s]);
+}
+
+export const cleanSessionData = (session: Session, audience: string[]) => {
+    const deleteMe: Client[] = [];
+    for (const c of session.clients) {
+        if (!audience.includes(c.clientId)) deleteMe.push(c);
+    }
+
+    for (const c of deleteMe) {
+        session.clients.removeAt(session.clients.indexOf(c) as number);
+    }
+};

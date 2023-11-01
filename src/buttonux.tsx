@@ -1,5 +1,5 @@
-import React from 'react';
-import { App, Note } from './schema';
+import React, { useState } from 'react';
+import { App, Note } from './app_schema';
 import { addNote, addGroup as addGroup, deleteNote, moveItem } from './helpers';
 import {
     ThumbLikeFilled,
@@ -29,11 +29,13 @@ export function NewGroupButton(props: { root: App, selection: Note[] }): JSX.Ele
     );
 }
 
-export function NewNoteButton(props: { root: App; user: string }): JSX.Element {
+export function NewNoteButton(props: { root: App; clientId: string }): JSX.Element {
+    
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        addNote(props.root.items, '', props.user)
-    };    
+        addNote(props.root.items, '', props.clientId)
+    };
+
     return (
         <IconButton
             color="white"
@@ -99,7 +101,7 @@ export function IconButton(props: {
                 props.color +
                 ' ' +
                 props.background +
-                ' bg-transparent hover:bg-gray-600 hover:text-white font-bold px-2 py-1 rounded inline-flex items-center h-6'
+                ' hover:bg-gray-600 hover:text-white font-bold px-2 py-1 rounded inline-flex items-center h-6'
             }
             onClick={(e) => handleClick(e)}
         >
@@ -125,6 +127,7 @@ function IconButtonText(props: { children: React.ReactNode }): JSX.Element {
 function MiniX(): JSX.Element {
     return <DismissFilled />;
 }
+
 
 export function MiniThumb(): JSX.Element {
     return <ThumbLikeFilled />;

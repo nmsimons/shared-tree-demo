@@ -10,7 +10,7 @@ import {
     ISharedTreeView
 } from '@fluid-experimental/tree2';
 
-import { Notebook } from './notebookschema';
+import { Notebook, notebookSchemaConfig } from './notebookschema';
 import { clientProps } from './clientProps';
 
 export class MySharedTree {
@@ -36,9 +36,7 @@ const containerSchema: ContainerSchema = {
  *
  * @returns The loaded container and container services.
  */
-export const loadNotebookData = async (
-    config: InitializeAndSchematizeConfiguration
-): Promise<{
+export const loadNotebookData = async (): Promise<{
     data: NotebookSharedTree<Notebook>;
     services: AzureContainerServices;
     container: IFluidContainer;
@@ -55,7 +53,7 @@ export const loadNotebookData = async (
         ({ container, services } = await client.createContainer(containerSchema));
 
         // Initialize our Fluid data -- set default values, establish relationships, etc.
-        (container.initialObjects.tree as ISharedTree).schematize(config);
+        (container.initialObjects.tree as ISharedTree).schematize(notebookSchemaConfig);
 
         // If the app is in a `createNew` state, and the container is detached, we attach the container.
         // This uploads the container to the service and connects to the collaboration session.
@@ -71,18 +69,12 @@ export const loadNotebookData = async (
         ({ container, services } = await client.getContainer(id, containerSchema));
     }
 
-    const view = (container.initialObjects.tree as ISharedTree).schematizeView(config);
-    const data = new NotebookSharedTree<Notebook>(view, view.root2(config.schema) as any);
+    const view = (container.initialObjects.tree as ISharedTree).schematizeView(notebookSchemaConfig);
+    const data = new NotebookSharedTree<Notebook>(view, view.root2(notebookSchemaConfig.schema) as any);
 
     return { data, services, container };
 };
 
-export const treeNotebookSym = Symbol();
-
 export class NotebookSharedTree<T> {
     constructor(private readonly tree: ISharedTreeView, public readonly root: T) {}
-
-    public get [treeNotebookSym]() {
-        return this.tree;
-    }
 }

@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from 'react';
-import { App, Note, NoteSchema, GroupSchema } from './schema';
 import './output.css';
 import { SharedTree } from './fluid';
 import { AzureContainerServices } from '@fluidframework/azure-client';
@@ -37,7 +36,8 @@ export function Notebook(props: {
     }, [invalidations]);
 
     return (
-        <LeftNav services={props.services} container={props.container} root={root} />
+        <></>
+        // <LeftNav services={props.services} container={props.container} root={root} />
         // <DndProvider backend={HTML5Backend}>
         //     <ReactApp data={data} services={services} container={container} />
         // </DndProvider>

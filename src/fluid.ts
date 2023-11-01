@@ -4,15 +4,13 @@ import {
 } from '@fluidframework/azure-client';
 import { ContainerSchema, IFluidContainer } from 'fluid-framework';
 import {
-    ISharedTree,
-    InitializeAndSchematizeConfiguration,
+    ISharedTree,    
     SharedTreeFactory,
     ISharedTreeView
 } from '@fluid-experimental/tree2';
-
-import { App } from './schema';
+import { App, appSchemaConfig } from './app_schema';
 import { clientProps } from './clientProps';
-
+import { Session, sessionSchemaConfig } from './session_schema';
 export class MySharedTree {
     public static getFactory(): SharedTreeFactory {
         return new SharedTreeFactory();
@@ -26,7 +24,8 @@ const client = new AzureClient(clientProps);
 // initial DataObjects we want created when the container is first created.
 const containerSchema: ContainerSchema = {
     initialObjects: {
-        tree: MySharedTree,        
+        appData: MySharedTree,
+        sessionData: MySharedTree,        
     },
 };
 
@@ -36,10 +35,9 @@ const containerSchema: ContainerSchema = {
  *
  * @returns The loaded container and container services.
  */
-export const loadFluidData = async (
-    config: InitializeAndSchematizeConfiguration
-): Promise<{
-    data: SharedTree<App>;
+export const loadFluidData = async (): Promise<{
+    appData: SharedTree<App>;
+    sessionData: SharedTree<Session>
     services: AzureContainerServices;
     container: IFluidContainer;
 }> => {
@@ -55,7 +53,8 @@ export const loadFluidData = async (
         ({ container, services } = await client.createContainer(containerSchema));
 
         // Initialize our Fluid data -- set default values, establish relationships, etc.
-        (container.initialObjects.tree as ISharedTree).schematize(config);
+        (container.initialObjects.appData as ISharedTree).schematize(appSchemaConfig);
+        (container.initialObjects.sessionData as ISharedTree).schematize(sessionSchemaConfig);
 
         // If the app is in a `createNew` state, and the container is detached, we attach the container.
         // This uploads the container to the service and connects to the collaboration session.
@@ -71,18 +70,15 @@ export const loadFluidData = async (
         ({ container, services } = await client.getContainer(id, containerSchema));
     }
 
-    const view = (container.initialObjects.tree as ISharedTree).schematizeView(config);
-    const data = new SharedTree<App>(view, view.root2(config.schema) as any);
+    const appView = (container.initialObjects.appData as ISharedTree).schematizeView(appSchemaConfig);
+    const appData = new SharedTree<App>(appView, appView.root2(appSchemaConfig.schema) as any);
 
-    return { data, services, container };
+    const sessionView = (container.initialObjects.sessionData as ISharedTree).schematizeView(sessionSchemaConfig);
+    const sessionData = new SharedTree<Session>(sessionView, sessionView.root2(sessionSchemaConfig.schema) as any);
+
+    return { appData, sessionData, services, container };
 };
 
-export const treeSym = Symbol();
-
 export class SharedTree<T> {
-    constructor(private readonly tree: ISharedTreeView, public readonly root: T) {}
-
-    public get [treeSym]() {
-        return this.tree;
-    }
+    constructor(private readonly tree: ISharedTreeView, public readonly root: T) {}    
 }

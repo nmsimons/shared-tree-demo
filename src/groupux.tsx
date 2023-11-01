@@ -1,21 +1,23 @@
 import React from 'react';
-import { App, Group, Note } from './schema';
+import { App, Group, Note } from './app_schema';
 import { deleteGroup, moveItem } from './helpers';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 import { NoteContainer } from './noteux';
 import { DeleteButton } from './buttonux';
 import { dragType } from './utils';
+import { Session } from './session_schema';
 
 export function GroupView(props: {
-    pile: Group;
-    user: string;
+    group: Group;
+    clientId: string;
     app: App;
     selection: Note[];
     setSelection: any;
+    session: Session;
 }): JSX.Element {
     const [{ isDragging }, drag] = useDrag(() => ({
         type: dragType.GROUP,
-        item: props.pile,
+        item: props.group,
         collect: (monitor) => ({
             isDragging: monitor.isDragging(),
         }),
@@ -38,10 +40,10 @@ export function GroupView(props: {
                 return;
             }
 
-            const droppedPile = item as Group;
+            const droppedGroup = item as Group;
             moveItem(
-                droppedPile,
-                props.app.items.indexOf(props.pile),
+                droppedGroup,
+                props.app.items.indexOf(props.group),
                 props.app.items
             );
             return;
@@ -72,12 +74,13 @@ export function GroupView(props: {
                     (isOver && canDrop ? 'translate-x-3' : '')
                 }
             >
-                <GroupToolbar pile={props.pile} app={props.app} />
+                <GroupToolbar pile={props.group} app={props.app} />
                 <NoteContainer
-                    pile={props.pile}
-                    user={props.user}
+                    pile={props.group}
+                    clientId={props.clientId}
                     selection={props.selection}
                     setSelection={props.setSelection}
+                    session={props.session}
                 />
             </div>
         </div>

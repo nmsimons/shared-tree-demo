@@ -28,7 +28,7 @@ export type Book = ProxyNode<typeof BookSchema>;
 
 // Export the tree config appropriate for this schema
 // This is passed into the SharedTree when it is initialized
-export const schemaConfig: InitializeAndSchematizeConfiguration = {
+export const notebookSchemaConfig: InitializeAndSchematizeConfiguration = {
     schema: sb.intoSchema(NoteBookSchema),
     initialTree: {
         notebook: {
