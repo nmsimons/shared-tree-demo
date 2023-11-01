@@ -5,6 +5,8 @@ import { loadFluidData } from './fluid';
 import { ReactApp } from './ux';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { initializeDevtools } from "@fluid-experimental/devtools";
+import { devtoolsLogger } from './clientProps';
 
 async function main() {
     
@@ -17,6 +19,16 @@ async function main() {
     // Initialize Fluid data
     const { appData, sessionData, services, container } = await loadFluidData();    
     
+    const devtools = initializeDevtools({
+        logger: devtoolsLogger,
+        initialContainers: [
+            {
+                container,
+                containerKey: "My Container",
+            },
+        ],
+    });
+
     // Render the app    
     root.render(
         <DndProvider backend={HTML5Backend}>
