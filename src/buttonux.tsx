@@ -128,9 +128,6 @@ function MiniX(): JSX.Element {
     return <DismissFilled />;
 }
 
-function MiniX(): JSX.Element {    
-    return <DismissFilled />;
-}
 
 export function MiniThumb(): JSX.Element {
     return <ThumbLikeFilled />;
