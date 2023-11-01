@@ -71,13 +71,13 @@ export function ReactApp(props: {
         props.container.on('disposed', updateConnectionState);
     }, []);
 
-    useEffect(() => {
-        const updateMembers = () => {
-            setFluidMembers(Array.from(props.audience.getMembers().keys()));
-            setCurrentUser(props.audience.getMyself()?.userId as string)
-            cleanSessionData(sessionRoot, fluidMembers)
-        };
-        updateMembers();
+    const updateMembers = () => {        
+        cleanSessionData(sessionRoot, Array.from(props.audience.getMembers().keys()));
+        setFluidMembers(Array.from(props.audience.getMembers().keys()));
+        setCurrentUser(props.audience.getMyself()?.userId as string);               
+    };
+
+    useEffect(() => {      
         props.audience.on('membersChanged', updateMembers);
         return () => {
             props.audience.off('membersChanged', updateMembers);
@@ -112,6 +112,7 @@ function Header(props: {
     fluidMembers: string[];
     clientId: string;
 }): JSX.Element {
+    console.log(props.fluidMembers.length);
     return (
         <>
             <div className="h-10 w-full"></div>
