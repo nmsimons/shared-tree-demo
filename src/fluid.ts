@@ -9,10 +9,9 @@ import {
     ISharedTreeView
 } from '@fluid-experimental/tree2';
 import { App, appSchemaConfig } from './app_schema';
-import { clientProps } from './clientProps';
+import { clientProps, devtoolsLogger } from './clientProps';
 import { Session, sessionSchemaConfig } from './session_schema';
 import { initializeDevtools } from "@fluid-experimental/devtools";
-import { devtoolsLogger } from './clientProps';
 export class MySharedTree {
     public static getFactory(): SharedTreeFactory {
         return new SharedTreeFactory();
