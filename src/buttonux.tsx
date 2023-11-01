@@ -123,12 +123,10 @@ function IconButtonText(props: { children: React.ReactNode }): JSX.Element {
 }
 
 function MiniX(): JSX.Element {
-    //return <Icon path={mdiClose} size={0.75} />;
     return <DismissFilled />;
 }
 
 export function MiniThumb(): JSX.Element {
-    //return <Icon path={mdiThumbUp} size={0.75} />;
     return <ThumbLikeFilled />;
 }
 
