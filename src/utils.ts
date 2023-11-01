@@ -45,19 +45,6 @@ export enum selectAction {
     SINGLE
 }
 
-export const testNoteSelection = (
-    item: Note,
-    selection: Note[],
-    setSelected: any,    
-) => {
-    if (selection.indexOf(item) == -1) {
-        setSelected(false);
-    } else {
-        setSelected(true);
-    }
-    return;
-}
-
 export const updateNoteSelection = (
     item: Note,
     selection: Note[],
@@ -95,24 +82,39 @@ export const testRemoteNoteSelection = (
     session: Session,
     clientId: string,
     setRemoteSelected: any,
+    setSelected: any,
 ) => {
+
+    let selected = false;
+    let remoteSelected = false;
+
     for (const c of session.clients) {
+        if (c.clientId == clientId) {
+            if (c.selected.indexOf(item.id) != -1){
+                selected = true;      
+            }
+        }
+
         if (c.clientId != clientId) {            
             if (c.selected.indexOf(item.id) != -1){
-                setRemoteSelected(true);
-                return;               
+                remoteSelected = true;
             }
         }
     }
-    setRemoteSelected(false);
+    setRemoteSelected(remoteSelected);
+    setSelected(selected);
 }
 
 export const updateRemoteNoteSelection = (
     item: Note,    
     action: selectAction,
     session: Session,
-    clientId: string,    
-) => {    
+    clientId: string,
+    localSelection: Note[],
+    setLocalSelection: any,    
+) => {
+    
+    updateNoteSelection(item, localSelection, setLocalSelection, action);
 
     // Handle removed items and bail
     if (action == selectAction.REMOVE) {
@@ -163,4 +165,4 @@ export const cleanSessionData = (session: Session, audience: string[]) => {
     for (const c of deleteMe) {
         session.clients.removeAt(session.clients.indexOf(c) as number);
     }
-};
+}

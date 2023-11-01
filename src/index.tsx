@@ -19,10 +19,10 @@ async function main() {
     const root = createRoot(app);
 
     // Initialize Fluid data
-    const { appData, sessionData, services, container } = await loadFluidData();  
+    const { appData, sessionData, services, container } = await loadFluidData();    
     // const { notebookData, notebookServices, notebookContainer } = await loadNotebookData();  
-    
-    // Render the app
+
+    // Render the app    
     root.render(
         // <Notebook data={notebookData} services={notebookServices} container={notebookContainer} />
         <DndProvider backend={HTML5Backend}>
