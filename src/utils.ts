@@ -84,6 +84,9 @@ export const testRemoteNoteSelection = (
     setRemoteSelected: any,
     setSelected: any
 ) => {
+
+    console.log("test:", clientId, item.id);
+
     let selected = false;
     let remoteSelected = false;
 
@@ -112,6 +115,9 @@ export const updateRemoteNoteSelection = (
     localSelection: Note[],
     setLocalSelection: any
 ) => {
+
+    console.log("update:", clientId, item.id);
+
     updateLocalNoteSelection(item, localSelection, setLocalSelection, action);
 
     // Handle removed items and bail
@@ -155,11 +161,13 @@ export const updateRemoteNoteSelection = (
 };
 
 export const cleanSessionData = (session: Session, audience: string[]) => {
+
+    console.log("clean:", audience.length);
+
     const deleteMe: Client[] = [];
     for (const c of session.clients) {
         if (!audience.includes(c.clientId)) {
             deleteMe.push(c);
-            console.log(c.clientId);
         }
     }
 

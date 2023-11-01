@@ -74,7 +74,9 @@ export function ReactApp(props: {
     const updateMembers = () => {        
         cleanSessionData(sessionRoot, Array.from(props.audience.getMembers().keys()));
         setFluidMembers(Array.from(props.audience.getMembers().keys()));
-        setCurrentUser(props.audience.getMyself()?.userId as string);               
+        if (props.audience.getMyself()?.userId != undefined){
+            setCurrentUser(props.audience.getMyself()?.userId as string);
+        }               
     };
 
     useEffect(() => {      
@@ -112,7 +114,7 @@ function Header(props: {
     fluidMembers: string[];
     clientId: string;
 }): JSX.Element {
-    console.log(props.fluidMembers.length);
+    
     return (
         <>
             <div className="h-10 w-full"></div>

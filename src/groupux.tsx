@@ -76,7 +76,7 @@ export function GroupView(props: {
             >
                 <GroupToolbar pile={props.group} app={props.app} />
                 <NoteContainer
-                    pile={props.group}
+                    group={props.group}
                     clientId={props.clientId}
                     selection={props.selection}
                     setSelection={props.setSelection}
