@@ -12,7 +12,6 @@ import {
     getRotation,
     selectAction,
     testRemoteNoteSelection,
-    updateNoteSelection,
     updateRemoteNoteSelection,
 } from './utils';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
@@ -272,26 +271,14 @@ function NoteTextArea(props: {
 
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        if (e.ctrlKey) {
-            updateNoteSelection(
-                props.note,
-                props.selection,
-                props.setSelection,
-                selectAction.MULTI
-            );
+        if (e.ctrlKey) {            
             updateRemoteNoteSelection(
                 props.note,
                 selectAction.MULTI,
                 props.session,
                 props.clientId
             );
-        } else {
-            updateNoteSelection(
-                props.note,
-                props.selection,
-                props.setSelection,
-                selectAction.SINGLE
-            );
+        } else {            
             updateRemoteNoteSelection(
                 props.note,
                 selectAction.SINGLE,
