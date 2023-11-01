@@ -9,8 +9,9 @@ import {
     ISharedTreeView
 } from '@fluid-experimental/tree2';
 import { App, appSchemaConfig } from './app_schema';
-import { clientProps } from './clientProps';
+import { clientProps, devtoolsLogger } from './clientProps';
 import { Session, sessionSchemaConfig } from './session_schema';
+import { initializeDevtools } from "@fluid-experimental/devtools";
 export class MySharedTree {
     public static getFactory(): SharedTreeFactory {
         return new SharedTreeFactory();
@@ -51,6 +52,16 @@ export const loadFluidData = async (): Promise<{
         // The client will create a new detached container using the schema
         // A detached container will enable the app to modify the container before attaching it to the client
         ({ container, services } = await client.createContainer(containerSchema));
+
+        const devtools = initializeDevtools({
+            logger: devtoolsLogger,
+            initialContainers: [
+                {
+                    container,
+                    containerKey: "My Container",
+                },
+            ],
+        });        
 
         // Initialize our Fluid data -- set default values, establish relationships, etc.
         (container.initialObjects.appData as ISharedTree).schematize(appSchemaConfig);
