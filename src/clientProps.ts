@@ -4,6 +4,10 @@ import {
 } from '@fluidframework/azure-client';
 import { InsecureTokenProvider } from '@fluidframework/test-runtime-utils';
 import { AzureFunctionTokenProvider, azureUser, user } from './tokenProvider';
+import { DevtoolsLogger } from "@fluid-experimental/devtools";
+
+// Instantiate the logger
+export const devtoolsLogger = new DevtoolsLogger();
 
 const useAzure = process.env.FLUID_CLIENT === 'azure';
 if (!useAzure) {
@@ -29,4 +33,5 @@ const localConnectionConfig: AzureLocalConnectionConfig = {
 const connectionConfig: AzureRemoteConnectionConfig | AzureLocalConnectionConfig = useAzure ? remoteConnectionConfig : localConnectionConfig;
 export const clientProps: AzureClientProps = {
     connection: connectionConfig,
+    logger: devtoolsLogger,
 };
