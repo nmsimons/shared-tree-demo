@@ -11,6 +11,8 @@ import {
 import { App, appSchemaConfig } from './app_schema';
 import { clientProps } from './clientProps';
 import { Session, sessionSchemaConfig } from './session_schema';
+import { initializeDevtools } from "@fluid-experimental/devtools";
+import { devtoolsLogger } from './clientProps';
 export class MySharedTree {
     public static getFactory(): SharedTreeFactory {
         return new SharedTreeFactory();
@@ -69,6 +71,16 @@ export const loadFluidData = async (): Promise<{
         // collaboration session.
         ({ container, services } = await client.getContainer(id, containerSchema));
     }
+
+    const devtools = initializeDevtools({
+        logger: devtoolsLogger,
+        initialContainers: [
+            {
+                container,
+                containerKey: "My Container",
+            },
+        ],
+    });
 
     const appView = (container.initialObjects.appData as ISharedTree).schematizeView(appSchemaConfig);
     const appData = new SharedTree<App>(appView, appView.root2(appSchemaConfig.schema) as any);
