@@ -1,11 +1,9 @@
 /* eslint-disable react/jsx-key */
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { loadFluidData } from './fluid';
-import { ReactApp } from './ux';
+import { loadNotebookData } from './notebookdata';
+import { Notebook } from './notebook';
 import { schemaConfig } from './schema';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
 
 async function main() {
     
@@ -16,13 +14,12 @@ async function main() {
     const root = createRoot(app);
 
     // Initialize Fluid data
-    const { data, services, container } = await loadFluidData(schemaConfig);
+    //const { data, services, container } = await loadFluidData(schemaConfig);
+    const { data, services, container } = await loadNotebookData(schemaConfig);
     
     // Render the app    
     root.render(
-        <DndProvider backend={HTML5Backend}>
-            <ReactApp data={data} services={services} container={container} />
-        </DndProvider>
+        <Notebook data={data} services={services} container={container} />
     );
 }
 

@@ -13,8 +13,8 @@ module.exports = {
     devtool: 'source-map',
     mode: 'production',
     performance: {
-        maxAssetSize: 2000000,
-        maxEntrypointSize: 2000000,
+        maxAssetSize: 4000000,
+        maxEntrypointSize: 4000000,
     },
     module: {        
         rules: [

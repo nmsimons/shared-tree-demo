@@ -20,7 +20,7 @@ export function ReactApp(props: {
     data: SharedTree<App>;
     services: AzureContainerServices;
     container: IFluidContainer;
-}): JSX.Element {    
+}): JSX.Element {
     const [currentUser] = useState({
         name: azureUser.userName,
         id: azureUser.userId,
