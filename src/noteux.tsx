@@ -7,7 +7,13 @@ import {
     moveItem,
     updateNoteText,
 } from './helpers';
-import { dragType, getRotation, selectAction, testNoteSelection, testRemoteNoteSelection, updateNoteSelection, updateRemoteNoteSelection } from './utils';
+import {
+    dragType,
+    getRotation,
+    selectAction,
+    testRemoteNoteSelection,
+    updateRemoteNoteSelection,
+} from './utils';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 import { useTransition } from 'react-transition-state';
 import { node } from '@fluid-experimental/tree2';
@@ -31,7 +37,7 @@ export function NoteContainer(props: {
                 notes={props.pile.notes}
                 selection={props.selection}
                 setSelection={props.setSelection}
-                session={props.session}                
+                session={props.session}
             />
         );
     }
@@ -81,39 +87,47 @@ function NoteView(props: {
     const [rotation] = useState(getRotation(props.note));
 
     const [invalidations, setInvalidations] = useState(0);
-    
+
     // Register for tree deltas when the component mounts.
     // Any time the tree changes, the app will update
     // For more complex apps, this code can be included
     // on lower level components.
-    useEffect(() => {        
+    useEffect(() => {
         // Returns the cleanup function to be invoked when the component unmounts.
-        return node.on(props.session, 'afterChange', () => {      
-            testRemoteNoteSelection(props.note, props.session, props.clientId, setRemoteSelected);                      
+        return node.on(props.session, 'afterChange', () => {
+            testRemoteNoteSelection(
+                props.note,
+                props.session,
+                props.clientId,
+                setRemoteSelected,
+                setSelected
+            );
             setInvalidations(invalidations + Math.random());
         });
-    }, [invalidations]);   
+    }, [invalidations]);
 
     useEffect(() => {
         mounted.current = true;
-        testRemoteNoteSelection(props.note, props.session, props.clientId, setRemoteSelected);
-        testNoteSelection(props.note, props.selection, setSelected);        
+        testRemoteNoteSelection(
+            props.note,
+            props.session,
+            props.clientId,
+            setRemoteSelected,
+            setSelected
+        );
+        //testNoteSelection(props.note, props.selection, setSelected);
         return () => {
             mounted.current = false;
         };
-    }, []);    
+    }, []);
 
     useEffect(() => {
         if (selected) {
             setBgColor('bg-yellow-400');
         } else {
             setBgColor('bg-yellow-100');
-        }       
-    }, [selected])
-
-    useEffect(() => {        
-        testNoteSelection(props.note, props.selection, setSelected);
-    }, [props.selection])
+        }
+    }, [selected]);    
 
     toggle(false);
 
@@ -125,7 +139,7 @@ function NoteView(props: {
         if (mounted.current) {
             toggle(true);
         }
-    }, [props.note.text]);   
+    }, [props.note.text]);
 
     const [{ isDragging }, drag] = useDrag(() => ({
         type: dragType.NOTE,
@@ -158,19 +172,37 @@ function NoteView(props: {
     const attachRef = (el: ConnectableElement) => {
         drag(el);
         drop(el);
-    };    
+    };
 
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        if (e.ctrlKey) {
-            updateNoteSelection(props.note, props.selection, props.setSelection, selectAction.MULTI);
-            updateRemoteNoteSelection(props.note, selectAction.MULTI, props.session, props.clientId);
-        } else if (selected) {
-            updateNoteSelection(props.note, props.selection, props.setSelection, selectAction.REMOVE);
-            updateRemoteNoteSelection(props.note, selectAction.REMOVE, props.session, props.clientId);            
-        } else {
-            updateNoteSelection(props.note, props.selection, props.setSelection, selectAction.SINGLE);
-            updateRemoteNoteSelection(props.note, selectAction.SINGLE, props.session, props.clientId);             
+        if (e.ctrlKey) {            
+            updateRemoteNoteSelection(
+                props.note,
+                selectAction.MULTI,
+                props.session,
+                props.clientId,
+                props.selection,
+                props.setSelection
+            );
+        } else if (selected) {            
+            updateRemoteNoteSelection(
+                props.note,
+                selectAction.REMOVE,
+                props.session,
+                props.clientId,
+                props.selection,
+                props.setSelection
+            );
+        } else {            
+            updateRemoteNoteSelection(
+                props.note,
+                selectAction.SINGLE,
+                props.session,
+                props.clientId,
+                props.selection,
+                props.setSelection
+            );
         }
     };
 
@@ -205,7 +237,13 @@ function NoteView(props: {
                         clientId={props.clientId}
                         notes={props.notes}
                     />
-                    <NoteTextArea note={props.note} clientId={props.clientId} selection={props.selection} setSelection={props.setSelection} session={props.session} />
+                    <NoteTextArea
+                        note={props.note}
+                        clientId={props.clientId}
+                        selection={props.selection}
+                        setSelection={props.setSelection}
+                        session={props.session}
+                    />
                     <NoteSelection show={remoteSelected} />
                 </div>
             </div>
@@ -213,18 +251,23 @@ function NoteView(props: {
     );
 }
 
-function NoteSelection(props: {show: boolean}): JSX.Element {
+function NoteSelection(props: { show: boolean }): JSX.Element {
     if (props.show) {
-        return(
-            <div className='absolute -top-2 -left-2 h-52 w-52 rounded border-dashed border-indigo-800 border-4' />
-    )} else {
-        return(
-           <></>
-        )
+        return (
+            <div className="absolute -top-2 -left-2 h-52 w-52 rounded border-dashed border-indigo-800 border-4" />
+        );
+    } else {
+        return <></>;
     }
 }
 
-function NoteTextArea(props: { note: Note; clientId: string; selection: Note[]; setSelection: any, session: Session }): JSX.Element {
+function NoteTextArea(props: {
+    note: Note;
+    clientId: string;
+    selection: Note[];
+    setSelection: any;
+    session: Session;
+}): JSX.Element {
     // The text field updates the Fluid data model on every keystroke in this demo.
     // This works well with small strings but doesn't scale to very large strings.
     // A Future iteration of SharedTree will include support for collaborative strings
@@ -234,12 +277,24 @@ function NoteTextArea(props: { note: Note; clientId: string; selection: Note[]; 
 
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        if (e.ctrlKey) {
-            updateNoteSelection(props.note, props.selection, props.setSelection, selectAction.MULTI);
-            updateRemoteNoteSelection(props.note, selectAction.MULTI, props.session, props.clientId);            
-        } else {
-            updateNoteSelection(props.note, props.selection, props.setSelection, selectAction.SINGLE);
-            updateRemoteNoteSelection(props.note, selectAction.SINGLE, props.session, props.clientId);            
+        if (e.ctrlKey) {            
+            updateRemoteNoteSelection(
+                props.note,
+                selectAction.MULTI,
+                props.session,
+                props.clientId,
+                props.selection,
+                props.setSelection
+            );
+        } else {            
+            updateRemoteNoteSelection(
+                props.note,
+                selectAction.SINGLE,
+                props.session,
+                props.clientId,
+                props.selection,
+                props.setSelection
+            );
         }
     };
 
@@ -261,16 +316,12 @@ function NoteToolbar(props: {
     return (
         <div className="flex justify-between z-50">
             <LikeButton note={props.note} clientId={props.clientId} />
-            <DeleteNoteButton
-                note={props.note}                
-                notes={props.notes}
-            />
+            <DeleteNoteButton note={props.note} notes={props.notes} />
         </div>
     );
 }
 
 function AddNoteButton(props: { group: Group; clientId: string }): JSX.Element {
-
     const [{ isActive }, drop] = useDrop(() => ({
         accept: dragType.NOTE,
         collect: (monitor) => ({
@@ -293,7 +344,7 @@ function AddNoteButton(props: { group: Group; clientId: string }): JSX.Element {
 
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        addNote(props.group.notes, '', props.clientId)
+        addNote(props.group.notes, '', props.clientId);
     };
 
     return (
@@ -322,7 +373,6 @@ function AddNoteButton(props: { group: Group; clientId: string }): JSX.Element {
 }
 
 function LikeButton(props: { note: Note; clientId: string }): JSX.Element {
-
     const setColor = () => {
         if (props.note.votes.indexOf(props.clientId) > -1) {
             return 'text-white';
@@ -348,14 +398,11 @@ function LikeButton(props: { note: Note; clientId: string }): JSX.Element {
                 icon={MiniThumb()}
             >
                 {props.note.votes.length}
-            </IconButton>            
+            </IconButton>
         </div>
     );
 }
 
-function DeleteNoteButton(props: {
-    note: Note;    
-    notes: Notes | Items;
-}): JSX.Element {
+function DeleteNoteButton(props: { note: Note; notes: Notes | Items }): JSX.Element {
     return <DeleteButton handleClick={() => deleteNote(props.note)}></DeleteButton>;
 }

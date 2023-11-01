@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { App, Note } from './app_schema';
 import { addNote, addGroup as addGroup, deleteNote, moveItem } from './helpers';
 import {
@@ -49,16 +49,16 @@ export function NewNoteButton(props: { root: App; clientId: string }): JSX.Eleme
 }
 
 export function DeleteNotesButton(props: { selection: Note[] }): JSX.Element {
-    const handleClick = (selection: Note[]) => {
-        for (const s of selection) {
-            deleteNote(s);
+    const handleClick = () => {
+        for (const n of props.selection) {
+            deleteNote(n);
         }
     };
     return (
         <IconButton
             color="white"
             background="black"
-            handleClick={() => handleClick(props.selection)}
+            handleClick={() => handleClick()}
             icon={<DeleteRegular />}
         >
             Delete Note
