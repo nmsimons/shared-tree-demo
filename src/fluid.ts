@@ -53,16 +53,6 @@ export const loadFluidData = async (): Promise<{
         // A detached container will enable the app to modify the container before attaching it to the client
         ({ container, services } = await client.createContainer(containerSchema));
 
-        const devtools = initializeDevtools({
-            logger: devtoolsLogger,
-            initialContainers: [
-                {
-                    container,
-                    containerKey: "My Container",
-                },
-            ],
-        });        
-
         // Initialize our Fluid data -- set default values, establish relationships, etc.
         (container.initialObjects.appData as ISharedTree).schematize(appSchemaConfig);
         (container.initialObjects.sessionData as ISharedTree).schematize(sessionSchemaConfig);
@@ -80,6 +70,16 @@ export const loadFluidData = async (): Promise<{
         // collaboration session.
         ({ container, services } = await client.getContainer(id, containerSchema));
     }
+
+    const devtools = initializeDevtools({
+        logger: devtoolsLogger,
+        initialContainers: [
+            {
+                container,
+                containerKey: "My Container",
+            },
+        ],
+    });
 
     const appView = (container.initialObjects.appData as ISharedTree).schematizeView(appSchemaConfig);
     const appData = new SharedTree<App>(appView, appView.root2(appSchemaConfig.schema) as any);

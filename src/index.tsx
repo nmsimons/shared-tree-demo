@@ -16,7 +16,7 @@ async function main() {
 
     // Initialize Fluid data
     const { appData, sessionData, services, container } = await loadFluidData();    
-    
+
     // Render the app    
     root.render(
         <DndProvider backend={HTML5Backend}>
