@@ -45,19 +45,6 @@ export enum selectAction {
     SINGLE
 }
 
-export const testNoteSelection = (
-    item: Note,
-    selection: Note[],
-    setSelected: any,    
-) => {
-    if (selection.indexOf(item) == -1) {
-        setSelected(false);
-    } else {
-        setSelected(true);
-    }
-    return;
-}
-
 export const updateNoteSelection = (
     item: Note,
     selection: Note[],
@@ -95,16 +82,27 @@ export const testRemoteNoteSelection = (
     session: Session,
     clientId: string,
     setRemoteSelected: any,
+    setSelected: any,
 ) => {
+
+    let selected = false;
+    let remoteSelected = false;
+
     for (const c of session.clients) {
+        if (c.clientId == clientId) {
+            if (c.selected.indexOf(item.id) != -1){
+                selected = true;      
+            }
+        }
+
         if (c.clientId != clientId) {            
             if (c.selected.indexOf(item.id) != -1){
-                setRemoteSelected(true);
-                return;               
+                remoteSelected = true;
             }
         }
     }
-    setRemoteSelected(false);
+    setRemoteSelected(remoteSelected);
+    setSelected(selected);
 }
 
 export const updateRemoteNoteSelection = (

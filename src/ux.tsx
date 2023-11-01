@@ -100,7 +100,7 @@ export function ReactApp(props: {
             <Floater>
                 <NewGroupButton root={appRoot} selection={noteSelection} />
                 <NewNoteButton root={appRoot} clientId={currentUser} />
-                <DeleteNotesButton selection={noteSelection} />
+                <DeleteNotesButton session={sessionRoot} />
             </Floater>
         </div>
     );

@@ -8,6 +8,7 @@ import {
     DeleteRegular,
     RectangleLandscapeRegular
 } from '@fluentui/react-icons';
+import { Session } from './session_schema';
 
 export function NewGroupButton(props: { root: App, selection: Note[] }): JSX.Element {
     const handleClick = (e: React.MouseEvent) => {
@@ -48,17 +49,15 @@ export function NewNoteButton(props: { root: App; clientId: string }): JSX.Eleme
     );
 }
 
-export function DeleteNotesButton(props: { selection: Note[] }): JSX.Element {
-    const handleClick = (selection: Note[]) => {
-        for (const s of selection) {
-            deleteNote(s);
-        }
+export function DeleteNotesButton(props: { session: Session }): JSX.Element {
+    const handleClick = () => {
+        // delete all the selected notes
     };
     return (
         <IconButton
             color="white"
             background="black"
-            handleClick={() => handleClick(props.selection)}
+            handleClick={() => handleClick()}
             icon={<DeleteRegular />}
         >
             Delete Note
