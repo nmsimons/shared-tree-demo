@@ -79,12 +79,6 @@ export const loadFluidData = async (): Promise<{
     return { appData, sessionData, services, container };
 };
 
-export const treeSym = Symbol();
-
 export class SharedTree<T> {
-    constructor(private readonly tree: ISharedTreeView, public readonly root: T) {}
-
-    public get [treeSym]() {
-        return this.tree;
-    }
+    constructor(private readonly tree: ISharedTreeView, public readonly root: T) {}    
 }
