@@ -12,6 +12,8 @@ import {
     NewGroupButton,
     NewNoteButton,
     DeleteNotesButton,
+    UndoButton,
+    RedoButton,
 } from './buttonux';
 import { RevertResult, Revertible, node } from '@fluid-experimental/tree2';
 import { cleanSessionData } from './utils';
@@ -31,7 +33,23 @@ export function ReactApp(props: {
     const [currentUser, setCurrentUser] = useState("");
     const [connectionState, setConnectionState] = useState('');
     const [saved, setSaved] = useState(!props.container.isDirty);
-    const [fluidMembers, setFluidMembers] = useState<string[]>([]);        
+    const [fluidMembers, setFluidMembers] = useState<string[]>([]);
+    
+    const { undoStack, redoStack } = props;
+    
+    const undo = useCallback(() => {
+        const result = undoStack.pop()?.revert();
+        if (result === RevertResult.Failure) {
+            console.log("undo failed");
+        }
+    }, [undoStack]);
+
+    const redo = useCallback(() => {
+        const result = redoStack.pop()?.revert();
+        if (result === RevertResult.Failure) {
+            console.log("redo failed");
+        }
+    }, [redoStack]);        
 
     const appRoot = props.data.root;
     const sessionRoot = props.session.root;  
@@ -74,7 +92,10 @@ export function ReactApp(props: {
         props.container.on('disposed', updateConnectionState);
     }, []);
 
-    const updateMembers = () => {        
+    const updateMembers = () => { 
+        
+        console.log("update members:", currentUser, fluidMembers.length);
+        
         cleanSessionData(sessionRoot, Array.from(props.audience.getMembers().keys()));
         setFluidMembers(Array.from(props.audience.getMembers().keys()));
         if (props.audience.getMyself()?.userId != undefined){
@@ -99,15 +120,15 @@ export function ReactApp(props: {
                 saved={saved}
                 connectionState={connectionState}
                 fluidMembers={fluidMembers}
-                clientId={currentUser}
-                undoStack={props.undoStack}
-                redoStack={props.redoStack}
+                clientId={currentUser}                
             />
             <RootItems root={appRoot} clientId={currentUser} selection={noteSelection} setSelection={setNoteSelection} session={sessionRoot} />
             <Floater>
                 <NewGroupButton root={appRoot} selection={noteSelection} />
                 <NewNoteButton root={appRoot} clientId={currentUser} />
                 <DeleteNotesButton selection={noteSelection} />
+                <UndoButton undo={undo} />
+                <RedoButton redo={redo} />                
             </Floater>
         </div>
     );
@@ -117,36 +138,15 @@ function Header(props: {
     saved: boolean;
     connectionState: string;
     fluidMembers: string[];
-    clientId: string;
-    undoStack: Revertible[];
-    redoStack: Revertible[];
-}): JSX.Element {
-    
-    console.log(props.fluidMembers.length);
-
-    const { undoStack, redoStack } = props;
-    const undo = useCallback(() => {
-        const result = undoStack.pop()?.revert();
-        if (result === RevertResult.Failure) {
-            console.log("undo failed");
-        }
-    }, [undoStack]);
-
-    const redo = useCallback(() => {
-        const result = redoStack.pop()?.revert();
-        if (result === RevertResult.Failure) {
-            console.log("redo failed");
-        }
-    }, [redoStack]);
+    clientId: string;    
+}): JSX.Element {    
 
     return (
         <>
             <div className="h-10 w-full"></div>
             <div className="fixed flex flex-row justify-between bg-black h-10 text-base text-white z-40 w-full">
                 <div className="m-2">shared-tree-demo: {props.clientId}</div>
-                <div className="m-2">
-                    <button onClick={undo} disabled={undoStack.length === 0}>{'undo'}</button> |
-                    <button onClick={redo} disabled={redoStack.length === 0}>{'redo'}</button> |
+                <div className="m-2">                    
                     {props.saved ? 'saved' : 'not saved'} | {props.connectionState} | users:{' '}
                     {props.fluidMembers.length}
                 </div>

@@ -108,7 +108,7 @@ function NoteView(props: {
     }, [invalidations]);
 
     useEffect(() => {
-        console.log("mounted", props.clientId, props.note.id)
+        console.log("mounted: ", props.clientId, props.note.id)
         mounted.current = true;
         testRemoteNoteSelection(
             props.note,
