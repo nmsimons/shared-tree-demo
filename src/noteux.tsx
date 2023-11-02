@@ -92,7 +92,14 @@ function NoteView(props: {
 
     const [invalidations, setInvalidations] = useState(0);
 
-    const test = () => {        
+    const test = (message: string) => {
+        console.log(
+            message,
+            'client id:',
+            props.clientId,
+            'item id:',
+            props.note.id
+        );
         testRemoteNoteSelection(
             props.note,
             props.session,
@@ -121,18 +128,19 @@ function NoteView(props: {
     useEffect(() => {
         // Returns the cleanup function to be invoked when the component unmounts.
         return node.on(props.session, 'afterChange', () => {
-            test();
+            test('invalidation');
             setInvalidations(invalidations + Math.random());
         });
     }, [invalidations]);
     
     useEffect(() => {
-        test();
+        test('fluid members');
     }, [props.fluidMembers])
 
     useEffect(() => {
         mounted.current = true;
-        test();
+        test('mounted');
+        props.note.text = props.note.id;
         return () => {
             mounted.current = false;
         };
