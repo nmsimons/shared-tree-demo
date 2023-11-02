@@ -52,6 +52,8 @@ export const loadFluidData = async (containerId: string): Promise<{
     let container: IFluidContainer;
     let services: AzureContainerServices;
 
+    console.log("loading container..." + containerId)
+
     // Get or create the document depending if we are running through the create new flow
     const createNew = (containerId.length === 0);
     if (createNew) {
@@ -71,16 +73,6 @@ export const loadFluidData = async (containerId: string): Promise<{
         // collaboration session.
         ({ container, services } = await client.getContainer(containerId, containerSchema));
     }
-
-    const devtools = initializeDevtools({
-        logger: devtoolsLogger,
-        initialContainers: [
-            {
-                container,
-                containerKey: "My Container",
-            },
-        ],
-    });
 
     const appView = (container.initialObjects.appData as ISharedTree).schematizeView(appSchemaConfig);
     const appData = new SharedTree<App>(appView, appView.root2(appSchemaConfig.schema) as any);
