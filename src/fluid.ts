@@ -77,7 +77,7 @@ export const loadFluidData = async (): Promise<{
         ({ container, services } = await client.getContainer(id, containerSchema));
     }
 
-    const devtools = initializeDevtools({
+    initializeDevtools({
         logger: devtoolsLogger,
         initialContainers: [
             {

@@ -15,7 +15,7 @@ export function setUpUndoRedoStacks(tree: ISharedTreeView): {
     const unsubscribe = tree.events.on('revertible', (revertible) => {
         if (revertible.kind === RevertibleKind.Undo) {
             redoStack.push(revertible);
-            console.log('pushed to redo stack');
+            //console.log('pushed to redo stack');
         } else {
             if (revertible.kind === RevertibleKind.Default) {
                 while (redoStack.length > 0) {
@@ -23,7 +23,7 @@ export function setUpUndoRedoStacks(tree: ISharedTreeView): {
                 }
             }
             undoStack.push(revertible);
-            console.log('pushed to undo stack');
+            //console.log('pushed to undo stack');
         }
     });
 
