@@ -10,9 +10,8 @@ import {
     Revertible
 } from '@fluid-experimental/tree2';
 import { App, appSchemaConfig } from './app_schema';
-import { clientProps, devtoolsLogger } from './clientProps';
+import { clientProps } from './clientProps';
 import { Session, sessionSchemaConfig } from './session_schema';
-import { initializeDevtools } from "@fluid-experimental/devtools";
 import { setUpUndoRedoStacks } from './undo';
 
 export class MySharedTree {

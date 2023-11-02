@@ -14,6 +14,14 @@ import { deletePage } from './binderhelpers';
 import { NoteRegular } from "@fluentui/react-icons";
 import { IconButton } from "../buttonux";
 import { addPage } from "./binderhelpers";
+import { initializeDevtools } from '@fluid-experimental/devtools';
+import { devtoolsLogger } from '../clientProps';
+
+const devtools = initializeDevtools({
+    logger: devtoolsLogger
+});
+const binderContainerKey = "Binder container"
+const pageContainerKey = "Page container"
 
 export function Binder(props: {
     data: BinderSharedTree<Binder>;
@@ -27,14 +35,27 @@ export function Binder(props: {
         return node.on(props.data.root, 'afterChange', () => {            
             setInvalidations(invalidations + Math.random());
         });
-    }, [invalidations]);  
+    }, [invalidations]);
 
     useEffect(() => {
-        console.log("useeffect got called >> " + selectedContainerId);
+        devtools.registerContainerDevtools({
+            container: props.container,
+            containerKey: binderContainerKey,
+        });
+    }, []);
+
+    useEffect(() => {
         (async () => {
             if (selectedContainerId != "") {
-                console.log("gonna load now");
+                console.log("useEffect, gonna load now: ", selectedContainerId);
                 const rightPaneState = await loadFluidData(selectedContainerId);
+
+                devtools.closeContainerDevtools(pageContainerKey);
+                devtools.registerContainerDevtools({
+                    container: rightPaneState.container,
+                    containerKey: pageContainerKey,
+                });
+                
                 setRightPaneState(rightPaneState);
             }
         })();
@@ -42,8 +63,7 @@ export function Binder(props: {
 
     let rightPaneView = [];
     if (rightPaneState !== undefined) {
-        console.log("rightPaneState is not undefined!" + rightPaneState);
-        console.log(rightPaneState);
+        console.log("rightPaneState is not undefined!", rightPaneState);
         rightPaneView.push(
         <DndProvider backend={HTML5Backend}>
             <ReactApp 
@@ -58,14 +78,13 @@ export function Binder(props: {
         );
     }
 
+    const pageClicked = (containerId: string) => {
+        setSelectedContainerId(containerId);
+    }
+
     return (
-        <div className="flex flex-row bg-blue h-full w-5">
-            <LeftNav root={props.data.root} pageClicked={
-                (containerId: string) => {
-                    console.log("got clicked!");
-                    setSelectedContainerId(containerId);
-                }
-            } />
+        <div className="flex flex-row bg-white h-full w-full">
+            <LeftNav root={props.data.root} onItemSelect={pageClicked} />
             <div>{rightPaneView}</div>
         </div>
     );
@@ -73,17 +92,16 @@ export function Binder(props: {
 
 function LeftNav(props: {
     root: Binder;
-    pageClicked: (containerId: string) => void;
+    onItemSelect: (itemId: string) => void;
 }): JSX.Element {
     const pageArray = [];
     for (const i of props.root.pages) {
         pageArray.push(
-            <PageView page={i} pageClicked={props.pageClicked} />
+            <PageView page={i} onItemSelect={props.onItemSelect} />
         );
     }
     return (
-        <div className="flex flex-col bg-blue h-full w-5">
-            <p>Welcome to your binder!</p>
+        <div className="flex flex-col bg-blue-50 h-full w-5">
             <BinderName binder={props.root} />
             <div className="flex flex-col flex-wrap gap-4 m-4">{pageArray}</div>
             <NewPageButton binder={props.root}  />
@@ -102,12 +120,10 @@ function BinderName(props: { binder: Binder }): JSX.Element {
     );
 }
 
-function PageView(props: { page: Page , pageClicked: (containerId: string) => void}): JSX.Element {
+function PageView(props: { page: Page , onItemSelect: (containerId: string) => void}): JSX.Element {
     return (
-        <div className="flex flex-row bg-blue h-full w-5"
-            onClick={(e) => {
-                props.pageClicked(props.page.id)
-            }}
+        <div className="flex flex-row bg-blue h-full w-5" 
+            onClick={(e) => {props.onItemSelect(props.page.id)}}
         >
             <input
                 className="flex-1 block mb-2 text-lg font-bold text-black bg-transparent"
