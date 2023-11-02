@@ -4,7 +4,12 @@ import { App, Note, NoteSchema, GroupSchema } from './app_schema';
 import { Session } from './session_schema';
 import './output.css';
 import { SharedTree } from './fluid';
-import { ConnectionState, IFluidContainer, IMember, IServiceAudience } from 'fluid-framework';
+import {
+    ConnectionState,
+    IFluidContainer,
+    IMember,
+    IServiceAudience,
+} from 'fluid-framework';
 import { GroupView } from './groupux';
 import { RootNoteWrapper } from './noteux';
 import {
@@ -26,33 +31,32 @@ export function ReactApp(props: {
     undoStack: Revertible[];
     redoStack: Revertible[];
     unsubscribe: () => void;
-}): JSX.Element {    
-    
+}): JSX.Element {
     const [noteSelection, setNoteSelection] = useState<Note[]>([]);
     const [invalidations, setInvalidations] = useState(0);
-    const [currentUser, setCurrentUser] = useState("");
+    const [currentUser, setCurrentUser] = useState('[UNDEFINED]');
     const [connectionState, setConnectionState] = useState('');
     const [saved, setSaved] = useState(!props.container.isDirty);
     const [fluidMembers, setFluidMembers] = useState<string[]>([]);
-    
+
     const { undoStack, redoStack } = props;
-    
+
     const undo = useCallback(() => {
         const result = undoStack.pop()?.revert();
         if (result === RevertResult.Failure) {
-            console.log("undo failed");
+            console.log('undo failed');
         }
     }, [undoStack]);
 
     const redo = useCallback(() => {
         const result = redoStack.pop()?.revert();
         if (result === RevertResult.Failure) {
-            console.log("redo failed");
+            console.log('redo failed');
         }
-    }, [redoStack]);        
+    }, [redoStack]);
 
     const appRoot = props.data.root;
-    const sessionRoot = props.session.root;  
+    const sessionRoot = props.session.root;
 
     // Register for tree deltas when the component mounts.
     // Any time the tree changes, the app will update
@@ -60,14 +64,14 @@ export function ReactApp(props: {
     // on lower level components.
     useEffect(() => {
         // Returns the cleanup function to be invoked when the component unmounts.
-        return node.on(appRoot, 'afterChange', () => {            
+        return node.on(appRoot, 'afterChange', () => {
             setInvalidations(invalidations + Math.random());
         });
-    }, [invalidations]);    
+    }, [invalidations]);
 
     useEffect(() => {
         const updateConnectionState = () => {
-            if (props.container.connectionState === ConnectionState.Connected) {
+            if (props.container.connectionState === ConnectionState.Connected) {                
                 setConnectionState('connected');
             } else if (
                 props.container.connectionState === ConnectionState.Disconnected
@@ -92,43 +96,48 @@ export function ReactApp(props: {
         props.container.on('disposed', updateConnectionState);
     }, []);
 
-    const updateMembers = () => { 
-        
-        console.log("update members:", currentUser, fluidMembers.length);
-        
-        cleanSessionData(sessionRoot, Array.from(props.audience.getMembers().keys()));
-        setFluidMembers(Array.from(props.audience.getMembers().keys()));
-        if (props.audience.getMyself()?.userId != undefined){
+    const updateMembers = () => {
+        console.log('update members:', currentUser, fluidMembers.length);
+        if (props.audience.getMyself()?.userId != undefined) {
+            console.log(
+                'update myself:',
+                props.audience.getMyself()?.userId as string,
+                Array.from(props.audience.getMembers().keys()).length
+            );
             setCurrentUser(props.audience.getMyself()?.userId as string);
-        }               
+        }
+        setFluidMembers(Array.from(props.audience.getMembers().keys()));
     };
 
-    useEffect(() => {      
+    useEffect(() => {
         props.audience.on('membersChanged', updateMembers);
         return () => {
             props.audience.off('membersChanged', updateMembers);
         };
     }, []);
 
-
     return (
-        <div            
-            id="main"
-            className="flex flex-col bg-white h-full w-full"
-        >
+        <div id="main" className="flex flex-col bg-white h-full w-full">
             <Header
                 saved={saved}
                 connectionState={connectionState}
                 fluidMembers={fluidMembers}
-                clientId={currentUser}                
+                clientId={currentUser}
             />
-            <RootItems root={appRoot} clientId={currentUser} selection={noteSelection} setSelection={setNoteSelection} session={sessionRoot} />
+            <RootItems
+                root={appRoot}
+                clientId={currentUser}
+                selection={noteSelection}
+                setSelection={setNoteSelection}
+                session={sessionRoot}
+                fluidMembers={fluidMembers}
+            />
             <Floater>
                 <NewGroupButton root={appRoot} selection={noteSelection} />
                 <NewNoteButton root={appRoot} clientId={currentUser} />
                 <DeleteNotesButton selection={noteSelection} />
                 <UndoButton undo={undo} />
-                <RedoButton redo={redo} />                
+                <RedoButton redo={redo} />
             </Floater>
         </div>
     );
@@ -138,24 +147,30 @@ function Header(props: {
     saved: boolean;
     connectionState: string;
     fluidMembers: string[];
-    clientId: string;    
-}): JSX.Element {    
-
+    clientId: string;
+}): JSX.Element {
     return (
         <>
             <div className="h-10 w-full"></div>
             <div className="fixed flex flex-row justify-between bg-black h-10 text-base text-white z-40 w-full">
                 <div className="m-2">shared-tree-demo: {props.clientId}</div>
-                <div className="m-2">                    
-                    {props.saved ? 'saved' : 'not saved'} | {props.connectionState} | users:{' '}
-                    {props.fluidMembers.length}
+                <div className="m-2">
+                    {props.saved ? 'saved' : 'not saved'} | {props.connectionState} |
+                    users: {props.fluidMembers.length}
                 </div>
             </div>
         </>
     );
 }
 
-function RootItems(props: { root: App; clientId: string; selection: Note[]; setSelection: any; session: Session }): JSX.Element {
+function RootItems(props: {
+    root: App;
+    clientId: string;
+    selection: Note[];
+    setSelection: any;
+    session: Session;
+    fluidMembers: string[];
+}): JSX.Element {
     const pilesArray = [];
     for (const i of props.root.items) {
         if (node.is(i, GroupSchema)) {
@@ -168,6 +183,7 @@ function RootItems(props: { root: App; clientId: string; selection: Note[]; setS
                     selection={props.selection}
                     setSelection={props.setSelection}
                     session={props.session}
+                    fluidMembers={props.fluidMembers}
                 />
             );
         } else if (node.is(i, NoteSchema)) {
@@ -180,6 +196,7 @@ function RootItems(props: { root: App; clientId: string; selection: Note[]; setS
                     selection={props.selection}
                     setSelection={props.setSelection}
                     session={props.session}
+                    fluidMembers={props.fluidMembers}
                 />
             );
         }

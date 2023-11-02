@@ -82,7 +82,8 @@ export const testRemoteNoteSelection = (
     session: Session,
     clientId: string,
     setRemoteSelected: any,
-    setSelected: any
+    setSelected: any,
+    fluidMembers: string[],
 ) => {
 
     console.log("test:", clientId, item.id);
@@ -97,7 +98,7 @@ export const testRemoteNoteSelection = (
             }
         }
 
-        if (c.clientId != clientId) {
+        if (c.clientId != clientId && fluidMembers.indexOf(c.clientId) != -1) {
             if (c.selected.indexOf(item.id) != -1) {
                 remoteSelected = true;
             }
@@ -160,13 +161,13 @@ export const updateRemoteNoteSelection = (
     session.clients.insertAtEnd([s]);
 };
 
-export const cleanSessionData = (session: Session, audience: string[]) => {
+export const cleanSessionData = (session: Session, fluidMembers: string[]) => {
 
-    console.log("clean:", audience.length);
+    console.log("clean:", fluidMembers.length);
 
     const deleteMe: Client[] = [];
     for (const c of session.clients) {
-        if (!audience.includes(c.clientId)) {
+        if (!fluidMembers.includes(c.clientId)) {
             deleteMe.push(c);
         }
     }

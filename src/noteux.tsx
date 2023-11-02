@@ -26,6 +26,7 @@ export function NoteContainer(props: {
     selection: Note[];
     setSelection: any;
     session: Session;
+    fluidMembers: string[];
 }): JSX.Element {
     const notesArray = [];
     for (const n of props.group.notes) {
@@ -38,6 +39,7 @@ export function NoteContainer(props: {
                 selection={props.selection}
                 setSelection={props.setSelection}
                 session={props.session}
+                fluidMembers={props.fluidMembers}
             />
         );
     }
@@ -56,6 +58,7 @@ export function RootNoteWrapper(props: {
     selection: Note[];
     setSelection: any;
     session: Session;
+    fluidMembers: string[];
 }): JSX.Element {
     return (
         <div className="bg-transparent flex flex-col justify-center h-64">
@@ -71,6 +74,7 @@ function NoteView(props: {
     selection: Note[];
     setSelection: any;
     session: Session;
+    fluidMembers: string[];
 }): JSX.Element {
     const mounted = useRef(false);
 
@@ -95,28 +99,32 @@ function NoteView(props: {
     useEffect(() => {
         // Returns the cleanup function to be invoked when the component unmounts.
         return node.on(props.session, 'afterChange', () => {
-            console.log("invalidation", props.clientId, props.note.id)
-            testRemoteNoteSelection(
-                props.note,
-                props.session,
-                props.clientId,
-                setRemoteSelected,
-                setSelected
-            );
+            test('invalidation');
             setInvalidations(invalidations + Math.random());
         });
     }, [invalidations]);
 
-    useEffect(() => {
-        console.log("mounted: ", props.clientId, props.note.id)
-        mounted.current = true;
+    const test = (message: string) => {
+        console.log(
+            message,
+            'client id:',
+            props.clientId,
+            'item id:',
+            props.note.id
+        );
         testRemoteNoteSelection(
             props.note,
             props.session,
             props.clientId,
             setRemoteSelected,
-            setSelected
-        );        
+            setSelected,
+            props.fluidMembers
+        );
+    };
+
+    useEffect(() => {
+        mounted.current = true;
+        test('mounted');
         return () => {
             mounted.current = false;
         };
@@ -128,7 +136,7 @@ function NoteView(props: {
         } else {
             setBgColor('bg-yellow-100');
         }
-    }, [selected]);    
+    }, [selected]);
 
     toggle(false);
 
@@ -175,35 +183,25 @@ function NoteView(props: {
         drop(el);
     };
 
+    const update = (action: selectAction) => {
+        updateRemoteNoteSelection(
+            props.note,
+            action,
+            props.session,
+            props.clientId,
+            props.selection,
+            props.setSelection
+        );
+    };
+
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        if (e.ctrlKey) {            
-            updateRemoteNoteSelection(
-                props.note,
-                selectAction.MULTI,
-                props.session,
-                props.clientId,
-                props.selection,
-                props.setSelection
-            );
-        } else if (selected) {            
-            updateRemoteNoteSelection(
-                props.note,
-                selectAction.REMOVE,
-                props.session,
-                props.clientId,
-                props.selection,
-                props.setSelection
-            );
-        } else {            
-            updateRemoteNoteSelection(
-                props.note,
-                selectAction.SINGLE,
-                props.session,
-                props.clientId,
-                props.selection,
-                props.setSelection
-            );
+        if (e.ctrlKey) {
+            update(selectAction.MULTI);
+        } else if (selected) {
+            update(selectAction.REMOVE);
+        } else {
+            update(selectAction.SINGLE);
         }
     };
 
@@ -238,13 +236,8 @@ function NoteView(props: {
                         clientId={props.clientId}
                         notes={props.notes}
                     />
-                    <NoteTextArea
-                        note={props.note}
-                        clientId={props.clientId}
-                        selection={props.selection}
-                        setSelection={props.setSelection}
-                        session={props.session}
-                    />
+                    <NoteTextArea note={props.note} update={update} />
+                    <div>{props.clientId}</div>
                     <NoteSelection show={remoteSelected} />
                 </div>
             </div>
@@ -262,13 +255,7 @@ function NoteSelection(props: { show: boolean }): JSX.Element {
     }
 }
 
-function NoteTextArea(props: {
-    note: Note;
-    clientId: string;
-    selection: Note[];
-    setSelection: any;
-    session: Session;
-}): JSX.Element {
+function NoteTextArea(props: { note: Note; update: any }): JSX.Element {
     // The text field updates the Fluid data model on every keystroke in this demo.
     // This works well with small strings but doesn't scale to very large strings.
     // A Future iteration of SharedTree will include support for collaborative strings
@@ -278,24 +265,10 @@ function NoteTextArea(props: {
 
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        if (e.ctrlKey) {            
-            updateRemoteNoteSelection(
-                props.note,
-                selectAction.MULTI,
-                props.session,
-                props.clientId,
-                props.selection,
-                props.setSelection
-            );
-        } else {            
-            updateRemoteNoteSelection(
-                props.note,
-                selectAction.SINGLE,
-                props.session,
-                props.clientId,
-                props.selection,
-                props.setSelection
-            );
+        if (e.ctrlKey) {
+            props.update(selectAction.MULTI);
+        } else {
+            props.update(selectAction.SINGLE);
         }
     };
 
