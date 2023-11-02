@@ -66,7 +66,7 @@ export function Binder(props: {
         console.log("rightPaneState is not undefined!", rightPaneState);
         rightPaneView.push(
         <DndProvider backend={HTML5Backend}>
-            <ReactApp 
+            <ReactApp key = {selectedContainerId}
                 data={rightPaneState.appData}
                 session={rightPaneState.sessionData} 
                 audience={rightPaneState.services.audience} 

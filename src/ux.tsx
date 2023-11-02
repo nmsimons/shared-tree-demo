@@ -105,6 +105,7 @@ export function ReactApp(props: {
 
     useEffect(() => {      
         props.audience.on('membersChanged', updateMembers);
+        updateMembers();
         return () => {
             props.audience.off('membersChanged', updateMembers);
         };

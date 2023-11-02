@@ -5,7 +5,6 @@ import {
 import { ContainerSchema, IFluidContainer } from 'fluid-framework';
 import {
     ISharedTree,
-    InitializeAndSchematizeConfiguration,
     SharedTreeFactory,
     ISharedTreeView
 } from '@fluid-experimental/tree2';
