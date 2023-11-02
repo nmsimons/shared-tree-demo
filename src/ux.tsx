@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { App, Note, NoteSchema, GroupSchema } from './app_schema';
 import { Session } from './session_schema';
 import './output.css';
@@ -12,8 +12,10 @@ import {
     NewGroupButton,
     NewNoteButton,
     DeleteNotesButton,
+    UndoButton,
+    RedoButton,
 } from './buttonux';
-import { node } from '@fluid-experimental/tree2';
+import { RevertResult, Revertible, node } from '@fluid-experimental/tree2';
 import { cleanSessionData } from './utils';
 
 export function ReactApp(props: {
@@ -21,6 +23,9 @@ export function ReactApp(props: {
     session: SharedTree<Session>;
     audience: IServiceAudience<IMember>;
     container: IFluidContainer;
+    undoStack: Revertible[];
+    redoStack: Revertible[];
+    unsubscribe: () => void;
 }): JSX.Element {    
     
     const [noteSelection, setNoteSelection] = useState<Note[]>([]);
@@ -28,7 +33,23 @@ export function ReactApp(props: {
     const [currentUser, setCurrentUser] = useState("");
     const [connectionState, setConnectionState] = useState('');
     const [saved, setSaved] = useState(!props.container.isDirty);
-    const [fluidMembers, setFluidMembers] = useState<string[]>([]);        
+    const [fluidMembers, setFluidMembers] = useState<string[]>([]);
+    
+    const { undoStack, redoStack } = props;
+    
+    const undo = useCallback(() => {
+        const result = undoStack.pop()?.revert();
+        if (result === RevertResult.Failure) {
+            console.log("undo failed");
+        }
+    }, [undoStack]);
+
+    const redo = useCallback(() => {
+        const result = redoStack.pop()?.revert();
+        if (result === RevertResult.Failure) {
+            console.log("redo failed");
+        }
+    }, [redoStack]);        
 
     const appRoot = props.data.root;
     const sessionRoot = props.session.root;  
@@ -71,13 +92,18 @@ export function ReactApp(props: {
         props.container.on('disposed', updateConnectionState);
     }, []);
 
-    useEffect(() => {
-        const updateMembers = () => {
-            setFluidMembers(Array.from(props.audience.getMembers().keys()));
-            setCurrentUser(props.audience.getMyself()?.userId as string)
-            cleanSessionData(sessionRoot, fluidMembers)
-        };
-        updateMembers();
+    const updateMembers = () => { 
+        
+        console.log("update members:", currentUser, fluidMembers.length);
+        
+        cleanSessionData(sessionRoot, Array.from(props.audience.getMembers().keys()));
+        setFluidMembers(Array.from(props.audience.getMembers().keys()));
+        if (props.audience.getMyself()?.userId != undefined){
+            setCurrentUser(props.audience.getMyself()?.userId as string);
+        }               
+    };
+
+    useEffect(() => {      
         props.audience.on('membersChanged', updateMembers);
         return () => {
             props.audience.off('membersChanged', updateMembers);
@@ -94,13 +120,15 @@ export function ReactApp(props: {
                 saved={saved}
                 connectionState={connectionState}
                 fluidMembers={fluidMembers}
-                clientId={currentUser}
+                clientId={currentUser}                
             />
             <RootItems root={appRoot} clientId={currentUser} selection={noteSelection} setSelection={setNoteSelection} session={sessionRoot} />
             <Floater>
                 <NewGroupButton root={appRoot} selection={noteSelection} />
                 <NewNoteButton root={appRoot} clientId={currentUser} />
                 <DeleteNotesButton selection={noteSelection} />
+                <UndoButton undo={undo} />
+                <RedoButton redo={redo} />                
             </Floater>
         </div>
     );
@@ -110,14 +138,15 @@ function Header(props: {
     saved: boolean;
     connectionState: string;
     fluidMembers: string[];
-    clientId: string;
-}): JSX.Element {
+    clientId: string;    
+}): JSX.Element {    
+
     return (
         <>
             <div className="h-10 w-full"></div>
             <div className="fixed flex flex-row justify-between bg-black h-10 text-base text-white z-40 w-full">
                 <div className="m-2">shared-tree-demo: {props.clientId}</div>
-                <div className="m-2">
+                <div className="m-2">                    
                     {props.saved ? 'saved' : 'not saved'} | {props.connectionState} | users:{' '}
                     {props.fluidMembers.length}
                 </div>

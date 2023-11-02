@@ -66,6 +66,34 @@ export function DeleteNotesButton(props: { selection: Note[] }): JSX.Element {
     );
 }
 
+export function UndoButton(props: { undo: any }): JSX.Element {
+    
+    return (
+        <IconButton
+            color="white"
+            background="black"
+            handleClick={() => props.undo()}
+            icon={<DeleteRegular />}
+        >
+            Undo
+        </IconButton>
+    );
+}
+
+export function RedoButton(props: { redo: any }): JSX.Element {
+    
+    return (
+        <IconButton
+            color="white"
+            background="black"
+            handleClick={() => props.redo()}
+            icon={<DeleteRegular />}
+        >
+            Redo
+        </IconButton>
+    );
+}
+
 export function DeleteButton(props: { handleClick: any }): JSX.Element {
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();

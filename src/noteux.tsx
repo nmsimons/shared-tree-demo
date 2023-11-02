@@ -21,20 +21,20 @@ import { IconButton, MiniThumb, DeleteButton } from './buttonux';
 import { Session } from './session_schema';
 
 export function NoteContainer(props: {
-    pile: Group;
+    group: Group;
     clientId: string;
     selection: Note[];
     setSelection: any;
     session: Session;
 }): JSX.Element {
     const notesArray = [];
-    for (const n of props.pile.notes) {
+    for (const n of props.group.notes) {
         notesArray.push(
             <NoteView
                 key={n.id}
                 note={n}
                 clientId={props.clientId}
-                notes={props.pile.notes}
+                notes={props.group.notes}
                 selection={props.selection}
                 setSelection={props.setSelection}
                 session={props.session}
@@ -43,7 +43,7 @@ export function NoteContainer(props: {
     }
 
     notesArray.push(
-        <AddNoteButton key="newNote" group={props.pile} clientId={props.clientId} />
+        <AddNoteButton key="newNote" group={props.group} clientId={props.clientId} />
     );
 
     return <div className="flex flex-row flex-wrap gap-8 p-2">{notesArray}</div>;
@@ -95,6 +95,7 @@ function NoteView(props: {
     useEffect(() => {
         // Returns the cleanup function to be invoked when the component unmounts.
         return node.on(props.session, 'afterChange', () => {
+            console.log("invalidation", props.clientId, props.note.id)
             testRemoteNoteSelection(
                 props.note,
                 props.session,
@@ -107,6 +108,7 @@ function NoteView(props: {
     }, [invalidations]);
 
     useEffect(() => {
+        console.log("mounted: ", props.clientId, props.note.id)
         mounted.current = true;
         testRemoteNoteSelection(
             props.note,
@@ -114,8 +116,7 @@ function NoteView(props: {
             props.clientId,
             setRemoteSelected,
             setSelected
-        );
-        //testNoteSelection(props.note, props.selection, setSelected);
+        );        
         return () => {
             mounted.current = false;
         };
