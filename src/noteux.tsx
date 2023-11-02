@@ -140,7 +140,7 @@ function NoteView(props: {
     useEffect(() => {
         mounted.current = true;
         test('mounted');
-        props.note.text = props.note.id;
+        if (props.note.text == "") props.note.text = props.note.id;
         return () => {
             mounted.current = false;
         };
