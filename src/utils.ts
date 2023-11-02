@@ -3,6 +3,8 @@ import { Guid } from 'guid-typescript';
 import { IInsecureUser } from '@fluidframework/test-runtime-utils';
 import { Session, ClientSchema, Client } from './session_schema';
 
+export const UndefinedUserId = "[UNDEFINED]"
+
 export function getRotation(note: Note) {
     const i = hashCode(note.id);
 
@@ -82,10 +84,11 @@ export const testRemoteNoteSelection = (
     session: Session,
     clientId: string,
     setRemoteSelected: any,
-    setSelected: any
+    setSelected: any,
+    fluidMembers: string[],
 ) => {
 
-    console.log("test:", clientId, item.id);
+    if (clientId == UndefinedUserId) return;
 
     let selected = false;
     let remoteSelected = false;
@@ -97,7 +100,7 @@ export const testRemoteNoteSelection = (
             }
         }
 
-        if (c.clientId != clientId) {
+        if (c.clientId != clientId && fluidMembers.indexOf(c.clientId) != -1) {
             if (c.selected.indexOf(item.id) != -1) {
                 remoteSelected = true;
             }
@@ -116,8 +119,10 @@ export const updateRemoteNoteSelection = (
     setLocalSelection: any
 ) => {
 
-    console.log("update:", clientId, item.id);
+    if (clientId == UndefinedUserId) return;
 
+    // Update local state so that we have a local list of selected items we
+    // can easily operate on (e.g., delete them)
     updateLocalNoteSelection(item, localSelection, setLocalSelection, action);
 
     // Handle removed items and bail
@@ -160,13 +165,10 @@ export const updateRemoteNoteSelection = (
     session.clients.insertAtEnd([s]);
 };
 
-export const cleanSessionData = (session: Session, audience: string[]) => {
-
-    console.log("clean:", audience.length);
-
+export const cleanSessionData = (session: Session, fluidMembers: string[]) => {    
     const deleteMe: Client[] = [];
     for (const c of session.clients) {
-        if (!audience.includes(c.clientId)) {
+        if (!fluidMembers.includes(c.clientId)) {
             deleteMe.push(c);
         }
     }

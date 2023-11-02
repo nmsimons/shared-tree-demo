@@ -14,6 +14,7 @@ export function GroupView(props: {
     selection: Note[];
     setSelection: any;
     session: Session;
+    fluidMembers: string[];
 }): JSX.Element {
     const [{ isDragging }, drag] = useDrag(() => ({
         type: dragType.GROUP,
@@ -81,6 +82,7 @@ export function GroupView(props: {
                     selection={props.selection}
                     setSelection={props.setSelection}
                     session={props.session}
+                    fluidMembers={props.fluidMembers}
                 />
             </div>
         </div>
