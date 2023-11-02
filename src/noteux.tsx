@@ -92,26 +92,7 @@ function NoteView(props: {
 
     const [invalidations, setInvalidations] = useState(0);
 
-    // Register for tree deltas when the component mounts.
-    // Any time the tree changes, the app will update
-    // For more complex apps, this code can be included
-    // on lower level components.
-    useEffect(() => {
-        // Returns the cleanup function to be invoked when the component unmounts.
-        return node.on(props.session, 'afterChange', () => {
-            test('invalidation');
-            setInvalidations(invalidations + Math.random());
-        });
-    }, [invalidations]);
-
-    const test = (message: string) => {
-        console.log(
-            message,
-            'client id:',
-            props.clientId,
-            'item id:',
-            props.note.id
-        );
+    const test = () => {        
         testRemoteNoteSelection(
             props.note,
             props.session,
@@ -122,9 +103,36 @@ function NoteView(props: {
         );
     };
 
+    const update = (action: selectAction) => {        
+        updateRemoteNoteSelection(
+            props.note,
+            action,
+            props.session,
+            props.clientId,
+            props.selection,
+            props.setSelection
+        );
+    };
+
+    // Register for tree deltas when the component mounts.
+    // Any time the tree changes, the app will update
+    // For more complex apps, this code can be included
+    // on lower level components.
+    useEffect(() => {
+        // Returns the cleanup function to be invoked when the component unmounts.
+        return node.on(props.session, 'afterChange', () => {
+            test();
+            setInvalidations(invalidations + Math.random());
+        });
+    }, [invalidations]);
+    
+    useEffect(() => {
+        test();
+    }, [props.fluidMembers])
+
     useEffect(() => {
         mounted.current = true;
-        test('mounted');
+        test();
         return () => {
             mounted.current = false;
         };
@@ -181,18 +189,7 @@ function NoteView(props: {
     const attachRef = (el: ConnectableElement) => {
         drag(el);
         drop(el);
-    };
-
-    const update = (action: selectAction) => {
-        updateRemoteNoteSelection(
-            props.note,
-            action,
-            props.session,
-            props.clientId,
-            props.selection,
-            props.setSelection
-        );
-    };
+    };    
 
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -237,7 +234,6 @@ function NoteView(props: {
                         notes={props.notes}
                     />
                     <NoteTextArea note={props.note} update={update} />
-                    <div>{props.clientId}</div>
                     <NoteSelection show={remoteSelected} />
                 </div>
             </div>

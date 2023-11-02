@@ -21,7 +21,7 @@ import {
     RedoButton,
 } from './buttonux';
 import { RevertResult, Revertible, node } from '@fluid-experimental/tree2';
-import { cleanSessionData } from './utils';
+import { UndefinedUserId as undefinedUserId } from './utils';
 
 export function ReactApp(props: {
     data: SharedTree<App>;
@@ -34,7 +34,7 @@ export function ReactApp(props: {
 }): JSX.Element {
     const [noteSelection, setNoteSelection] = useState<Note[]>([]);
     const [invalidations, setInvalidations] = useState(0);
-    const [currentUser, setCurrentUser] = useState('[UNDEFINED]');
+    const [currentUser, setCurrentUser] = useState(undefinedUserId);
     const [connectionState, setConnectionState] = useState('');
     const [saved, setSaved] = useState(!props.container.isDirty);
     const [fluidMembers, setFluidMembers] = useState<string[]>([]);
@@ -44,14 +44,14 @@ export function ReactApp(props: {
     const undo = useCallback(() => {
         const result = undoStack.pop()?.revert();
         if (result === RevertResult.Failure) {
-            console.log('undo failed');
+            //console.log('undo failed');
         }
     }, [undoStack]);
 
     const redo = useCallback(() => {
         const result = redoStack.pop()?.revert();
         if (result === RevertResult.Failure) {
-            console.log('redo failed');
+            //console.log('redo failed');
         }
     }, [redoStack]);
 
@@ -96,17 +96,11 @@ export function ReactApp(props: {
         props.container.on('disposed', updateConnectionState);
     }, []);
 
-    const updateMembers = () => {
-        console.log('update members:', currentUser, fluidMembers.length);
-        if (props.audience.getMyself()?.userId != undefined) {
-            console.log(
-                'update myself:',
-                props.audience.getMyself()?.userId as string,
-                Array.from(props.audience.getMembers().keys()).length
-            );
-            setCurrentUser(props.audience.getMyself()?.userId as string);
-        }
-        setFluidMembers(Array.from(props.audience.getMembers().keys()));
+    const updateMembers = () => {        
+        if (props.audience.getMyself()?.userId != undefined) {            
+            setCurrentUser(props.audience.getMyself()?.userId as string);            
+            setFluidMembers(Array.from(props.audience.getMembers().keys()));
+        }        
     };
 
     useEffect(() => {

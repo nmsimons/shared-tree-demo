@@ -3,6 +3,8 @@ import { Guid } from 'guid-typescript';
 import { IInsecureUser } from '@fluidframework/test-runtime-utils';
 import { Session, ClientSchema, Client } from './session_schema';
 
+export const UndefinedUserId = "[UNDEFINED]"
+
 export function getRotation(note: Note) {
     const i = hashCode(note.id);
 
@@ -86,7 +88,7 @@ export const testRemoteNoteSelection = (
     fluidMembers: string[],
 ) => {
 
-    console.log("test:", clientId, item.id);
+    if (clientId == UndefinedUserId) return;
 
     let selected = false;
     let remoteSelected = false;
@@ -117,8 +119,10 @@ export const updateRemoteNoteSelection = (
     setLocalSelection: any
 ) => {
 
-    console.log("update:", clientId, item.id);
+    if (clientId == UndefinedUserId) return;
 
+    // Update local state so that we have a local list of selected items we
+    // can easily operate on (e.g., delete them)
     updateLocalNoteSelection(item, localSelection, setLocalSelection, action);
 
     // Handle removed items and bail
@@ -161,10 +165,7 @@ export const updateRemoteNoteSelection = (
     session.clients.insertAtEnd([s]);
 };
 
-export const cleanSessionData = (session: Session, fluidMembers: string[]) => {
-
-    console.log("clean:", fluidMembers.length);
-
+export const cleanSessionData = (session: Session, fluidMembers: string[]) => {    
     const deleteMe: Client[] = [];
     for (const c of session.clients) {
         if (!fluidMembers.includes(c.clientId)) {
