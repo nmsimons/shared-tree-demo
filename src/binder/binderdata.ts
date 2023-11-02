@@ -10,9 +10,8 @@ import {
     ISharedTreeView
 } from '@fluid-experimental/tree2';
 
-import { Notebook, notebookSchemaConfig } from './notebookschema';
-import { clientProps } from './clientProps';
-
+import { Binder, binderSchemaConfig } from './binderschema';
+import { clientProps } from '../clientProps';
 export class MySharedTree {
     public static getFactory(): SharedTreeFactory {
         return new SharedTreeFactory();
@@ -21,12 +20,9 @@ export class MySharedTree {
 
 const client = new AzureClient(clientProps);
 
-// Define the schema of our Container. This includes the DDSes/DataObjects
-// that we want to create dynamically and any
-// initial DataObjects we want created when the container is first created.
-const containerSchema: ContainerSchema = {
+const binderContainerSchema: ContainerSchema = {
     initialObjects: {
-        tree: MySharedTree,        
+        binderData: MySharedTree,        
     },
 };
 
@@ -36,8 +32,8 @@ const containerSchema: ContainerSchema = {
  *
  * @returns The loaded container and container services.
  */
-export const loadNotebookData = async (): Promise<{
-    data: NotebookSharedTree<Notebook>;
+export const loadBinderData = async (): Promise<{
+    binderData: BinderSharedTree<Binder>;
     services: AzureContainerServices;
     container: IFluidContainer;
 }> => {
@@ -50,10 +46,10 @@ export const loadNotebookData = async (): Promise<{
     if (createNew) {
         // The client will create a new detached container using the schema
         // A detached container will enable the app to modify the container before attaching it to the client
-        ({ container, services } = await client.createContainer(containerSchema));
+        ({ container, services } = await client.createContainer(binderContainerSchema));
 
         // Initialize our Fluid data -- set default values, establish relationships, etc.
-        (container.initialObjects.tree as ISharedTree).schematize(notebookSchemaConfig);
+        (container.initialObjects.binderData as ISharedTree).schematize(binderSchemaConfig);
 
         // If the app is in a `createNew` state, and the container is detached, we attach the container.
         // This uploads the container to the service and connects to the collaboration session.
@@ -66,15 +62,15 @@ export const loadNotebookData = async (): Promise<{
 
         // Use the unique container ID to fetch the container created earlier.  It will already be connected to the
         // collaboration session.
-        ({ container, services } = await client.getContainer(id, containerSchema));
+        ({ container, services } = await client.getContainer(id, binderContainerSchema));
     }
 
-    const view = (container.initialObjects.tree as ISharedTree).schematizeView(notebookSchemaConfig);
-    const data = new NotebookSharedTree<Notebook>(view, view.root2(notebookSchemaConfig.schema) as any);
+    const binderView = (container.initialObjects.binderData as ISharedTree).schematizeView(binderSchemaConfig);
+    const binderData = new BinderSharedTree<Binder>(binderView, binderView.root2(binderSchemaConfig.schema) as any);
 
-    return { data, services, container };
+    return { binderData: binderData, services, container };
 };
 
-export class NotebookSharedTree<T> {
-    constructor(private readonly tree: ISharedTreeView, public readonly root: T) {}
+export class BinderSharedTree<T> {
+    constructor(private readonly tree: ISharedTreeView, public readonly root: T) {}    
 }

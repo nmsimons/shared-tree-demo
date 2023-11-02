@@ -36,18 +36,18 @@ const containerSchema: ContainerSchema = {
  *
  * @returns The loaded container and container services.
  */
-export const loadFluidData = async (): Promise<{
+export const loadFluidData = async (containerId: string): Promise<{
     appData: SharedTree<App>;
     sessionData: SharedTree<Session>
     services: AzureContainerServices;
     container: IFluidContainer;
+    containerId: string;
 }> => {
     let container: IFluidContainer;
     let services: AzureContainerServices;
-    let id: string;
 
     // Get or create the document depending if we are running through the create new flow
-    const createNew = (location.hash.length === 0);
+    const createNew = (containerId.length === 0);
     if (createNew) {
         // The client will create a new detached container using the schema
         // A detached container will enable the app to modify the container before attaching it to the client
@@ -59,16 +59,11 @@ export const loadFluidData = async (): Promise<{
 
         // If the app is in a `createNew` state, and the container is detached, we attach the container.
         // This uploads the container to the service and connects to the collaboration session.
-        id = await container.attach();
-
-        // The newly attached container is given a unique ID that can be used to access the container in another session
-        location.hash = id;
+        containerId = await container.attach();
     } else {
-        id = location.hash.substring(1);
-
         // Use the unique container ID to fetch the container created earlier.  It will already be connected to the
         // collaboration session.
-        ({ container, services } = await client.getContainer(id, containerSchema));
+        ({ container, services } = await client.getContainer(containerId, containerSchema));
     }
 
     const devtools = initializeDevtools({
@@ -87,7 +82,7 @@ export const loadFluidData = async (): Promise<{
     const sessionView = (container.initialObjects.sessionData as ISharedTree).schematizeView(sessionSchemaConfig);
     const sessionData = new SharedTree<Session>(sessionView, sessionView.root2(sessionSchemaConfig.schema) as any);
 
-    return { appData, sessionData, services, container };
+    return { appData, sessionData, services, container, containerId };
 };
 
 export class SharedTree<T> {

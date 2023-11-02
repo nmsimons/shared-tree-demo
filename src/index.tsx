@@ -2,13 +2,8 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 
-import { loadNotebookData } from './notebookdata';
-import { Notebook } from './notebook';
-
-import { loadFluidData } from './fluid';
-import { ReactApp } from './ux';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
+import { loadBinderData } from './binder/binderdata';
+import { Binder } from './binder/binder';
 
 async function main() {
     
@@ -19,15 +14,11 @@ async function main() {
     const root = createRoot(app);
 
     // Initialize Fluid data
-    const { appData, sessionData, services, container } = await loadFluidData();    
-    // const { notebookData, notebookServices, notebookContainer } = await loadNotebookData();  
+    const { binderData: binderData, services, container } = await loadBinderData();  
 
     // Render the app    
     root.render(
-        // <Notebook data={notebookData} services={notebookServices} container={notebookContainer} />
-        <DndProvider backend={HTML5Backend}>
-            <ReactApp data={appData} session={sessionData} audience={services.audience} container={container} />
-        </DndProvider>
+        <Binder data={binderData} container={container} />
     );
 }
 
