@@ -11,7 +11,7 @@ module.exports = {
     entry: './src/index.tsx',
     // Necessary in order to use source maps and debug directly TypeScript files
     devtool: 'source-map',
-    mode: 'production',
+    mode: 'development',
     performance: {
         maxAssetSize: 4000000,
         maxEntrypointSize: 4000000,
