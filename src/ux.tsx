@@ -96,11 +96,13 @@ export function ReactApp(props: {
         props.container.on('disposed', updateConnectionState);
     }, []);
 
-    const updateMembers = () => {        
-        if (props.audience.getMyself()?.userId != undefined) {            
-            setCurrentUser(props.audience.getMyself()?.userId as string);            
-            setFluidMembers(Array.from(props.audience.getMembers().keys()));
-        }        
+    const updateMembers = () => {
+        if (props.audience.getMyself() == undefined) return;        
+        if (props.audience.getMyself()?.userId == undefined) return;
+        if (props.audience.getMembers() == undefined) return;
+        if (props.container.connectionState !== ConnectionState.Connected) return;
+        setCurrentUser(props.audience.getMyself()?.userId as string);            
+        setFluidMembers(Array.from(props.audience.getMembers().keys()));                
     };
 
     useEffect(() => {
