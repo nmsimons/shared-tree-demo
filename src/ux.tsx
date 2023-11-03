@@ -149,7 +149,7 @@ function Header(props: {
         <>
             <div className="h-10 w-full"></div>
             <div className="fixed flex flex-row justify-between bg-black h-10 text-base text-white z-40 w-full">
-                <div className="m-2">shared-tree-demo: {props.clientId}</div>
+                <div className="m-2">shared-tree-demo</div>
                 <div className="m-2">
                     {props.saved ? 'saved' : 'not saved'} | {props.connectionState} |
                     users: {props.fluidMembers.length}

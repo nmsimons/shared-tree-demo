@@ -325,16 +325,19 @@ function AddNoteButton(props: { group: Group; clientId: string }): JSX.Element {
         addNote(props.group.notes, '', props.clientId);
     };
 
+    const hoverEffectStyle = 'absolute top-0 left-0 border-l-4 border-dashed h-48 ';
+
     return (
-        <div
-            ref={drop}
-            className={
-                isActive
-                    ? 'border-l-4 border-dashed border-gray-500'
-                    : 'border-l-4 border-dashed border-transparent'
-            }
-        >
+        <div className='relative transition-all'>
             <div
+                className={
+                    isActive
+                        ? hoverEffectStyle + 'border-gray-500'
+                        : hoverEffectStyle + 'border-transparent'
+                }
+            ></div>
+            <div
+                ref={drop}
                 className={
                     'transition-all text-2xl place-content-center font-bold flex flex-col text-center cursor-pointer bg-transparent border-white border-dashed border-8 ' +
                     size +
