@@ -19,6 +19,7 @@ import {
     DeleteNotesButton,
     UndoButton,
     RedoButton,
+    ButtonGroup,
 } from './buttonux';
 import { RevertResult, Revertible, node } from '@fluid-experimental/tree2';
 import { UndefinedUserId as undefinedUserId } from './utils';
@@ -129,11 +130,15 @@ export function ReactApp(props: {
                 fluidMembers={fluidMembers}
             />
             <Floater>
-                <NewGroupButton root={appRoot} selection={noteSelection} />
-                <NewNoteButton root={appRoot} clientId={currentUser} />
-                <DeleteNotesButton selection={noteSelection} />
-                <UndoButton undo={undo} />
-                <RedoButton redo={redo} />
+                <ButtonGroup>
+                    <NewGroupButton root={appRoot} selection={noteSelection} />
+                    <NewNoteButton root={appRoot} clientId={currentUser} />
+                    <DeleteNotesButton selection={noteSelection} />
+                </ButtonGroup>
+                <ButtonGroup>
+                    <UndoButton undo={undo} />
+                    <RedoButton redo={redo} />
+                </ButtonGroup>
             </Floater>
         </div>
     );

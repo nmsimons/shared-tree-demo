@@ -743,6 +743,18 @@ video {
   flex: 1 1 0%;
 }
 
+.flex-none {
+  flex: none;
+}
+
+.flex-auto {
+  flex: 1 1 auto;
+}
+
+.grow {
+  flex-grow: 1;
+}
+
 .basis-auto {
   flex-basis: auto;
 }

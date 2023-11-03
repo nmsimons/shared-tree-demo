@@ -6,7 +6,9 @@ import {
     DismissFilled,
     NoteRegular,
     DeleteRegular,
-    RectangleLandscapeRegular
+    RectangleLandscapeRegular,
+    ArrowUndoFilled,
+    ArrowRedoFilled
 } from '@fluentui/react-icons';
 
 export function NewGroupButton(props: { root: App, selection: Note[] }): JSX.Element {
@@ -73,7 +75,7 @@ export function UndoButton(props: { undo: any }): JSX.Element {
             color="white"
             background="black"
             handleClick={() => props.undo()}
-            icon={<DeleteRegular />}
+            icon={<ArrowUndoFilled />}
         >
             Undo
         </IconButton>
@@ -87,7 +89,7 @@ export function RedoButton(props: { redo: any }): JSX.Element {
             color="white"
             background="black"
             handleClick={() => props.redo()}
-            icon={<DeleteRegular />}
+            icon={<ArrowRedoFilled />}
         >
             Redo
         </IconButton>
@@ -129,7 +131,7 @@ export function IconButton(props: {
                 props.color +
                 ' ' +
                 props.background +
-                ' hover:bg-gray-600 hover:text-white font-bold px-2 py-1 rounded inline-flex items-center h-6'
+                ' hover:bg-gray-600 hover:text-white font-bold px-2 py-1 rounded inline-flex items-center h-6 grow'
             }
             onClick={(e) => handleClick(e)}
         >
@@ -161,6 +163,10 @@ export function MiniThumb(): JSX.Element {
     return <ThumbLikeFilled />;
 }
 
+export function ButtonGroup(props: { children: React.ReactNode }): JSX.Element {
+    return <div className="flex flex-intial items-center">{props.children}</div>;
+}
+
 export function Floater(props: { children: React.ReactNode }): JSX.Element {
     return (
         <>
@@ -168,10 +174,8 @@ export function Floater(props: { children: React.ReactNode }): JSX.Element {
             <div className="transition transform fixed z-100 bottom-0 inset-x-0 pb-2 sm:pb-5 opacity-100 scale-100 translate-y-0 ease-out duration-500 text-white">
                 <div className="max-w-screen-md mx-auto px-2 sm:px-4">
                     <div className="p-2 rounded-lg bg-black shadow-lg sm:p-3">
-                        <div className="flex items-center justify-between flex-wrap">
-                            <div className="w-0 flex-1 flex items-center">
-                                {props.children}
-                            </div>
+                        <div className="flex flex-row items-center justify-between flex-wrap">                            
+                            {props.children}                            
                         </div>
                     </div>
                 </div>
