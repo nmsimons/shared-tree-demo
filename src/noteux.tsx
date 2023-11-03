@@ -93,13 +93,13 @@ function NoteView(props: {
     const [invalidations, setInvalidations] = useState(0);
 
     const test = (message: string) => {
-        console.log(
-            message,
-            'client id:',
-            props.clientId,
-            'item id:',
-            props.note.id
-        );
+        // console.log(
+        //     message,
+        //     'client id:',
+        //     props.clientId,
+        //     'item id:',
+        //     props.note.id
+        // );
         testRemoteNoteSelection(
             props.note,
             props.session,
