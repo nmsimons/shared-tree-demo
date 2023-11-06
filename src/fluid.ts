@@ -9,9 +9,8 @@ import {
     ISharedTreeView,    
 } from '@fluid-experimental/tree2';
 import { App, appSchemaConfig } from './app_schema';
-import { clientProps, devtoolsLogger } from './clientProps';
+import { clientProps } from './clientProps';
 import { Session, sessionSchemaConfig } from './session_schema';
-import { initializeDevtools } from "@fluid-experimental/devtools";
 
 export class MySharedTree {
     public static getFactory(): SharedTreeFactory {
@@ -72,5 +71,5 @@ export const loadFluidData = async (containerId: string): Promise<{
 };
 
 export class SharedTree<T> {
-    constructor(public readonly tree: ISharedTreeView, public readonly root: T) {}    
+    constructor(public readonly treeView: ISharedTreeView, public readonly root: T) {}    
 }

@@ -26,7 +26,7 @@ async function main() {
     const { appData, sessionData, services, container } = await loadFluidData(containerId);
 
     // Initialize the undo and redo stacks
-    const { undoStack, redoStack, unsubscribe } = setUpUndoRedoStacks(appData.tree);
+    const { undoStack, redoStack, unsubscribe } = setUpUndoRedoStacks(appData.treeView);
 
     // Initialize debugging tools
     initializeDevtools({
@@ -39,7 +39,9 @@ async function main() {
         ],
     });
     
-    // Render the app    
+    // Render the app - note we attach new containers after render so
+    // the app renders instantly on create new flow. The app will be 
+    // interactive immediately.    
     root.render(
         <DndProvider backend={HTML5Backend}>
             <ReactApp 
