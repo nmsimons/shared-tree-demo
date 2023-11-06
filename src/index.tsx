@@ -5,6 +5,7 @@ import { loadFluidData } from './fluid';
 import { ReactApp } from './ux';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { setUpUndoRedoStacks } from './undo';
 
 async function main() {
     
@@ -20,7 +21,10 @@ async function main() {
     let containerId = location.hash.substring(1);
 
     // Initialize Fluid data
-    const { appData, sessionData, services, container, undoStack, redoStack, unsubscribe } = await loadFluidData(containerId);
+    const { appData, sessionData, services, container } = await loadFluidData(containerId);
+
+    // Initialize the undo and redo stacks
+    const { undoStack, redoStack, unsubscribe } = setUpUndoRedoStacks(appData.tree);
     
     // Render the app    
     root.render(

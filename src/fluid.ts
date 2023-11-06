@@ -6,14 +6,12 @@ import { ContainerSchema, IFluidContainer } from 'fluid-framework';
 import {
     ISharedTree,    
     SharedTreeFactory,
-    ISharedTreeView,
-    Revertible
+    ISharedTreeView,    
 } from '@fluid-experimental/tree2';
 import { App, appSchemaConfig } from './app_schema';
 import { clientProps, devtoolsLogger } from './clientProps';
 import { Session, sessionSchemaConfig } from './session_schema';
 import { initializeDevtools } from "@fluid-experimental/devtools";
-import { setUpUndoRedoStacks } from './undo';
 
 export class MySharedTree {
     public static getFactory(): SharedTreeFactory {
@@ -43,10 +41,7 @@ export const loadFluidData = async (containerId: string): Promise<{
     appData: SharedTree<App>;
     sessionData: SharedTree<Session>
     services: AzureContainerServices;
-    container: IFluidContainer;
-    undoStack: Revertible[];
-    redoStack: Revertible[];
-    unsubscribe: () => void;
+    container: IFluidContainer;    
 }> => {
     let container: IFluidContainer;
     let services: AzureContainerServices;    
@@ -81,13 +76,11 @@ export const loadFluidData = async (containerId: string): Promise<{
     const appData = new SharedTree<App>(appView, appView.root2(appSchemaConfig.schema) as any);
 
     const sessionView = (container.initialObjects.sessionData as ISharedTree).schematizeView(sessionSchemaConfig);
-    const sessionData = new SharedTree<Session>(sessionView, sessionView.root2(sessionSchemaConfig.schema) as any);
+    const sessionData = new SharedTree<Session>(sessionView, sessionView.root2(sessionSchemaConfig.schema) as any);    
 
-    const { undoStack, redoStack, unsubscribe } = setUpUndoRedoStacks(appView);
-
-    return { appData, sessionData, services, container, undoStack, redoStack, unsubscribe };
+    return { appData, sessionData, services, container };
 };
 
 export class SharedTree<T> {
-    constructor(private readonly tree: ISharedTreeView, public readonly root: T) {}    
+    constructor(public readonly tree: ISharedTreeView, public readonly root: T) {}    
 }
