@@ -60,17 +60,7 @@ export const loadFluidData = async (containerId: string): Promise<{
         // Use the unique container ID to fetch the container created earlier. It will already be connected to the
         // collaboration session.
         ({ container, services } = await client.getContainer(containerId, containerSchema));
-    }
-
-    initializeDevtools({
-        logger: devtoolsLogger,
-        initialContainers: [
-            {
-                container,
-                containerKey: "My Container",
-            },
-        ],
-    });
+    }    
 
     const appView = (container.initialObjects.appData as ISharedTree).schematizeView(appSchemaConfig);
     const appData = new SharedTree<App>(appView, appView.root2(appSchemaConfig.schema) as any);

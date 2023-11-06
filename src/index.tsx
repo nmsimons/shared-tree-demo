@@ -6,6 +6,8 @@ import { ReactApp } from './ux';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { setUpUndoRedoStacks } from './undo';
+import { initializeDevtools } from '@fluid-experimental/devtools';
+import { devtoolsLogger } from './clientProps';
 
 async function main() {
     
@@ -25,6 +27,17 @@ async function main() {
 
     // Initialize the undo and redo stacks
     const { undoStack, redoStack, unsubscribe } = setUpUndoRedoStacks(appData.tree);
+
+    // Initialize debugging tools
+    initializeDevtools({
+        logger: devtoolsLogger,
+        initialContainers: [
+            {
+                container,
+                containerKey: "My Container",
+            },
+        ],
+    });
     
     // Render the app    
     root.render(
@@ -40,7 +53,7 @@ async function main() {
         </DndProvider>
     );
 
-    // If the app is in a `createNew` state, and the container is detached, we attach the container.
+    // If the app is in a `createNew` state - no containerId, and the container is detached, we attach the container.
     // This uploads the container to the service and connects to the collaboration session.
     if (containerId.length == 0) {
         containerId = await container.attach();
