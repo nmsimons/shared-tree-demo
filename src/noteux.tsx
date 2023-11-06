@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Note, Group, Notes, Items, NoteSchema, ItemsSchema } from './app_schema';
+import { Note, Group, Notes, Items, note, items } from './app_schema';
 import {
     addNote,
     toggleVote,
@@ -16,7 +16,7 @@ import {
 } from './utils';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 import { useTransition } from 'react-transition-state';
-import { node } from '@fluid-experimental/tree2';
+import { node as Tree } from '@fluid-experimental/tree2';
 import { IconButton, MiniThumb, DeleteButton } from './buttonux';
 import { Session } from './session_schema';
 
@@ -127,7 +127,7 @@ function NoteView(props: {
     // on lower level components.
     useEffect(() => {
         // Returns the cleanup function to be invoked when the component unmounts.
-        return node.on(props.session, 'afterChange', () => {
+        return Tree.on(props.session, 'afterChange', () => {
             test('invalidation');
             setInvalidations(invalidations + Math.random());
         });
@@ -158,7 +158,7 @@ function NoteView(props: {
 
     useEffect(() => {
         toggle(true);
-    }, [node.parent(props.note)]);
+    }, [Tree.parent(props.note)]);
 
     useEffect(() => {
         if (mounted.current) {
@@ -181,8 +181,8 @@ function NoteView(props: {
             canDrop: !!monitor.canDrop(),
         }),
         canDrop: (item) => {
-            if (node.is(item, NoteSchema)) return true;
-            if (node.is(props.notes, ItemsSchema)) {
+            if (Tree.is(item, note)) return true;
+            if (Tree.is(props.notes, items)) {
                 return true;
             }
             return false;
@@ -307,8 +307,8 @@ function AddNoteButton(props: { group: Group; clientId: string }): JSX.Element {
         }),
         drop: (item) => {
             const droppedNote = item as Note;
-            const i = node.key(droppedNote) as number;
-            props.group.notes.moveToEnd(i, node.parent(droppedNote) as Notes);
+            const i = Tree.key(droppedNote) as number;
+            props.group.notes.moveToEnd(i, Tree.parent(droppedNote) as Notes);
             return;
         },
     }));

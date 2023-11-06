@@ -14,9 +14,14 @@ async function main() {
     document.body.appendChild(app);
     const root = createRoot(app);
 
-    // Initialize Fluid data
-    const { appData, sessionData, services, container, undoStack, redoStack, unsubscribe } = await loadFluidData();    
+    // Get the root container id from the URL
+    // If there is no container id, then the app will make
+    // a new container.
+    let containerId = location.hash.substring(1);
 
+    // Initialize Fluid data
+    const { appData, sessionData, services, container, undoStack, redoStack, unsubscribe } = await loadFluidData(containerId);
+    
     // Render the app    
     root.render(
         <DndProvider backend={HTML5Backend}>
@@ -30,6 +35,15 @@ async function main() {
                 unsubscribe={unsubscribe} />
         </DndProvider>
     );
+
+    // If the app is in a `createNew` state, and the container is detached, we attach the container.
+    // This uploads the container to the service and connects to the collaboration session.
+    if (containerId.length == 0) {
+        containerId = await container.attach();
+
+        // The newly attached container is given a unique ID that can be used to access the container in another session
+        location.hash = containerId;
+    }
 }
 
 export default main();

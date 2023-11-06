@@ -1,10 +1,10 @@
-import { node, TreeStatus } from '@fluid-experimental/tree2';
+import { node as Tree, TreeStatus } from '@fluid-experimental/tree2';
 import {
     App,
     Note,
     Group,
-    NoteSchema,
-    GroupSchema,
+    note,
+    group,
     Notes,
     Items,    
 } from './app_schema';
@@ -21,7 +21,7 @@ export function addNote(
 
     // Define the note to add to the SharedTree - this must conform to
     // the schema definition of a note
-    const note = NoteSchema.create({
+    const newNote = note.create({
         id: Guid.create().toString(),
         text,
         author,
@@ -33,7 +33,7 @@ export function addNote(
     // Insert the note into the SharedTree. This code always inserts the note at the end of the
     // notes sequence in the provided pile object. As this function can insert multiple items,
     // the note is passed in an array.
-    notes.insertAtEnd([note]);
+    notes.insertAtEnd([newNote]);
 }
 
 // Update the note text and also update the timestamp in the note
@@ -54,14 +54,14 @@ export function moveItem(
     // is asynchronous - the state may have changed during the drag but this function
     // is operating based on the state at the moment the drag began
     if (
-        node.status(destination) != TreeStatus.InDocument ||
-        node.status(item) != TreeStatus.InDocument
+        Tree.status(destination) != TreeStatus.InDocument ||
+        Tree.status(item) != TreeStatus.InDocument
     )
         return;
 
     const d = destination as Items;
 
-    const source = node.parent(item) as Items;
+    const source = Tree.parent(item) as Items;
     const index = source.indexOf(item);
 
     if (destinationIndex == Infinity) {
@@ -73,13 +73,13 @@ export function moveItem(
 
 // Add a new group (container for notes) to the SharedTree.
 export function addGroup(items: Items, name: string): Group {
-    const group = GroupSchema.create({
+    const newGroup = group.create({
         id: Guid.create().toString(),
         name,
         notes: [],
     });
 
-    items.insertAtStart([group]);
+    items.insertAtStart([newGroup]);
     return items[0] as Group; //yuck - this should just be return group
 }
 
@@ -90,7 +90,7 @@ export function deleteGroup(group: Group, app: App) {
     // in the same position as the group
     if (group.notes.length !== 0) {
         app.items.moveRangeToIndex(
-            node.key(group) as number,            
+            Tree.key(group) as number,            
             0,
             group.notes.length,            
             group.notes
@@ -98,14 +98,14 @@ export function deleteGroup(group: Group, app: App) {
     }
 
     // Delete the now empty group
-    const parent = node.parent(group) as Items;
-    parent.removeAt(node.key(group) as number);
+    const parent = Tree.parent(group) as Items;
+    parent.removeAt(Tree.key(group) as number);
 }
 
 // Function to delete a note.
 export function deleteNote(note: Note) {
-    const parent = node.parent(note) as Notes;
-    if (parent) parent.removeAt(node.key(note) as number);
+    const parent = Tree.parent(note) as Notes;
+    if (parent) parent.removeAt(Tree.key(note) as number);
 }
 
 export function toggleVote(note: Note, user: string) {

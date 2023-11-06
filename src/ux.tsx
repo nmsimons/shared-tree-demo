@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useCallback, useEffect, useState } from 'react';
-import { App, Note, NoteSchema, GroupSchema } from './app_schema';
+import { App, Note, note, group } from './app_schema';
 import { Session } from './session_schema';
 import './output.css';
 import { SharedTree } from './fluid';
@@ -21,8 +21,8 @@ import {
     RedoButton,
     ButtonGroup,
 } from './buttonux';
-import { RevertResult, Revertible, node } from '@fluid-experimental/tree2';
-import { UndefinedUserId as undefinedUserId } from './utils';
+import { RevertResult, Revertible, node as Tree } from '@fluid-experimental/tree2';
+import { UndefinedUserId, UndefinedUserId as undefinedUserId } from './utils';
 
 export function ReactApp(props: {
     data: SharedTree<App>;
@@ -65,7 +65,7 @@ export function ReactApp(props: {
     // on lower level components.
     useEffect(() => {
         // Returns the cleanup function to be invoked when the component unmounts.
-        return node.on(appRoot, 'afterChange', () => {
+        return Tree.on(appRoot, 'afterChange', () => {
             setInvalidations(invalidations + Math.random());
         });
     }, [invalidations]);
@@ -102,7 +102,7 @@ export function ReactApp(props: {
         if (props.audience.getMyself()?.userId == undefined) return;
         if (props.audience.getMembers() == undefined) return;
         if (props.container.connectionState !== ConnectionState.Connected) return;
-        setCurrentUser(props.audience.getMyself()?.userId as string);            
+        if (currentUser == UndefinedUserId) setCurrentUser(props.audience.getMyself()?.userId as string);            
         setFluidMembers(Array.from(props.audience.getMembers().keys()));                
     };
 
@@ -174,7 +174,7 @@ function RootItems(props: {
 }): JSX.Element {
     const pilesArray = [];
     for (const i of props.root.items) {
-        if (node.is(i, GroupSchema)) {
+        if (Tree.is(i, group)) {
             pilesArray.push(
                 <GroupView
                     key={i.id}
@@ -187,7 +187,7 @@ function RootItems(props: {
                     fluidMembers={props.fluidMembers}
                 />
             );
-        } else if (node.is(i, NoteSchema)) {
+        } else if (Tree.is(i, note)) {
             pilesArray.push(
                 <RootNoteWrapper
                     key={i.id}

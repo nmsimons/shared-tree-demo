@@ -14,24 +14,26 @@ import {
 // Include a UUID to guarantee that this schema will be uniquely identifiable
 const sb = new SchemaBuilder({ scope: 'fc1db2e8-0000-11ee-be56-0242ac120002' });
 
-export const ClientSchema = sb.object('state', {
+export const client = sb.object('state', {
     clientId: sb.string,
     selected: sb.list(sb.string),
 })
 
 // Define a root type.
-export const SessionSchema = sb.object('session', {
-    clients: sb.list(ClientSchema),
+export const session = sb.object('session', {
+    clients: sb.list(client),
 });
 
 // Export the types defined here as TypeScript types.
-export type Client = ProxyNode<typeof ClientSchema>;
-export type Session = ProxyNode<typeof SessionSchema>;
+export type Client = ProxyNode<typeof client>;
+export type Session = ProxyNode<typeof session>;
+
+export const sessionSchema = sb.intoSchema(session);
 
 // Export the tree config appropriate for this schema
 // This is passed into the SharedTree when it is initialized
 export const sessionSchemaConfig: InitializeAndSchematizeConfiguration = {
-    schema: sb.intoSchema(SessionSchema),
+    schema: sessionSchema,
     initialTree: {
         clients: [],
     },

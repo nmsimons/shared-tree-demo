@@ -1,7 +1,7 @@
 import { Note } from './app_schema';
 import { Guid } from 'guid-typescript';
 import { IInsecureUser } from '@fluidframework/test-runtime-utils';
-import { Session, ClientSchema, Client } from './session_schema';
+import { Session, client, Client } from './session_schema';
 
 export const UndefinedUserId = "[UNDEFINED]"
 
@@ -157,7 +157,7 @@ export const updateRemoteNoteSelection = (
         }
     }
 
-    const s = ClientSchema.create({
+    const s = client.create({
         clientId: clientId,
         selected: [item.id],
     });
