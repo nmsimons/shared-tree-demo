@@ -1,6 +1,6 @@
 import React from 'react';
-import { App, Note } from './app_schema';
-import { addNote, addGroup as addGroup, deleteNote, moveItem } from './helpers';
+import { App, Note } from '../schema/app_schema';
+import { addNote, addGroup as addGroup, deleteNote, moveItem } from '../utils/helpers';
 import {
     ThumbLikeFilled,
     DismissFilled,

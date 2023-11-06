@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useCallback, useEffect, useState } from 'react';
-import { App, Note, note, group } from './app_schema';
-import { Session } from './session_schema';
-import './output.css';
-import { SharedTree } from './fluid';
+import { App, Note, note, group } from '../schema/app_schema';
+import { Session } from '../schema/session_schema';
+import '../output.css';
+import { SharedTree } from '../infra/fluid';
 import {
     ConnectionState,
     IFluidContainer,
@@ -22,7 +22,7 @@ import {
     ButtonGroup,
 } from './buttonux';
 import { RevertResult, Revertible, node as Tree } from '@fluid-experimental/tree2';
-import { UndefinedUserId, UndefinedUserId as undefinedUserId } from './utils';
+import { UndefinedUserId, UndefinedUserId as undefinedUserId } from '../utils/utils';
 
 export function ReactApp(props: {
     data: SharedTree<App>;

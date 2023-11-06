@@ -1,24 +1,24 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Note, Group, Notes, Items, note, items } from './app_schema';
+import { Note, Group, Notes, Items, note, items } from '../schema/app_schema';
 import {
     addNote,
     toggleVote,
     deleteNote,
     moveItem,
     updateNoteText,
-} from './helpers';
+} from '../utils/helpers';
 import {
     dragType,
     getRotation,
     selectAction,
     testRemoteNoteSelection,
     updateRemoteNoteSelection,
-} from './utils';
+} from '../utils/utils';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 import { useTransition } from 'react-transition-state';
 import { node as Tree } from '@fluid-experimental/tree2';
 import { IconButton, MiniThumb, DeleteButton } from './buttonux';
-import { Session } from './session_schema';
+import { Session } from '../schema/session_schema';
 
 export function NoteContainer(props: {
     group: Group;

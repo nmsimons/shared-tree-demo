@@ -1,7 +1,7 @@
-import { Note } from './app_schema';
+import { Note } from '../schema/app_schema';
 import { Guid } from 'guid-typescript';
 import { IInsecureUser } from '@fluidframework/test-runtime-utils';
-import { Session, client, Client } from './session_schema';
+import { Session, client, Client } from '../schema/session_schema';
 
 export const UndefinedUserId = "[UNDEFINED]"
 

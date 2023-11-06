@@ -1,11 +1,11 @@
 import React from 'react';
-import { App, Group, Note } from './app_schema';
-import { deleteGroup, moveItem } from './helpers';
+import { App, Group, Note } from '../schema/app_schema';
+import { deleteGroup, moveItem } from '../utils/helpers';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 import { NoteContainer } from './noteux';
 import { DeleteButton } from './buttonux';
-import { dragType } from './utils';
-import { Session } from './session_schema';
+import { dragType } from '../utils/utils';
+import { Session } from '../schema/session_schema';
 
 export function GroupView(props: {
     group: Group;

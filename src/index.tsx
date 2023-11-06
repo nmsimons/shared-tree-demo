@@ -1,13 +1,13 @@
 /* eslint-disable react/jsx-key */
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { loadFluidData } from './fluid';
-import { ReactApp } from './ux';
+import { loadFluidData } from './infra/fluid';
+import { ReactApp } from './react/ux';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { setUpUndoRedoStacks } from './undo';
+import { setUpUndoRedoStacks } from './utils/undo';
 import { initializeDevtools } from '@fluid-experimental/devtools';
-import { devtoolsLogger } from './clientProps';
+import { devtoolsLogger } from './infra/clientProps';
 
 async function main() {
     
