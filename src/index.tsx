@@ -1,13 +1,17 @@
 /* eslint-disable react/jsx-key */
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { loadFluidData } from './infra/fluid';
+import { initializeSharedTree, loadFluidData } from './infra/fluid';
+import { notesContainerSchema } from './infra/containerSchema';
 import { ReactApp } from './react/ux';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { setUpUndoRedoStacks } from './utils/undo';
 import { initializeDevtools } from '@fluid-experimental/devtools';
 import { devtoolsLogger } from './infra/clientProps';
+import { ISharedTree } from '@fluid-experimental/tree2';
+import { appSchemaConfig, App } from './schema/app_schema';
+import { sessionSchemaConfig, Session } from './schema/session_schema';
 
 async function main() {
     
@@ -22,8 +26,18 @@ async function main() {
     // a new container.
     let containerId = location.hash.substring(1);
 
-    // Initialize Fluid data
-    const { appData, sessionData, services, container } = await loadFluidData(containerId);
+    // Initialize Fluid Container
+    const { services, container } = await loadFluidData(containerId, notesContainerSchema);
+
+    if (containerId.length == 0) {
+        // Initialize our Fluid data -- set default values, establish relationships, etc.
+        (container.initialObjects.appData as ISharedTree).schematize(appSchemaConfig);
+        (container.initialObjects.sessionData as ISharedTree).schematize(sessionSchemaConfig);
+    }
+
+    // Initialize the SharedTree DDSes
+    const sessionData = initializeSharedTree<Session>(container.initialObjects.sessionData, sessionSchemaConfig);
+    const appData = initializeSharedTree<App>(container.initialObjects.appData, appSchemaConfig);        
 
     // Initialize the undo and redo stacks
     const { undoStack, redoStack, unsubscribe } = setUpUndoRedoStacks(appData.treeView);
