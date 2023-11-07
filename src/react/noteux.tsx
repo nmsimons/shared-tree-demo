@@ -6,14 +6,16 @@ import {
     deleteNote,
     moveItem,
     updateNoteText,
-} from '../utils/helpers';
+} from '../utils/app_helpers';
 import {
     dragType,
     getRotation,
     selectAction,
-    testRemoteNoteSelection,
-    updateRemoteNoteSelection,
 } from '../utils/utils';
+import {
+    testRemoteNoteSelection,
+    updateRemoteNoteSelection
+} from '../utils/session_helpers';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 import { useTransition } from 'react-transition-state';
 import { node as Tree } from '@fluid-experimental/tree2';

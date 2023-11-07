@@ -1,6 +1,6 @@
 import React from 'react';
 import { App, Group, Note } from '../schema/app_schema';
-import { deleteGroup, moveItem } from '../utils/helpers';
+import { deleteGroup, moveItem } from '../utils/app_helpers';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 import { NoteContainer } from './noteux';
 import { DeleteButton } from './buttonux';
