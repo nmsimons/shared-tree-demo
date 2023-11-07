@@ -32,9 +32,8 @@ export const loadFluidData = async (containerId: string, containerSchema: Contai
     let container: IFluidContainer;
     let services: AzureContainerServices;    
 
-    // Get or create the document depending if we are running through the create new flow
-    const createNew = (containerId.length === 0);
-    if (createNew) {
+    // Get or create the document depending if we are running through the create new flow    
+    if (containerId.length === 0) {
         // The client will create a new detached container using the schema
         // A detached container will enable the app to modify the container before attaching it to the client
         ({ container, services } = await client.createContainer(containerSchema));
