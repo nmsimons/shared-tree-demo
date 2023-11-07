@@ -1,13 +1,8 @@
 /* eslint-disable react/jsx-key */
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { loadFluidData } from './infra/fluid';
-import { ReactApp } from './react/ux';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
-import { setUpUndoRedoStacks } from './utils/undo';
-import { initializeDevtools } from '@fluid-experimental/devtools';
-import { devtoolsLogger } from './infra/clientProps';
+import { loadBinderData } from './infra/binderdata';
+import { Binder } from './react/binderux';
 
 async function main() {
     
@@ -22,39 +17,9 @@ async function main() {
     // a new container.
     let containerId = location.hash.substring(1);
 
-    // Initialize Fluid data
-    const { appData, sessionData, services, container } = await loadFluidData(containerId);
-
-    // Initialize the undo and redo stacks
-    const { undoStack, redoStack, unsubscribe } = setUpUndoRedoStacks(appData.treeView);
-
-    // Initialize debugging tools
-    initializeDevtools({
-        logger: devtoolsLogger,
-        initialContainers: [
-            {
-                container,
-                containerKey: "My Container",
-            },
-        ],
-    });
+    // Initilize the Fluid Binder data
+    const { binderData: binderData, container } = await loadBinderData(containerId);
     
-    // Render the app - note we attach new containers after render so
-    // the app renders instantly on create new flow. The app will be 
-    // interactive immediately.    
-    root.render(
-        <DndProvider backend={HTML5Backend}>
-            <ReactApp 
-                data={appData} 
-                session={sessionData} 
-                audience={services.audience} 
-                container={container} 
-                undoStack={undoStack}
-                redoStack={redoStack}
-                unsubscribe={unsubscribe} />
-        </DndProvider>
-    );
-
     // If the app is in a `createNew` state - no containerId, and the container is detached, we attach the container.
     // This uploads the container to the service and connects to the collaboration session.
     if (containerId.length == 0) {
@@ -63,6 +28,11 @@ async function main() {
         // The newly attached container is given a unique ID that can be used to access the container in another session
         location.hash = containerId;
     }
+
+    // Render the app 
+    root.render(
+        <Binder data={binderData} container={container} />
+    );
 }
 
 export default main();

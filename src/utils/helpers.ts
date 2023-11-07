@@ -9,6 +9,7 @@ import {
     Items,    
 } from '../schema/app_schema';
 import { Guid } from 'guid-typescript';
+import { Page, Pages, page } from '../schema/binder_schema';
 
 // Takes a destination list, content string, and author data and adds a new
 // note to the SharedTree with that data.
@@ -117,4 +118,22 @@ export function toggleVote(note: Note, user: string) {
         note.votes.insertAtEnd([user]);
         note.lastChanged = new Date().getTime();
     }
+}
+
+export function addPage(
+    pages: Pages,
+    id: string,
+    name: string,
+) {
+    const newPage = page.create({
+        id,
+        name
+    });
+
+    pages.insertAtEnd([newPage]);
+}
+
+export function deletePage(page: Page) {
+    const parent = Tree.parent(page) as Pages;
+    if (parent) parent.removeAt(Tree.key(page) as number);
 }
