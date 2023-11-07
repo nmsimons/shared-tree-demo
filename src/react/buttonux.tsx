@@ -68,7 +68,7 @@ export function DeleteNotesButton(props: { selection: Note[] }): JSX.Element {
     );
 }
 
-export function UndoButton(props: { undo: any }): JSX.Element {
+export function UndoButton(props: { undo: () => void }): JSX.Element {
     
     return (
         <IconButton
@@ -82,7 +82,7 @@ export function UndoButton(props: { undo: any }): JSX.Element {
     );
 }
 
-export function RedoButton(props: { redo: any }): JSX.Element {
+export function RedoButton(props: { redo: () => void }): JSX.Element {
     
     return (
         <IconButton
@@ -96,7 +96,7 @@ export function RedoButton(props: { redo: any }): JSX.Element {
     );
 }
 
-export function DeleteButton(props: { handleClick: any }): JSX.Element {
+export function DeleteButton(props: { handleClick: (value: React.MouseEvent) => void }): JSX.Element {
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         props.handleClick(e);
@@ -114,7 +114,7 @@ export function DeleteButton(props: { handleClick: any }): JSX.Element {
 }
 
 export function IconButton(props: {
-    handleClick: any;
+    handleClick: (value: React.MouseEvent) => void;
     children?: React.ReactNode;
     icon: JSX.Element;
     color?: string;

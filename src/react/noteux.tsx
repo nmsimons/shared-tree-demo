@@ -8,6 +8,7 @@ import {
     updateNoteText,
 } from '../utils/app_helpers';
 import {
+    SetSelectionFunc,
     dragType,
     getRotation,
     selectAction,
@@ -26,7 +27,7 @@ export function NoteContainer(props: {
     group: Group;
     clientId: string;
     selection: Note[];
-    setSelection: any;
+    setSelection: SetSelectionFunc;
     session: Session;
     fluidMembers: string[];
 }): JSX.Element {
@@ -58,7 +59,7 @@ export function RootNoteWrapper(props: {
     clientId: string;
     notes: Notes | Items;
     selection: Note[];
-    setSelection: any;
+    setSelection: SetSelectionFunc;
     session: Session;
     fluidMembers: string[];
 }): JSX.Element {
@@ -74,7 +75,7 @@ function NoteView(props: {
     clientId: string;
     notes: Notes | Items;
     selection: Note[];
-    setSelection: any;
+    setSelection: SetSelectionFunc;
     session: Session;
     fluidMembers: string[];
 }): JSX.Element {
@@ -94,14 +95,7 @@ function NoteView(props: {
 
     const [invalidations, setInvalidations] = useState(0);
 
-    const test = (message: string) => {
-        // console.log(
-        //     message,
-        //     'client id:',
-        //     props.clientId,
-        //     'item id:',
-        //     props.note.id
-        // );
+    const test = () => {        
         testRemoteNoteSelection(
             props.note,
             props.session,
@@ -130,18 +124,18 @@ function NoteView(props: {
     useEffect(() => {
         // Returns the cleanup function to be invoked when the component unmounts.
         return Tree.on(props.session, 'afterChange', () => {
-            test('invalidation');
+            test();
             setInvalidations(invalidations + Math.random());
         });
     }, [invalidations]);
     
     useEffect(() => {
-        test('fluid members');
+        test();
     }, [props.fluidMembers])
 
     useEffect(() => {
         mounted.current = true;
-        test('mounted');
+        test();
         
         return () => {
             mounted.current = false;
@@ -261,7 +255,7 @@ function NoteSelection(props: { show: boolean }): JSX.Element {
     }
 }
 
-function NoteTextArea(props: { note: Note; update: any }): JSX.Element {
+function NoteTextArea(props: { note: Note; update: (value: selectAction) => void }): JSX.Element {
     // The text field updates the Fluid data model on every keystroke in this demo.
     // This works well with small strings but doesn't scale to very large strings.
     // A Future iteration of SharedTree will include support for collaborative strings

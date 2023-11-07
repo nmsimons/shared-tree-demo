@@ -1,12 +1,12 @@
 import { Note } from '../schema/app_schema';
 import { Session, client, Client } from '../schema/session_schema';
-import { selectAction, UndefinedUserId } from './utils';
+import { selectAction, SetSelectionFunc, UndefinedUserId } from './utils';
 
 
 export const updateLocalNoteSelection = (
     item: Note,
     selection: Note[],
-    setSelection: any,
+    setSelection: SetSelectionFunc,
     action: selectAction
 ) => {
     // Since selection is going to change
@@ -39,8 +39,8 @@ export const testRemoteNoteSelection = (
     item: Note,
     session: Session,
     clientId: string,
-    setRemoteSelected: any,
-    setSelected: any,
+    setRemoteSelected: (value: boolean) => void,
+    setSelected: (value: boolean) => void,
     fluidMembers: string[]
 ) => {
 
@@ -72,7 +72,7 @@ export const updateRemoteNoteSelection = (
     session: Session,
     clientId: string,
     localSelection: Note[],
-    setLocalSelection: any
+    setLocalSelection: SetSelectionFunc
 ) => {
 
     if (clientId == UndefinedUserId) return;

@@ -22,7 +22,7 @@ import {
     ButtonGroup,
 } from './buttonux';
 import { RevertResult, Revertible, node as Tree } from '@fluid-experimental/tree2';
-import { UndefinedUserId, UndefinedUserId as undefinedUserId } from '../utils/utils';
+import { SetSelectionFunc, UndefinedUserId, UndefinedUserId as undefinedUserId } from '../utils/utils';
 
 export function ReactApp(props: {
     data: SharedTree<App>;
@@ -38,7 +38,7 @@ export function ReactApp(props: {
     const [currentUser, setCurrentUser] = useState(undefinedUserId);
     const [connectionState, setConnectionState] = useState('');
     const [saved, setSaved] = useState(!props.container.isDirty);
-    const [fluidMembers, setFluidMembers] = useState<string[]>([]);
+    const [fluidMembers, setFluidMembers] = useState<string[]>([]);    
 
     const { undoStack, redoStack } = props;
 
@@ -168,7 +168,7 @@ function RootItems(props: {
     root: App;
     clientId: string;
     selection: Note[];
-    setSelection: any;
+    setSelection: SetSelectionFunc;
     session: Session;
     fluidMembers: string[];
 }): JSX.Element {

@@ -19,6 +19,8 @@ export function getRotation(note: Note) {
     return rotationArray[i % rotationArray.length];
 }
 
+export type SetSelectionFunc = (value: Note[]) => void;
+
 function hashCode(str: string): number {
     let h = 0;
     for (let i = 0; i < str.length; i++) {
