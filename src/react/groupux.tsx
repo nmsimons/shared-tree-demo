@@ -92,7 +92,7 @@ export function GroupView(props: {
 function GroupName(props: { pile: Group }): JSX.Element {
     return (
         <input
-            className="p-1 mb-2 mr-2 text-lg font-bold text-black bg-transparent"
+            className="flex w-0 grow p-1 mb-2 mr-2 text-lg font-bold text-black bg-transparent"
             type="text"
             value={props.pile.name}
             onChange={(event) => (props.pile.name = event.target.value)}
@@ -102,7 +102,7 @@ function GroupName(props: { pile: Group }): JSX.Element {
 
 function GroupToolbar(props: { pile: Group; app: App }): JSX.Element {
     return (
-        <div className="flex justify-between">
+        <div className="flex flex-row justify-between">
             <GroupName pile={props.pile} />
             <DeletePileButton pile={props.pile} app={props.app} />
         </div>
