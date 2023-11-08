@@ -19,7 +19,7 @@ import {
 } from '../utils/session_helpers';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 import { useTransition } from 'react-transition-state';
-import { node as Tree } from '@fluid-experimental/tree2';
+import { Tree } from '@fluid-experimental/tree2';
 import { IconButton, MiniThumb, DeleteButton } from './buttonux';
 import { Session } from '../schema/session_schema';
 

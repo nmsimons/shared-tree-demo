@@ -1,4 +1,4 @@
-import { node as Tree, TreeStatus } from '@fluid-experimental/tree2';
+import { Tree, TreeStatus } from '@fluid-experimental/tree2';
 import {
     App,
     Note,

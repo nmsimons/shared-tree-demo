@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-key */
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { initializeSharedTree, loadFluidData } from './infra/fluid';
+import { loadFluidData } from './infra/fluid';
 import { notesContainerSchema } from './infra/containerSchema';
 import { ReactApp } from './react/ux';
 import { DndProvider } from 'react-dnd';
@@ -10,8 +10,8 @@ import { setUpUndoRedoStacks } from './utils/undo';
 import { initializeDevtools } from '@fluid-experimental/devtools';
 import { devtoolsLogger } from './infra/clientProps';
 import { ISharedTree } from '@fluid-experimental/tree2';
-import { appSchemaConfig, App } from './schema/app_schema';
-import { sessionSchemaConfig, Session } from './schema/session_schema';
+import { appSchemaConfig } from './schema/app_schema';
+import { sessionSchemaConfig } from './schema/session_schema';
 
 async function main() {
     
@@ -27,20 +27,14 @@ async function main() {
     let containerId = location.hash.substring(1);
 
     // Initialize Fluid Container
-    const { services, container } = await loadFluidData(containerId, notesContainerSchema);
-
-    if (containerId.length == 0) {
-        // Initialize our Fluid data -- set default values, establish relationships, etc.
-        (container.initialObjects.appData as ISharedTree).schematize(appSchemaConfig);
-        (container.initialObjects.sessionData as ISharedTree).schematize(sessionSchemaConfig);
-    }
+    const { services, container } = await loadFluidData(containerId, notesContainerSchema);    
 
     // Initialize the SharedTree DDSes
-    const sessionData = initializeSharedTree<Session>(container.initialObjects.sessionData, sessionSchemaConfig);
-    const appData = initializeSharedTree<App>(container.initialObjects.appData, appSchemaConfig);        
+    const sessionView = (container.initialObjects.sessionData as ISharedTree).schematize(sessionSchemaConfig); 
+    const appView = (container.initialObjects.appData as ISharedTree).schematize(appSchemaConfig);
 
     // Initialize the undo and redo stacks
-    const { undoStack, redoStack, unsubscribe } = setUpUndoRedoStacks(appData.treeView);
+    const { undoStack, redoStack, unsubscribe } = setUpUndoRedoStacks(appView);
 
     // Initialize debugging tools
     initializeDevtools({
@@ -59,8 +53,8 @@ async function main() {
     root.render(
         <DndProvider backend={HTML5Backend}>
             <ReactApp 
-                data={appData} 
-                session={sessionData} 
+                app={appView.root} 
+                session={sessionView.root} 
                 audience={services.audience} 
                 container={container} 
                 undoStack={undoStack}

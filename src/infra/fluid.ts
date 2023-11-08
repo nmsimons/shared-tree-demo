@@ -4,10 +4,7 @@ import {
 } from '@fluidframework/azure-client';
 import { ContainerSchema, IFluidContainer } from 'fluid-framework';
 import {
-    ISharedTree,    
-    SharedTreeFactory,
-    ISharedTreeView,
-    InitializeAndSchematizeConfiguration,    
+    SharedTreeFactory,    
 } from '@fluid-experimental/tree2';
 import { clientProps } from './clientProps';
 
@@ -44,13 +41,3 @@ export const loadFluidData = async (containerId: string, containerSchema: Contai
     }
     return { services, container };
 };
-
-export const initializeSharedTree = <T>(unitializedTree: any, schemaConfig: InitializeAndSchematizeConfiguration) => {
-    const view = (unitializedTree as ISharedTree).schematizeView(schemaConfig);
-    const data = new SharedTree<T>(view, view.root2(schemaConfig.schema) as any);
-    return data   
-}
-
-export class SharedTree<T> {
-    constructor(public readonly treeView: ISharedTreeView, public readonly root: T) {}    
-}

@@ -1,6 +1,5 @@
 import {
     AllowedUpdateType,
-    InitializeAndSchematizeConfiguration,
     ProxyNode,
     SchemaBuilder,
 } from '@fluid-experimental/tree2';
@@ -59,10 +58,10 @@ export const appSchema = sb.intoSchema(app);
 
 // Export the tree config appropriate for this schema
 // This is passed into the SharedTree when it is initialized
-export const appSchemaConfig: InitializeAndSchematizeConfiguration = {
+export const appSchemaConfig = {
     schema: appSchema,
     initialTree: {
-        items: [],
+        items: {"":[]},
     },
     allowedSchemaModifications: AllowedUpdateType.SchemaCompatible,
 };

@@ -3,7 +3,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { App, Note, note, group } from '../schema/app_schema';
 import { Session } from '../schema/session_schema';
 import '../output.css';
-import { SharedTree } from '../infra/fluid';
 import {
     ConnectionState,
     IFluidContainer,
@@ -21,12 +20,12 @@ import {
     RedoButton,
     ButtonGroup,
 } from './buttonux';
-import { RevertResult, Revertible, node as Tree } from '@fluid-experimental/tree2';
+import { RevertResult, Revertible, Tree } from '@fluid-experimental/tree2';
 import { SetSelectionFunc, UndefinedUserId, UndefinedUserId as undefinedUserId } from '../utils/utils';
 
 export function ReactApp(props: {
-    data: SharedTree<App>;
-    session: SharedTree<Session>;
+    app: App;
+    session: Session;
     audience: IServiceAudience<IMember>;
     container: IFluidContainer;
     undoStack: Revertible[];
@@ -56,8 +55,8 @@ export function ReactApp(props: {
         }
     }, [redoStack]);
 
-    const appRoot = props.data.root;
-    const sessionRoot = props.session.root;
+    const appRoot = props.app;
+    const sessionRoot = props.session;
 
     // Register for tree deltas when the component mounts.
     // Any time the tree changes, the app will update

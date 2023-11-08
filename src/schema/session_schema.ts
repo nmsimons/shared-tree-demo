@@ -1,6 +1,5 @@
 import {
     AllowedUpdateType,
-    InitializeAndSchematizeConfiguration,
     ProxyNode,
     SchemaBuilder,
 } from '@fluid-experimental/tree2';
@@ -32,10 +31,10 @@ export const sessionSchema = sb.intoSchema(session);
 
 // Export the tree config appropriate for this schema
 // This is passed into the SharedTree when it is initialized
-export const sessionSchemaConfig: InitializeAndSchematizeConfiguration = {
+export const sessionSchemaConfig = {
     schema: sessionSchema,
     initialTree: {
-        clients: [],
+        clients: {"": []},
     },
     allowedSchemaModifications: AllowedUpdateType.SchemaCompatible,
 };
