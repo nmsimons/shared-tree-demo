@@ -80,7 +80,7 @@ export function addGroup(items: Items, name: string): Group {
     });
 
     items.insertAtStart([newGroup]);
-    return items[0] as Group; //yuck - this should just be return group
+    return newGroup; 
 }
 
 // Function that deletes a group and moves the notes in that group

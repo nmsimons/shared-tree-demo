@@ -197,7 +197,7 @@ function NoteView(props: {
 
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        if (e.ctrlKey) {
+        if (e.shiftKey) {
             update(selectAction.MULTI);
         } else if (selected) {
             update(selectAction.REMOVE);
