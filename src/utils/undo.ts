@@ -1,11 +1,10 @@
 import {
-    ITreeView,
+    ITreeCheckout,    
     Revertible,
     RevertibleKind,
-    TreeFieldSchema,
 } from '@fluid-experimental/tree2';
 
-export function setUpUndoRedoStacks<T extends TreeFieldSchema>(tree: ITreeView<T>): {
+export function setUpUndoRedoStacks(tree: ITreeCheckout): {
     undoStack: Revertible[];
     redoStack: Revertible[];
     unsubscribe: () => void;
@@ -13,7 +12,7 @@ export function setUpUndoRedoStacks<T extends TreeFieldSchema>(tree: ITreeView<T
     const undoStack: Revertible[] = [];
     const redoStack: Revertible[] = [];
 
-    const unsubscribe = tree.checkout.events.on('revertible', (revertible) => {
+    const unsubscribe = tree.events.on('revertible', (revertible) => {
         if (revertible.kind === RevertibleKind.Undo) {
             redoStack.push(revertible);
             //console.log('pushed to redo stack');

@@ -34,7 +34,7 @@ async function main() {
     const appView = (container.initialObjects.appData as ISharedTree).schematize(appSchemaConfig);
 
     // Initialize the undo and redo stacks
-    const { undoStack, redoStack, unsubscribe } = setUpUndoRedoStacks(appView);
+    const { undoStack, redoStack, unsubscribe } = setUpUndoRedoStacks(appView.checkout);
 
     // Initialize debugging tools
     initializeDevtools({
