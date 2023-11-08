@@ -16,7 +16,7 @@ export function GroupView(props: {
     session: Session;
     fluidMembers: string[];
 }): JSX.Element {
-    const [{ isDragging }, drag] = useDrag(() => ({
+    const [, drag] = useDrag(() => ({
         type: dragType.GROUP,
         item: props.group,
         collect: (monitor) => ({

@@ -3,16 +3,7 @@ import {
     AzureContainerServices,
 } from '@fluidframework/azure-client';
 import { ContainerSchema, IFluidContainer } from 'fluid-framework';
-import {
-    SharedTreeFactory,    
-} from '@fluid-experimental/tree2';
 import { clientProps } from './clientProps';
-
-export class MySharedTree {
-    public static getFactory(): SharedTreeFactory {
-        return new SharedTreeFactory();
-    }
-}
 
 const client = new AzureClient(clientProps);
 
