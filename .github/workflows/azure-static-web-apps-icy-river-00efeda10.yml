@@ -33,10 +33,10 @@ jobs:
           output_location: "dist" # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
         env: # Add environment variables here
-          AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
-          AZURE_ORDERER: ${{ vars.AZURE_ORDERER }}
-          AZURE_FUNCTION_TOKEN_PROVIDER_URL: ${{ vars.AZURE_FUNCTION_TOKEN_PROVIDER_URL }}
-          FLUID_CLIENT: ${{ vars.FLUID_CLIENT }}
+          AZURE_TENANT_ID: 9df3d15b-0008-440f-8be4-3cbfd9e100cd
+          AZURE_ORDERER: https://us.fluidrelay.azure.com
+          AZURE_FUNCTION_TOKEN_PROVIDER_URL: https://fluid-token-mint.azurewebsites.net/api/gettoken
+          FLUID_CLIENT: azure
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
