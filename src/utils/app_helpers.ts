@@ -122,12 +122,17 @@ export function deleteGroup(group: Group, app: App) {
 // Function to delete a note.
 export function deleteNote(note: Note) {
     const parent = Tree.parent(note)
-    if (!parent) return; // bail if parent is undefined
+
+    // bail if parent is undefined
+    if (!parent) return;
 
     // Use type narrowing to ensure that parent is one of the two
-    // types of allowed list for a note
+    // types of allowed lists for a note
     if (Tree.is(parent, notes) || Tree.is(parent, items)) {
-        parent.removeAt(Tree.key(note) as number);
+        const key = Tree.key(note);
+        if (typeof(key) === "number") {
+            parent.removeAt(key);
+        }
     }    
 }
 
