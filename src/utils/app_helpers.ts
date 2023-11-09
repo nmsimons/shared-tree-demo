@@ -6,7 +6,9 @@ import {
     note,
     group,
     Notes,
-    Items,    
+    Items,
+    items,
+    notes,    
 } from '../schema/app_schema';
 import { Guid } from 'guid-typescript';
 
@@ -59,16 +61,31 @@ export function moveItem(
     )
         return;
 
-    const d = destination as Items;
-
-    const source = Tree.parent(item) as Items;
-    const index = source.indexOf(item);
-
-    if (destinationIndex == Infinity) {
-        d.moveToEnd(index, source);
-    } else {
-        d.moveToIndex(destinationIndex, index, source);
+    const source = Tree.parent(item);
+    
+    // Use Tree.is to narrow the type of source to the items schema
+    // If source uses the items schema, it can receive both a note
+    // and a group
+    if (Tree.is(source, items)) {
+        const index = source.indexOf(item);
+        if (destinationIndex == Infinity) {
+            destination.moveToEnd(index, source);
+        } else {
+            destination.moveToIndex(destinationIndex, index, source);
+        }        
     }
+
+    // Use Tree.is to narrow the type of source to the notes schema
+    // If source uses the notes schema, it can only receive a note
+    // so we also narrow the type of item to the note schema
+    if (Tree.is(source, notes) && Tree.is(item, note)) {
+        const index = source.indexOf(item);
+        if (destinationIndex == Infinity) {
+            destination.moveToEnd(index, source);
+        } else {
+            destination.moveToIndex(destinationIndex, index, source);
+        }
+    }   
 }
 
 // Add a new group (container for notes) to the SharedTree.
@@ -90,7 +107,7 @@ export function deleteGroup(group: Group, app: App) {
     // in the same position as the group
     if (group.notes.length !== 0) {
         app.items.moveRangeToIndex(
-            Tree.key(group) as number,            
+            Tree.key(group) as number, // cast to a numer as we know group.notes is a list            
             0,
             group.notes.length,            
             group.notes
@@ -104,8 +121,14 @@ export function deleteGroup(group: Group, app: App) {
 
 // Function to delete a note.
 export function deleteNote(note: Note) {
-    const parent = Tree.parent(note) as Notes;
-    if (parent) parent.removeAt(Tree.key(note) as number);
+    const parent = Tree.parent(note)
+    if (!parent) return; // bail if parent is undefined
+
+    // Use type narrowing to ensure that parent is one of the two
+    // types of allowed list for a note
+    if (Tree.is(parent, notes) || Tree.is(parent, items)) {
+        parent.removeAt(Tree.key(note) as number);
+    }    
 }
 
 export function toggleVote(note: Note, user: string) {
@@ -118,3 +141,4 @@ export function toggleVote(note: Note, user: string) {
         note.lastChanged = new Date().getTime();
     }
 }
+    
