@@ -129,6 +129,6 @@ export const cleanSessionData = (session: Session, fluidMembers: string[]) => {
     }
 
     for (const c of deleteMe) {
-        session.clients.removeAt(session.clients.indexOf(c) as number);
+        session.clients.removeAt(session.clients.indexOf(c));
     }
 };

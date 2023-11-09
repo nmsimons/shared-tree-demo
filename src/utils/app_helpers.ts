@@ -106,17 +106,25 @@ export function deleteGroup(group: Group, app: App) {
     // Test for the presence of notes and move them to the root
     // in the same position as the group
     if (group.notes.length !== 0) {
-        app.items.moveRangeToIndex(
-            Tree.key(group) as number, // cast to a numer as we know group.notes is a list            
-            0,
-            group.notes.length,            
-            group.notes
-        );
+        const i = Tree.key(group);
+        if (typeof(i) === "number") {
+            app.items.moveRangeToIndex(
+                i,            
+                0,
+                group.notes.length,            
+                group.notes
+            );
+        }
     }
 
     // Delete the now empty group
-    const parent = Tree.parent(group) as Items;
-    parent.removeAt(Tree.key(group) as number);
+    const parent = Tree.parent(group);
+    if (Tree.is(parent, items)) {
+        const i = Tree.key(group);
+        if (typeof(i) === "number") {
+            parent.removeAt(i);
+        }
+    }
 }
 
 // Function to delete a note.
