@@ -1,22 +1,25 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Note, Group, Notes, Items, note, items } from '../schema/app_schema';
+import { Note, Group, Notes, Items, note, items, group, notes } from '../schema/app_schema';
 import {
     addNote,
     toggleVote,
     deleteNote,
     moveItem,
     updateNoteText,
-} from '../utils/helpers';
+} from '../utils/app_helpers';
 import {
+    SetSelectionFunc,
     dragType,
     getRotation,
     selectAction,
-    testRemoteNoteSelection,
-    updateRemoteNoteSelection,
 } from '../utils/utils';
+import {
+    testRemoteNoteSelection,
+    updateRemoteNoteSelection
+} from '../utils/session_helpers';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 import { useTransition } from 'react-transition-state';
-import { node as Tree } from '@fluid-experimental/tree2';
+import { Tree } from '@fluid-experimental/tree2';
 import { IconButton, MiniThumb, DeleteButton } from './buttonux';
 import { Session } from '../schema/session_schema';
 
@@ -24,7 +27,7 @@ export function NoteContainer(props: {
     group: Group;
     clientId: string;
     selection: Note[];
-    setSelection: any;
+    setSelection: SetSelectionFunc;
     session: Session;
     fluidMembers: string[];
 }): JSX.Element {
@@ -56,7 +59,7 @@ export function RootNoteWrapper(props: {
     clientId: string;
     notes: Notes | Items;
     selection: Note[];
-    setSelection: any;
+    setSelection: SetSelectionFunc;
     session: Session;
     fluidMembers: string[];
 }): JSX.Element {
@@ -72,7 +75,7 @@ function NoteView(props: {
     clientId: string;
     notes: Notes | Items;
     selection: Note[];
-    setSelection: any;
+    setSelection: SetSelectionFunc;
     session: Session;
     fluidMembers: string[];
 }): JSX.Element {
@@ -92,14 +95,7 @@ function NoteView(props: {
 
     const [invalidations, setInvalidations] = useState(0);
 
-    const test = (message: string) => {
-        // console.log(
-        //     message,
-        //     'client id:',
-        //     props.clientId,
-        //     'item id:',
-        //     props.note.id
-        // );
+    const test = () => {        
         testRemoteNoteSelection(
             props.note,
             props.session,
@@ -128,18 +124,18 @@ function NoteView(props: {
     useEffect(() => {
         // Returns the cleanup function to be invoked when the component unmounts.
         return Tree.on(props.session, 'afterChange', () => {
-            test('invalidation');
+            test();
             setInvalidations(invalidations + Math.random());
         });
     }, [invalidations]);
     
     useEffect(() => {
-        test('fluid members');
+        test();
     }, [props.fluidMembers])
 
     useEffect(() => {
         mounted.current = true;
-        test('mounted');
+        test();
         
         return () => {
             mounted.current = false;
@@ -188,8 +184,10 @@ function NoteView(props: {
             return false;
         },
         drop: (item) => {
-            const droppedNote = item as Note;
-            moveItem(droppedNote, props.notes.indexOf(props.note), props.notes);
+            const droppedItem = item
+            if (Tree.is(droppedItem, group) || Tree.is(droppedItem, note)) {
+                moveItem(droppedItem, props.notes.indexOf(props.note), props.notes);
+            }            
             return;
         },
     }));
@@ -201,7 +199,7 @@ function NoteView(props: {
 
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        if (e.ctrlKey) {
+        if (e.shiftKey) {
             update(selectAction.MULTI);
         } else if (selected) {
             update(selectAction.REMOVE);
@@ -259,7 +257,7 @@ function NoteSelection(props: { show: boolean }): JSX.Element {
     }
 }
 
-function NoteTextArea(props: { note: Note; update: any }): JSX.Element {
+function NoteTextArea(props: { note: Note; update: (value: selectAction) => void }): JSX.Element {
     // The text field updates the Fluid data model on every keystroke in this demo.
     // This works well with small strings but doesn't scale to very large strings.
     // A Future iteration of SharedTree will include support for collaborative strings
@@ -306,9 +304,14 @@ function AddNoteButton(props: { group: Group; clientId: string }): JSX.Element {
             isActive: monitor.canDrop() && monitor.isOver(),
         }),
         drop: (item) => {
-            const droppedNote = item as Note;
-            const i = Tree.key(droppedNote) as number;
-            props.group.notes.moveToEnd(i, Tree.parent(droppedNote) as Notes);
+            const droppedItem = item
+            if (Tree.is(droppedItem, note)) {            
+                const i = Tree.key(droppedItem);
+                const parent = Tree.parent(droppedItem);
+                if (typeof(i) === "number" && (Tree.is(parent, notes) || Tree.is(parent, items))) {
+                    props.group.notes.moveToEnd(i, parent);
+                }
+            }
             return;
         },
     }));

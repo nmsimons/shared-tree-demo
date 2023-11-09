@@ -3,7 +3,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { App, Note, note, group } from '../schema/app_schema';
 import { Session } from '../schema/session_schema';
 import '../output.css';
-import { SharedTree } from '../infra/fluid';
 import {
     ConnectionState,
     IFluidContainer,
@@ -21,12 +20,12 @@ import {
     RedoButton,
     ButtonGroup,
 } from './buttonux';
-import { RevertResult, Revertible, node as Tree } from '@fluid-experimental/tree2';
-import { UndefinedUserId, UndefinedUserId as undefinedUserId } from '../utils/utils';
+import { RevertResult, Revertible, Tree } from '@fluid-experimental/tree2';
+import { SetSelectionFunc, UndefinedUserId } from '../utils/utils';
 
 export function ReactApp(props: {
-    data: SharedTree<App>;
-    session: SharedTree<Session>;
+    app: App;
+    session: Session;
     audience: IServiceAudience<IMember>;
     container: IFluidContainer;
     undoStack: Revertible[];
@@ -35,10 +34,10 @@ export function ReactApp(props: {
 }): JSX.Element {
     const [noteSelection, setNoteSelection] = useState<Note[]>([]);
     const [invalidations, setInvalidations] = useState(0);
-    const [currentUser, setCurrentUser] = useState(undefinedUserId);
+    const [currentUser, setCurrentUser] = useState(UndefinedUserId);
     const [connectionState, setConnectionState] = useState('');
     const [saved, setSaved] = useState(!props.container.isDirty);
-    const [fluidMembers, setFluidMembers] = useState<string[]>([]);
+    const [fluidMembers, setFluidMembers] = useState<string[]>([]);    
 
     const { undoStack, redoStack } = props;
 
@@ -56,8 +55,8 @@ export function ReactApp(props: {
         }
     }, [redoStack]);
 
-    const appRoot = props.data.root;
-    const sessionRoot = props.session.root;
+    const appRoot = props.app;
+    const sessionRoot = props.session;
 
     // Register for tree deltas when the component mounts.
     // Any time the tree changes, the app will update
@@ -102,7 +101,12 @@ export function ReactApp(props: {
         if (props.audience.getMyself()?.userId == undefined) return;
         if (props.audience.getMembers() == undefined) return;
         if (props.container.connectionState !== ConnectionState.Connected) return;
-        if (currentUser == UndefinedUserId) setCurrentUser(props.audience.getMyself()?.userId as string);            
+        if (currentUser == UndefinedUserId) {
+            const user = props.audience.getMyself()?.userId;
+            if (typeof(user) === "string") {
+                setCurrentUser(user);            
+            }
+        }
         setFluidMembers(Array.from(props.audience.getMembers().keys()));                
     };
 
@@ -168,7 +172,7 @@ function RootItems(props: {
     root: App;
     clientId: string;
     selection: Note[];
-    setSelection: any;
+    setSelection: SetSelectionFunc;
     session: Session;
     fluidMembers: string[];
 }): JSX.Element {

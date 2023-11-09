@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import '../output.css';
 import { IFluidContainer } from 'fluid-framework';
-import { node } from '@fluid-experimental/tree2';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { NoteRegular } from "@fluentui/react-icons";
@@ -11,10 +10,13 @@ import { loadFluidData } from '../infra/fluid';
 import { devtoolsLogger } from '../infra/clientProps';
 import { Binder, Page } from '../schema/binder_schema';
 import { ReactApp } from './ux';
-import { BinderSharedTree } from '../infra/binderdata';
 import { DeleteButton, IconButton } from './buttonux';
-import { addPage, deletePage } from '../utils/helpers';
+import { addPage, deletePage } from '../utils/app_helpers';
 import { setUpUndoRedoStacks } from '../utils/undo';
+import { Tree, ISharedTree } from '@fluid-experimental/tree2';
+import { notesContainerSchema } from '../infra/containerSchema';
+import { sessionSchemaConfig } from '../schema/session_schema';
+import { appSchemaConfig } from '../schema/app_schema';
 
 const devtools = initializeDevtools({
     logger: devtoolsLogger
@@ -23,7 +25,7 @@ const binderContainerKey = "Binder container"
 const pageContainerKey = "Page container"
 
 export function Binder(props: {
-    data: BinderSharedTree<Binder>;
+    binder: Binder
     container: IFluidContainer;
 }): JSX.Element {    
     const [selectedContainerId, setSelectedContainerId] = useState("");
@@ -31,7 +33,7 @@ export function Binder(props: {
     const [invalidations, setInvalidations] = useState(0);
 
     useEffect(() => {
-        return node.on(props.data.root, 'afterChange', () => {            
+        return Tree.on(props.binder, 'afterChange', () => {
             setInvalidations(invalidations + Math.random());
         });
     }, [invalidations]);
@@ -48,13 +50,17 @@ export function Binder(props: {
     useEffect(() => {
         (async () => {
             if (selectedContainerId != "") {
+                // Initialize Fluid Container
+                const { services, container } = await loadFluidData(selectedContainerId, notesContainerSchema);    
 
-                // Initialize Fluid data
-                const { appData, sessionData, services, container } = await loadFluidData(selectedContainerId);
+                // Initialize the SharedTree DDSes
+                const sessionView = (container.initialObjects.sessionData as ISharedTree).schematize(sessionSchemaConfig); 
+                const appView = (container.initialObjects.appData as ISharedTree).schematize(appSchemaConfig);
+
                 // Initialize the undo and redo stacks
-                const { undoStack, redoStack, unsubscribe } = setUpUndoRedoStacks(appData.treeView);
+                const { undoStack, redoStack, unsubscribe } = setUpUndoRedoStacks(appView.checkout);
                 
-                const pageState = {appData, sessionData, services, container, undoStack, redoStack, unsubscribe};
+                const pageState = {appView, sessionView, services, container, undoStack, redoStack, unsubscribe};
 
                 setRightPaneState(pageState);
 
@@ -71,10 +77,13 @@ export function Binder(props: {
     if (rightPaneState !== undefined) {
         console.log("rightPaneState is not undefined!", rightPaneState);
         rightPaneView.push(
+        // Render the app - note we attach new containers after render so
+        // the app renders instantly on create new flow. The app will be 
+        // interactive immediately.    
         <DndProvider backend={HTML5Backend} key={selectedContainerId}>
             <ReactApp
-                data={rightPaneState.appData} 
-                session={rightPaneState.sessionData} 
+                app={rightPaneState.appView.root} 
+                session={rightPaneState.sessionView.root}
                 audience={rightPaneState.services.audience} 
                 container={rightPaneState.container} 
                 undoStack={rightPaneState.undoStack}
@@ -90,7 +99,7 @@ export function Binder(props: {
 
     return (
         <div className="flex flex-row bg-white h-full w-full">
-            <LeftNav root={props.data.root} onItemSelect={pageClicked} />
+            <LeftNav root={props.binder} onItemSelect={pageClicked} />
             <div>{rightPaneView}</div>
         </div>
     );
@@ -155,9 +164,7 @@ export function NewPageButton(props: { binder: Binder }): JSX.Element {
         e.stopPropagation();
 
         // Initialize Fluid data
-        const { appData, container } = await loadFluidData("");
-        // Initialize the undo and redo stacks
-        setUpUndoRedoStacks(appData.treeView);
+        const { services, container } = await loadFluidData("", notesContainerSchema);    
         const containerId = await container.attach();
 
         addPage(props.binder.pages, containerId, '[new page]')

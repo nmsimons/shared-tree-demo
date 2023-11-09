@@ -1,22 +1,23 @@
 import React from 'react';
-import { App, Group, Note } from '../schema/app_schema';
-import { deleteGroup, moveItem } from '../utils/helpers';
+import { App, Group, Note, group, note } from '../schema/app_schema';
+import { deleteGroup, moveItem } from '../utils/app_helpers';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 import { NoteContainer } from './noteux';
 import { DeleteButton } from './buttonux';
-import { dragType } from '../utils/utils';
+import { SetSelectionFunc, dragType } from '../utils/utils';
 import { Session } from '../schema/session_schema';
+import { Tree } from '@fluid-experimental/tree2';
 
 export function GroupView(props: {
     group: Group;
     clientId: string;
     app: App;
     selection: Note[];
-    setSelection: any;
+    setSelection: SetSelectionFunc;
     session: Session;
     fluidMembers: string[];
 }): JSX.Element {
-    const [{ isDragging }, drag] = useDrag(() => ({
+    const [, drag] = useDrag(() => ({
         type: dragType.GROUP,
         item: props.group,
         collect: (monitor) => ({
@@ -41,12 +42,15 @@ export function GroupView(props: {
                 return;
             }
 
-            const droppedGroup = item as Group;
-            moveItem(
-                droppedGroup,
-                props.app.items.indexOf(props.group),
-                props.app.items
-            );
+            const droppedItem = item
+            if (Tree.is(droppedItem, group) || Tree.is(droppedItem, note)) {
+                moveItem(
+                    droppedItem,
+                    props.app.items.indexOf(props.group),
+                    props.app.items
+                );
+            }
+            
             return;
         },
     }));

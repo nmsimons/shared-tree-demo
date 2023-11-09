@@ -1,6 +1,5 @@
 import {
     AllowedUpdateType,
-    InitializeAndSchematizeConfiguration,
     ProxyNode,
     SchemaBuilder,
 } from '@fluid-experimental/tree2';
@@ -29,11 +28,12 @@ export const binderSchema = sb.intoSchema(binder);
 
 // Export the tree config appropriate for this schema
 // This is passed into the SharedTree when it is initialized
-export const binderSchemaConfig: InitializeAndSchematizeConfiguration = {
+export const binderSchemaConfig = {
     schema: binderSchema,
     initialTree: {
         name: "My Binder",
-        pages: [],
+        pages: {"":[]},
     },
+    
     allowedSchemaModifications: AllowedUpdateType.SchemaCompatible,
 };

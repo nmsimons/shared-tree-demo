@@ -1,8 +1,12 @@
 /* eslint-disable react/jsx-key */
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { loadBinderData } from './infra/binderdata';
 import { Binder } from './react/binderux';
+import { loadFluidData } from './infra/fluid';
+import { binderContainerSchema } from './infra/containerSchema';
+import { ISharedTree } from '@fluid-experimental/tree2';
+import { appSchemaConfig } from './schema/app_schema';
+import { binderSchemaConfig } from './schema/binder_schema';
 
 async function main() {
     
@@ -18,7 +22,8 @@ async function main() {
     let containerId = location.hash.substring(1);
 
     // Initilize the Fluid Binder data
-    const { binderData: binderData, container } = await loadBinderData(containerId);
+    const { container } = await loadFluidData(containerId, binderContainerSchema);
+    const binderView = (container.initialObjects.binderData as ISharedTree).schematize(binderSchemaConfig);
     
     // If the app is in a `createNew` state - no containerId, and the container is detached, we attach the container.
     // This uploads the container to the service and connects to the collaboration session.
@@ -31,7 +36,7 @@ async function main() {
 
     // Render the app 
     root.render(
-        <Binder data={binderData} container={container} />
+        <Binder binder={binderView.root} container={container} />
     );
 }
 

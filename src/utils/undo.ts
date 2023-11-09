@@ -1,10 +1,10 @@
 import {
-    ISharedTreeView,
+    ITreeCheckout,    
     Revertible,
     RevertibleKind,
 } from '@fluid-experimental/tree2';
 
-export function setUpUndoRedoStacks(tree: ISharedTreeView): {
+export function setUpUndoRedoStacks(tree: ITreeCheckout): {
     undoStack: Revertible[];
     redoStack: Revertible[];
     unsubscribe: () => void;

@@ -1,4 +1,4 @@
-import { node as Tree, TreeStatus } from '@fluid-experimental/tree2';
+import { Tree, TreeStatus } from '@fluid-experimental/tree2';
 import {
     App,
     Note,
@@ -6,7 +6,9 @@ import {
     note,
     group,
     Notes,
-    Items,    
+    Items,
+    items,
+    notes,    
 } from '../schema/app_schema';
 import { Guid } from 'guid-typescript';
 import { Page, Pages, page } from '../schema/binder_schema';
@@ -60,16 +62,31 @@ export function moveItem(
     )
         return;
 
-    const d = destination as Items;
-
-    const source = Tree.parent(item) as Items;
-    const index = source.indexOf(item);
-
-    if (destinationIndex == Infinity) {
-        d.moveToEnd(index, source);
-    } else {
-        d.moveToIndex(destinationIndex, index, source);
+    const source = Tree.parent(item);
+    
+    // Use Tree.is to narrow the type of source to the items schema
+    // If source uses the items schema, it can receive both a note
+    // and a group
+    if (Tree.is(source, items)) {
+        const index = source.indexOf(item);
+        if (destinationIndex == Infinity) {
+            destination.moveToEnd(index, source);
+        } else {
+            destination.moveToIndex(destinationIndex, index, source);
+        }        
     }
+
+    // Use Tree.is to narrow the type of source to the notes schema
+    // If source uses the notes schema, it can only receive a note
+    // so we also narrow the type of item to the note schema
+    if (Tree.is(source, notes) && Tree.is(item, note)) {
+        const index = source.indexOf(item);
+        if (destinationIndex == Infinity) {
+            destination.moveToEnd(index, source);
+        } else {
+            destination.moveToIndex(destinationIndex, index, source);
+        }
+    }   
 }
 
 // Add a new group (container for notes) to the SharedTree.
@@ -81,7 +98,7 @@ export function addGroup(items: Items, name: string): Group {
     });
 
     items.insertAtStart([newGroup]);
-    return items[0] as Group; //yuck - this should just be return group
+    return newGroup; 
 }
 
 // Function that deletes a group and moves the notes in that group
@@ -90,23 +107,42 @@ export function deleteGroup(group: Group, app: App) {
     // Test for the presence of notes and move them to the root
     // in the same position as the group
     if (group.notes.length !== 0) {
-        app.items.moveRangeToIndex(
-            Tree.key(group) as number,            
-            0,
-            group.notes.length,            
-            group.notes
-        );
+        const i = Tree.key(group);
+        if (typeof(i) === "number") {
+            app.items.moveRangeToIndex(
+                i,            
+                0,
+                group.notes.length,            
+                group.notes
+            );
+        }
     }
 
     // Delete the now empty group
-    const parent = Tree.parent(group) as Items;
-    parent.removeAt(Tree.key(group) as number);
+    const parent = Tree.parent(group);
+    if (Tree.is(parent, items)) {
+        const i = Tree.key(group);
+        if (typeof(i) === "number") {
+            parent.removeAt(i);
+        }
+    }
 }
 
 // Function to delete a note.
 export function deleteNote(note: Note) {
-    const parent = Tree.parent(note) as Notes;
-    if (parent) parent.removeAt(Tree.key(note) as number);
+    const parent = Tree.parent(note)
+
+    // bail if parent is undefined
+    if (!parent) return;
+
+    // Use type narrowing to ensure that parent is one of the two
+    // types of allowed lists for a note
+    if (Tree.is(parent, notes) || Tree.is(parent, items)) {
+        const key = Tree.key(note);
+        if (typeof(key) === "number") {
+            parent.removeAt(key);
+        }
+    }    
 }
 
 export function toggleVote(note: Note, user: string) {
