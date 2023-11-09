@@ -8,7 +8,7 @@ import { clientProps } from './clientProps';
 const client = new AzureClient(clientProps);
 
 /**
- * This function will create a container if no container ID is passed on the hash portion of the URL.
+ * This function will create a container if no container ID is passed.
  * If a container ID is provided, it will load the container.
  *
  * @returns The loaded container and container services.
