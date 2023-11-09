@@ -33,10 +33,10 @@ jobs:
           output_location: "dist" # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
         env: # Add environment variables here
-          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          AZURE_ORDERER: ${{ secrets.AZURE_ORDERER }}
-          AZURE_FUNCTION_TOKEN_PROVIDER_URL: ${{ secrets.AZURE_FUNCTION_TOKEN_PROVIDER_URL }}
-          FLUID_CLIENT: ${{ secrets.FLUID_CLIENT }}
+          AZURE_TENANT_ID: ${{ env.AZURE_TENANT_ID }}
+          AZURE_ORDERER: ${{ env.AZURE_ORDERER }}
+          AZURE_FUNCTION_TOKEN_PROVIDER_URL: ${{ env.AZURE_FUNCTION_TOKEN_PROVIDER_URL }}
+          FLUID_CLIENT: ${{ env.FLUID_CLIENT }}
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
