@@ -2,7 +2,6 @@ import { Note } from '../schema/app_schema';
 import { Session, client, Client } from '../schema/session_schema';
 import { selectAction, SetSelectionFunc, UndefinedUserId } from './utils';
 
-
 export const updateLocalNoteSelection = (
     item: Note,
     selection: Note[],
