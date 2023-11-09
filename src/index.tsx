@@ -5,7 +5,6 @@ import { Binder } from './react/binderux';
 import { loadFluidData } from './infra/fluid';
 import { binderContainerSchema } from './infra/containerSchema';
 import { ISharedTree } from '@fluid-experimental/tree2';
-import { appSchemaConfig } from './schema/app_schema';
 import { binderSchemaConfig } from './schema/binder_schema';
 
 async function main() {
