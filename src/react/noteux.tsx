@@ -305,11 +305,11 @@ function AddNoteButton(props: { group: Group; clientId: string }): JSX.Element {
         }),
         drop: (item) => {
             const droppedItem = item
-            if (Tree.is(droppedItem, note)) {            
-                const i = Tree.key(droppedItem);
-                const parent = Tree.parent(droppedItem);
-                if (typeof(i) === "number" && (Tree.is(parent, notes) || Tree.is(parent, items))) {
-                    props.group.notes.moveToEnd(i, parent);
+            if (Tree.is(droppedItem, note)) {
+                const parent = Tree.parent(droppedItem);                
+                if (Tree.is(parent, notes) || Tree.is(parent, items)) {
+                    const index = parent.indexOf(droppedItem);
+                    props.group.notes.moveToEnd(index, parent);
                 }
             }
             return;
