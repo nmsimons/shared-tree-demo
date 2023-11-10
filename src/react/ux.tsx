@@ -21,7 +21,7 @@ import {
     ButtonGroup,
 } from './buttonux';
 import { RevertResult, Revertible, Tree } from '@fluid-experimental/tree2';
-import { SetSelectionFunc, UndefinedUserId } from '../utils/utils';
+import { undefinedUserId } from '../utils/utils';
 
 export function ReactApp(props: {
     app: App;
@@ -34,7 +34,7 @@ export function ReactApp(props: {
 }): JSX.Element {
     const [noteSelection, setNoteSelection] = useState<Note[]>([]);
     const [invalidations, setInvalidations] = useState(0);
-    const [currentUser, setCurrentUser] = useState(UndefinedUserId);
+    const [currentUser, setCurrentUser] = useState(undefinedUserId);
     const [connectionState, setConnectionState] = useState('');
     const [saved, setSaved] = useState(!props.container.isDirty);
     const [fluidMembers, setFluidMembers] = useState<string[]>([]);    
@@ -101,7 +101,7 @@ export function ReactApp(props: {
         if (props.audience.getMyself()?.userId == undefined) return;
         if (props.audience.getMembers() == undefined) return;
         if (props.container.connectionState !== ConnectionState.Connected) return;
-        if (currentUser == UndefinedUserId) {
+        if (currentUser == undefinedUserId) {
             const user = props.audience.getMyself()?.userId;
             if (typeof(user) === "string") {
                 setCurrentUser(user);            
@@ -172,7 +172,7 @@ function RootItems(props: {
     root: App;
     clientId: string;
     selection: Note[];
-    setSelection: SetSelectionFunc;
+    setSelection: (value: Note[]) => void;
     session: Session;
     fluidMembers: string[];
 }): JSX.Element {

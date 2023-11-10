@@ -8,7 +8,6 @@ import {
     updateNoteText,
 } from '../utils/app_helpers';
 import {
-    SetSelectionFunc,
     dragType,
     getRotation,
     selectAction,
@@ -27,7 +26,7 @@ export function NoteContainer(props: {
     group: Group;
     clientId: string;
     selection: Note[];
-    setSelection: SetSelectionFunc;
+    setSelection: (value: Note[]) => void;
     session: Session;
     fluidMembers: string[];
 }): JSX.Element {
@@ -59,7 +58,7 @@ export function RootNoteWrapper(props: {
     clientId: string;
     notes: Notes | Items;
     selection: Note[];
-    setSelection: SetSelectionFunc;
+    setSelection: (value: Note[]) => void;
     session: Session;
     fluidMembers: string[];
 }): JSX.Element {
@@ -75,7 +74,7 @@ function NoteView(props: {
     clientId: string;
     notes: Notes | Items;
     selection: Note[];
-    setSelection: SetSelectionFunc;
+    setSelection: (value: Note[]) => void;
     session: Session;
     fluidMembers: string[];
 }): JSX.Element {
@@ -199,10 +198,10 @@ function NoteView(props: {
 
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        if (e.shiftKey) {
-            update(selectAction.MULTI);
-        } else if (selected) {
+        if (selected) {
             update(selectAction.REMOVE);
+        } else if (e.shiftKey || e.ctrlKey) {
+            update(selectAction.MULTI);
         } else {
             update(selectAction.SINGLE);
         }

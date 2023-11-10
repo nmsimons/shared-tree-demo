@@ -2,7 +2,7 @@ import { Note } from '../schema/app_schema';
 import { Guid } from 'guid-typescript';
 import { IInsecureUser } from '@fluidframework/test-runtime-utils';
 
-export const UndefinedUserId = "[UNDEFINED]"
+export const undefinedUserId = "[UNDEFINED]"
 
 export function getRotation(note: Note) {
     const i = hashCode(note.id);
@@ -18,8 +18,6 @@ export function getRotation(note: Note) {
 
     return rotationArray[i % rotationArray.length];
 }
-
-export type SetSelectionFunc = (value: Note[]) => void;
 
 function hashCode(str: string): number {
     let h = 0;

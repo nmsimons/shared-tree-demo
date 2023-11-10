@@ -1,11 +1,11 @@
 import { Note } from '../schema/app_schema';
 import { Session, client, Client } from '../schema/session_schema';
-import { selectAction, SetSelectionFunc, UndefinedUserId } from './utils';
+import { selectAction, undefinedUserId } from './utils';
 
 export const updateLocalNoteSelection = (
     item: Note,
     selection: Note[],
-    setSelection: SetSelectionFunc,
+    setSelection: (value: Note[]) => void,
     action: selectAction
 ) => {
     // Since selection is going to change
@@ -43,7 +43,7 @@ export const testRemoteNoteSelection = (
     fluidMembers: string[]
 ) => {
 
-    if (clientId == UndefinedUserId) return;
+    if (clientId == undefinedUserId) return;
 
     let selected = false;
     let remoteSelected = false;
@@ -71,10 +71,10 @@ export const updateRemoteNoteSelection = (
     session: Session,
     clientId: string,
     localSelection: Note[],
-    setLocalSelection: SetSelectionFunc
+    setLocalSelection: (value: Note[]) => void
 ) => {
 
-    if (clientId == UndefinedUserId) return;
+    if (clientId == undefinedUserId) return;
 
     // Update local state so that we have a local list of selected items we
     // can easily operate on (e.g., delete them)
