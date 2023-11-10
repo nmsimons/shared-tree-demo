@@ -6,7 +6,7 @@ import { notesContainerSchema } from './infra/containerSchema';
 import { ReactApp } from './react/ux';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { setUpUndoRedoStacks } from './utils/undo';
+import { setupUndoRedoStacks } from './utils/undo';
 import { initializeDevtools } from '@fluid-experimental/devtools';
 import { devtoolsLogger } from './infra/clientProps';
 import { ISharedTree } from '@fluid-experimental/tree2';
@@ -34,7 +34,7 @@ async function main() {
     const appView = (container.initialObjects.appData as ISharedTree).schematize(appSchemaConfig);
 
     // Initialize the undo and redo stacks
-    const { undoStack, redoStack, unsubscribe } = setUpUndoRedoStacks(appView.checkout);
+    const { undoStack, redoStack, unsubscribe } = setupUndoRedoStacks(appView);
 
     // Initialize debugging tools
     initializeDevtools({

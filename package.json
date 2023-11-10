@@ -37,7 +37,7 @@
         "react-transition-state": "^2.1.0"
     },
     "devDependencies": {
-        "@fluid-experimental/devtools": "^2.0.0-dev.7.3.0.209831",
+        "@fluid-experimental/devtools": "2.0.0-dev.7.3.0.209831",
         "@types/debug": "^4.1.7",
         "@types/node": "^17.0.45",
         "@types/randomcolor": "^0.5.6",
