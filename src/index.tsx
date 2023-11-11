@@ -53,8 +53,8 @@ async function main() {
     root.render(
         <DndProvider backend={HTML5Backend}>
             <ReactApp 
-                app={appView.root} 
-                session={sessionView.root} 
+                appTree={appView} 
+                sessionTree={sessionView} 
                 audience={services.audience} 
                 container={container} 
                 undoStack={undoStack}

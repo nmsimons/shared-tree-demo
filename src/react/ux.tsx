@@ -20,12 +20,12 @@ import {
     RedoButton,
     ButtonGroup,
 } from './buttonux';
-import { RevertResult, Revertible, Tree } from '@fluid-experimental/tree2';
+import { RevertResult, Revertible, Tree, TreeView } from '@fluid-experimental/tree2';
 import { undefinedUserId } from '../utils/utils';
 
 export function ReactApp(props: {
-    app: App;
-    session: Session;
+    appTree: TreeView<App>;
+    sessionTree: TreeView<Session>;
     audience: IServiceAudience<IMember>;
     container: IFluidContainer;
     undoStack: Revertible[];
@@ -55,8 +55,8 @@ export function ReactApp(props: {
         }
     }, [redoStack]);
 
-    const appRoot = props.app;
-    const sessionRoot = props.session;
+    const appRoot = props.appTree.root;
+    const sessionRoot = props.sessionTree.root;
 
     // Register for tree deltas when the component mounts.
     // Any time the tree changes, the app will update
