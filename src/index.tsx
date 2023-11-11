@@ -9,7 +9,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { setupUndoRedoStacks } from './utils/undo';
 import { initializeDevtools } from '@fluid-experimental/devtools';
 import { devtoolsLogger } from './infra/clientProps';
-import { ISharedTree } from '@fluid-experimental/tree2';
+import { ITree } from '@fluid-experimental/tree2';
 import { appSchemaConfig } from './schema/app_schema';
 import { sessionSchemaConfig } from './schema/session_schema';
 
@@ -30,8 +30,8 @@ async function main() {
     const { services, container } = await loadFluidData(containerId, notesContainerSchema);    
 
     // Initialize the SharedTree DDSes
-    const sessionView = (container.initialObjects.sessionData as ISharedTree).schematize(sessionSchemaConfig); 
-    const appView = (container.initialObjects.appData as ISharedTree).schematize(appSchemaConfig);
+    const sessionView = (container.initialObjects.sessionData as ITree).schematize(sessionSchemaConfig); 
+    const appView = (container.initialObjects.appData as ITree).schematize(appSchemaConfig);
 
     // Initialize the undo and redo stacks
     const { undoStack, redoStack, unsubscribe } = setupUndoRedoStacks(appView);
