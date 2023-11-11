@@ -32,10 +32,7 @@ async function main() {
     // Initialize the SharedTree DDSes
     const sessionView = (container.initialObjects.sessionData as ITree).schematize(sessionSchemaConfig); 
     const appView = (container.initialObjects.appData as ITree).schematize(appSchemaConfig);
-
-    // Initialize the undo and redo stacks
-    const { undoStack, redoStack, unsubscribe } = setupUndoRedoStacks(appView);
-
+    
     // Initialize debugging tools
     initializeDevtools({
         logger: devtoolsLogger,
@@ -57,9 +54,7 @@ async function main() {
                 sessionTree={sessionView} 
                 audience={services.audience} 
                 container={container} 
-                undoStack={undoStack}
-                redoStack={redoStack}
-                unsubscribe={unsubscribe} />
+                />
         </DndProvider>
     );
 

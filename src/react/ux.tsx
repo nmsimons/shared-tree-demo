@@ -22,24 +22,28 @@ import {
 } from './buttonux';
 import { RevertResult, Revertible, Tree, TreeView } from '@fluid-experimental/tree2';
 import { undefinedUserId } from '../utils/utils';
+import { setupUndoRedoStacks } from '../utils/undo';
 
 export function ReactApp(props: {
     appTree: TreeView<App>;
     sessionTree: TreeView<Session>;
     audience: IServiceAudience<IMember>;
-    container: IFluidContainer;
-    undoStack: Revertible[];
-    redoStack: Revertible[];
-    unsubscribe: () => void;
+    container: IFluidContainer;    
 }): JSX.Element {
     const [noteSelection, setNoteSelection] = useState<Note[]>([]);
     const [invalidations, setInvalidations] = useState(0);
     const [currentUser, setCurrentUser] = useState(undefinedUserId);
     const [connectionState, setConnectionState] = useState('');
     const [saved, setSaved] = useState(!props.container.isDirty);
-    const [fluidMembers, setFluidMembers] = useState<string[]>([]);    
+    const [fluidMembers, setFluidMembers] = useState<string[]>([]);
+    const [undoStack, setUndoStack] = useState<Revertible[]>([]);
+    const [redoStack, setRedoStack] = useState<Revertible[]>([]);    
 
-    const { undoStack, redoStack } = props;
+    useEffect(() => {
+        const { undoStack, redoStack } = setupUndoRedoStacks(props.appTree);
+        setUndoStack(undoStack);
+        setRedoStack(redoStack);        
+    }, [])
 
     const undo = useCallback(() => {
         const result = undoStack.pop()?.revert();
