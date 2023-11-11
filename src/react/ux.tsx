@@ -130,7 +130,7 @@ export function ReactApp(props: {
                 clientId={currentUser}
             />
             <RootItems
-                root={appRoot}
+                app={appRoot}
                 clientId={currentUser}
                 selection={noteSelection}
                 setSelection={setNoteSelection}
@@ -173,7 +173,7 @@ function Header(props: {
 }
 
 function RootItems(props: {
-    root: App;
+    app: App;
     clientId: string;
     selection: Note[];
     setSelection: (value: Note[]) => void;
@@ -181,14 +181,14 @@ function RootItems(props: {
     fluidMembers: string[];
 }): JSX.Element {
     const pilesArray = [];
-    for (const i of props.root.items) {
+    for (const i of props.app.items) {
         if (Tree.is(i, group)) {
             pilesArray.push(
                 <GroupView
                     key={i.id}
                     group={i}
                     clientId={props.clientId}
-                    app={props.root}
+                    app={props.app}
                     selection={props.selection}
                     setSelection={props.setSelection}
                     session={props.session}
@@ -201,7 +201,7 @@ function RootItems(props: {
                     key={i.id}
                     note={i}
                     clientId={props.clientId}
-                    notes={props.root.items}
+                    notes={props.app.items}
                     selection={props.selection}
                     setSelection={props.setSelection}
                     session={props.session}

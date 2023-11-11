@@ -29,8 +29,8 @@ async function main() {
     const { services, container } = await loadFluidData(containerId, notesContainerSchema);    
 
     // Initialize the SharedTree DDSes
-    const sessionView = (container.initialObjects.sessionData as ITree).schematize(sessionSchemaConfig); 
-    const appView = (container.initialObjects.appData as ITree).schematize(appSchemaConfig);
+    const sessionTree = (container.initialObjects.sessionData as ITree).schematize(sessionSchemaConfig); 
+    const appTree = (container.initialObjects.appData as ITree).schematize(appSchemaConfig);
     
     // Initialize debugging tools
     initializeDevtools({
@@ -49,8 +49,8 @@ async function main() {
     root.render(
         <DndProvider backend={HTML5Backend}>
             <ReactApp 
-                appTree={appView} 
-                sessionTree={sessionView} 
+                appTree={appTree} 
+                sessionTree={sessionTree} 
                 audience={services.audience} 
                 container={container} 
                 />
