@@ -2,6 +2,7 @@ import {
     AllowedUpdateType,
     ProxyNode,
     SchemaBuilder,
+    buildTreeConfiguration,
 } from '@fluid-experimental/tree2';
 
 // Schema is defined using a builder object that generates a schema that is passed into the
@@ -58,10 +59,10 @@ export const appSchema = sb.intoSchema(app);
 
 // Export the tree config appropriate for this schema
 // This is passed into the SharedTree when it is initialized
-export const appSchemaConfig = {
+export const appSchemaConfig = buildTreeConfiguration({
     schema: appSchema,
     initialTree: {
         items: {"":[]},
     },
     allowedSchemaModifications: AllowedUpdateType.SchemaCompatible,
-};
+});
