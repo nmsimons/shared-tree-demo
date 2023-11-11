@@ -6,7 +6,6 @@ import { notesContainerSchema } from './infra/containerSchema';
 import { ReactApp } from './react/ux';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { setupUndoRedoStacks } from './utils/undo';
 import { initializeDevtools } from '@fluid-experimental/devtools';
 import { devtoolsLogger } from './infra/clientProps';
 import { ITree } from '@fluid-experimental/tree2';
