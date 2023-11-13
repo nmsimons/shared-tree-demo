@@ -20,26 +20,30 @@ import {
     RedoButton,
     ButtonGroup,
 } from './buttonux';
-import { RevertResult, Revertible, Tree } from '@fluid-experimental/tree2';
-import { SetSelectionFunc, UndefinedUserId } from '../utils/utils';
+import { RevertResult, Revertible, Tree, TreeView } from '@fluid-experimental/tree2';
+import { undefinedUserId } from '../utils/utils';
+import { setupUndoRedoStacks } from '../utils/undo';
 
 export function ReactApp(props: {
-    app: App;
-    session: Session;
+    appTree: TreeView<App>;
+    sessionTree: TreeView<Session>;
     audience: IServiceAudience<IMember>;
-    container: IFluidContainer;
-    undoStack: Revertible[];
-    redoStack: Revertible[];
-    unsubscribe: () => void;
+    container: IFluidContainer;    
 }): JSX.Element {
     const [noteSelection, setNoteSelection] = useState<Note[]>([]);
     const [invalidations, setInvalidations] = useState(0);
-    const [currentUser, setCurrentUser] = useState(UndefinedUserId);
+    const [currentUser, setCurrentUser] = useState(undefinedUserId);
     const [connectionState, setConnectionState] = useState('');
     const [saved, setSaved] = useState(!props.container.isDirty);
-    const [fluidMembers, setFluidMembers] = useState<string[]>([]);    
+    const [fluidMembers, setFluidMembers] = useState<string[]>([]);
+    const [undoStack, setUndoStack] = useState<Revertible[]>([]);
+    const [redoStack, setRedoStack] = useState<Revertible[]>([]);    
 
-    const { undoStack, redoStack } = props;
+    useEffect(() => {
+        const { undoStack, redoStack } = setupUndoRedoStacks(props.appTree);
+        setUndoStack(undoStack);
+        setRedoStack(redoStack);        
+    }, [])
 
     const undo = useCallback(() => {
         const result = undoStack.pop()?.revert();
@@ -55,8 +59,8 @@ export function ReactApp(props: {
         }
     }, [redoStack]);
 
-    const appRoot = props.app;
-    const sessionRoot = props.session;
+    const appRoot = props.appTree.root;
+    const sessionRoot = props.sessionTree.root;
 
     // Register for tree deltas when the component mounts.
     // Any time the tree changes, the app will update
@@ -101,7 +105,7 @@ export function ReactApp(props: {
         if (props.audience.getMyself()?.userId == undefined) return;
         if (props.audience.getMembers() == undefined) return;
         if (props.container.connectionState !== ConnectionState.Connected) return;
-        if (currentUser == UndefinedUserId) {
+        if (currentUser == undefinedUserId) {
             const user = props.audience.getMyself()?.userId;
             if (typeof(user) === "string") {
                 setCurrentUser(user);            
@@ -126,7 +130,7 @@ export function ReactApp(props: {
                 clientId={currentUser}
             />
             <RootItems
-                root={appRoot}
+                app={appRoot}
                 clientId={currentUser}
                 selection={noteSelection}
                 setSelection={setNoteSelection}
@@ -169,22 +173,22 @@ function Header(props: {
 }
 
 function RootItems(props: {
-    root: App;
+    app: App;
     clientId: string;
     selection: Note[];
-    setSelection: SetSelectionFunc;
+    setSelection: (value: Note[]) => void;
     session: Session;
     fluidMembers: string[];
 }): JSX.Element {
     const pilesArray = [];
-    for (const i of props.root.items) {
+    for (const i of props.app.items) {
         if (Tree.is(i, group)) {
             pilesArray.push(
                 <GroupView
                     key={i.id}
                     group={i}
                     clientId={props.clientId}
-                    app={props.root}
+                    app={props.app}
                     selection={props.selection}
                     setSelection={props.setSelection}
                     session={props.session}
@@ -197,7 +201,7 @@ function RootItems(props: {
                     key={i.id}
                     note={i}
                     clientId={props.clientId}
-                    notes={props.root.items}
+                    notes={props.app.items}
                     selection={props.selection}
                     setSelection={props.setSelection}
                     session={props.session}

@@ -12,8 +12,7 @@ import { Binder, Page } from '../schema/binder_schema';
 import { ReactApp } from './ux';
 import { DeleteButton, IconButton } from './buttonux';
 import { addPage, deletePage } from '../utils/app_helpers';
-import { setUpUndoRedoStacks } from '../utils/undo';
-import { Tree, ISharedTree } from '@fluid-experimental/tree2';
+import { Tree, ITree } from '@fluid-experimental/tree2';
 import { notesContainerSchema } from '../infra/containerSchema';
 import { sessionSchemaConfig } from '../schema/session_schema';
 import { appSchemaConfig } from '../schema/app_schema';
@@ -54,13 +53,10 @@ export function Binder(props: {
                 const { services, container } = await loadFluidData(selectedContainerId, notesContainerSchema);    
 
                 // Initialize the SharedTree DDSes
-                const sessionView = (container.initialObjects.sessionData as ISharedTree).schematize(sessionSchemaConfig); 
-                const appView = (container.initialObjects.appData as ISharedTree).schematize(appSchemaConfig);
-
-                // Initialize the undo and redo stacks
-                const { undoStack, redoStack, unsubscribe } = setUpUndoRedoStacks(appView.checkout);
-                
-                const pageState = {appView, sessionView, services, container, undoStack, redoStack, unsubscribe};
+                const sessionTree = (container.initialObjects.sessionData as ITree).schematize(sessionSchemaConfig); 
+                const appTree = (container.initialObjects.appData as ITree).schematize(appSchemaConfig);
+                                
+                const pageState = {appTree, sessionTree, services, container};
 
                 setRightPaneState(pageState);
 
@@ -81,14 +77,12 @@ export function Binder(props: {
         // the app renders instantly on create new flow. The app will be 
         // interactive immediately.    
         <DndProvider backend={HTML5Backend} key={selectedContainerId}>
-            <ReactApp
-                app={rightPaneState.appView.root} 
-                session={rightPaneState.sessionView.root}
+            <ReactApp 
+                appTree={rightPaneState.appTree} 
+                sessionTree={rightPaneState.sessionTree} 
                 audience={rightPaneState.services.audience} 
                 container={rightPaneState.container} 
-                undoStack={rightPaneState.undoStack}
-                redoStack={rightPaneState.redoStack}
-                unsubscribe={rightPaneState.unsubscribe} />
+                />
         </DndProvider>
         );
     }

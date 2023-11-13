@@ -3,7 +3,6 @@ import {
     ITokenProvider,
     ITokenResponse,
 } from '@fluidframework/azure-client';
-
 import axios from 'axios';
 import { generateTestUser } from '../utils/utils';
 

@@ -4,7 +4,7 @@ import { deleteGroup, moveItem } from '../utils/app_helpers';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 import { NoteContainer } from './noteux';
 import { DeleteButton } from './buttonux';
-import { SetSelectionFunc, dragType } from '../utils/utils';
+import { dragType } from '../utils/utils';
 import { Session } from '../schema/session_schema';
 import { Tree } from '@fluid-experimental/tree2';
 
@@ -13,7 +13,7 @@ export function GroupView(props: {
     clientId: string;
     app: App;
     selection: Note[];
-    setSelection: SetSelectionFunc;
+    setSelection: (value: Note[]) => void;
     session: Session;
     fluidMembers: string[];
 }): JSX.Element {

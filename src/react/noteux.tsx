@@ -8,7 +8,6 @@ import {
     updateNoteText,
 } from '../utils/app_helpers';
 import {
-    SetSelectionFunc,
     dragType,
     getRotation,
     selectAction,
@@ -27,7 +26,7 @@ export function NoteContainer(props: {
     group: Group;
     clientId: string;
     selection: Note[];
-    setSelection: SetSelectionFunc;
+    setSelection: (value: Note[]) => void;
     session: Session;
     fluidMembers: string[];
 }): JSX.Element {
@@ -59,7 +58,7 @@ export function RootNoteWrapper(props: {
     clientId: string;
     notes: Notes | Items;
     selection: Note[];
-    setSelection: SetSelectionFunc;
+    setSelection: (value: Note[]) => void;
     session: Session;
     fluidMembers: string[];
 }): JSX.Element {
@@ -75,7 +74,7 @@ function NoteView(props: {
     clientId: string;
     notes: Notes | Items;
     selection: Note[];
-    setSelection: SetSelectionFunc;
+    setSelection: (value: Note[]) => void;
     session: Session;
     fluidMembers: string[];
 }): JSX.Element {
@@ -199,10 +198,10 @@ function NoteView(props: {
 
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        if (e.shiftKey) {
-            update(selectAction.MULTI);
-        } else if (selected) {
+        if (selected) {
             update(selectAction.REMOVE);
+        } else if (e.shiftKey || e.ctrlKey) {
+            update(selectAction.MULTI);
         } else {
             update(selectAction.SINGLE);
         }
@@ -305,11 +304,11 @@ function AddNoteButton(props: { group: Group; clientId: string }): JSX.Element {
         }),
         drop: (item) => {
             const droppedItem = item
-            if (Tree.is(droppedItem, note)) {            
-                const i = Tree.key(droppedItem);
-                const parent = Tree.parent(droppedItem);
-                if (typeof(i) === "number" && (Tree.is(parent, notes) || Tree.is(parent, items))) {
-                    props.group.notes.moveToEnd(i, parent);
+            if (Tree.is(droppedItem, note)) {
+                const parent = Tree.parent(droppedItem);                
+                if (Tree.is(parent, notes) || Tree.is(parent, items)) {
+                    const index = parent.indexOf(droppedItem);
+                    props.group.notes.moveToEnd(index, parent);
                 }
             }
             return;

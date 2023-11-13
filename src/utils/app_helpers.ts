@@ -107,41 +107,31 @@ export function deleteGroup(group: Group, app: App) {
     // Test for the presence of notes and move them to the root
     // in the same position as the group
     if (group.notes.length !== 0) {
-        const i = Tree.key(group);
-        if (typeof(i) === "number") {
-            app.items.moveRangeToIndex(
-                i,            
-                0,
-                group.notes.length,            
-                group.notes
-            );
-        }
+        const index = app.items.indexOf(group);       
+        app.items.moveRangeToIndex(
+            index,            
+            0,
+            group.notes.length,            
+            group.notes
+        );        
     }
 
     // Delete the now empty group
     const parent = Tree.parent(group);
     if (Tree.is(parent, items)) {
-        const i = Tree.key(group);
-        if (typeof(i) === "number") {
-            parent.removeAt(i);
-        }
+        const i = parent.indexOf(group);
+        parent.removeAt(i);
     }
 }
 
 // Function to delete a note.
 export function deleteNote(note: Note) {
     const parent = Tree.parent(note)
-
-    // bail if parent is undefined
-    if (!parent) return;
-
     // Use type narrowing to ensure that parent is one of the two
-    // types of allowed lists for a note
+    // types of allowed lists for a note and not undefined
     if (Tree.is(parent, notes) || Tree.is(parent, items)) {
-        const key = Tree.key(note);
-        if (typeof(key) === "number") {
-            parent.removeAt(key);
-        }
+        const index = parent.indexOf(note);        
+        parent.removeAt(index);        
     }    
 }
 
