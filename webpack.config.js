@@ -69,8 +69,8 @@ module.exports = {
     plugins: [
         // No need to write a index.html
         new HtmlWebpackPlugin({
-            title: 'Shared-Tree-Demo',
-            favicon: 'favicon.ico',
+            title: 'Brainstorm Demo',
+            favicon: '',
         }),
         // Load environment variables during webpack bundle
         new Dotenv({
