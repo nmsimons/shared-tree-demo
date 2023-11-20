@@ -122,11 +122,12 @@ function NoteView(props: {
     // on lower level components.
     useEffect(() => {
         // Returns the cleanup function to be invoked when the component unmounts.
-        return Tree.on(props.session, 'afterChange', () => {
+        const unsubscribe = Tree.on(props.session, 'afterChange', () => {
             test();
             setInvalidations(invalidations + Math.random());
         });
-    }, [invalidations]);
+        return unsubscribe;
+    }, []);
     
     useEffect(() => {
         test();
