@@ -1,6 +1,6 @@
 import {
     AllowedUpdateType,
-    ProxyNode,
+    TypedNode,
     SchemaBuilder,
 } from '@fluid-experimental/tree2';
 
@@ -20,9 +20,9 @@ export const binder = sb.object('binder', {
 });
 
 // Export the types defined here as TypeScript types.
-export type Binder = ProxyNode<typeof binder>;
-export type Pages = ProxyNode<typeof pages>;
-export type Page = ProxyNode<typeof page>;
+export type Binder = TypedNode<typeof binder>;
+export type Pages = TypedNode<typeof pages>;
+export type Page = TypedNode<typeof page>;
 
 export const binderSchema = sb.intoSchema(binder);
 
