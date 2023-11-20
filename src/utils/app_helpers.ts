@@ -97,7 +97,7 @@ export function addGroup(items: Items, name: string): Group {
         notes: [],
     });
 
-    items.insertAtStart([newGroup]);
+    items.insertAtEnd([newGroup]);
     return newGroup; 
 }
 

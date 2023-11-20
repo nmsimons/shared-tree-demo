@@ -1,6 +1,6 @@
 import {
     AllowedUpdateType,
-    ProxyNode,
+    TypedNode,
     SchemaBuilder,
     buildTreeConfiguration,
 } from '@fluid-experimental/tree2';
@@ -49,11 +49,11 @@ export const app = sb.object('app', {
 });
 
 // Export the types defined here as TypeScript types.
-export type App = ProxyNode<typeof app>;
-export type Group = ProxyNode<typeof group>;
-export type Note = ProxyNode<typeof note>;
-export type Notes = ProxyNode<typeof notes>;
-export type Items = ProxyNode<typeof items>;
+export type App = TypedNode<typeof app>;
+export type Group = TypedNode<typeof group>;
+export type Note = TypedNode<typeof note>;
+export type Notes = TypedNode<typeof notes>;
+export type Items = TypedNode<typeof items>;
 
 export const appSchema = sb.intoSchema(app);
 

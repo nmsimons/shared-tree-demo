@@ -1,6 +1,6 @@
 import {
     AllowedUpdateType,
-    ProxyNode,
+    TypedNode,
     SchemaBuilder,
     buildTreeConfiguration,
 } from '@fluid-experimental/tree2';
@@ -25,8 +25,8 @@ export const session = sb.object('session', {
 });
 
 // Export the types defined here as TypeScript types.
-export type Client = ProxyNode<typeof client>;
-export type Session = ProxyNode<typeof session>;
+export type Client = TypedNode<typeof client>;
+export type Session = TypedNode<typeof session>;
 
 export const sessionSchema = sb.intoSchema(session);
 
