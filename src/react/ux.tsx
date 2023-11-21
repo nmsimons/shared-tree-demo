@@ -132,9 +132,9 @@ export function ReactApp(props: {
                 fluidMembers={fluidMembers}
                 clientId={currentUser}
             />
-            <div className="relative max-h-full h-full w-full flex flex-row ">
+            <div className="relative h-full w-full flex flex-row ">
                 <div className="relative flex flex-none w-72 bg-transparent overflow-y-scroll"></div>
-                <div className="relative flex max-h-full h-full w-full bg-transparent ">
+                <div className="relative flex w-full bg-transparent ">
                     <RootItems
                         app={appRoot}
                         clientId={currentUser}
