@@ -146,17 +146,11 @@ export function toggleVote(note: Note, user: string) {
     }
 }
 
-export function addPage(
-    pages: Pages,
-    id: string,
-    name: string,
-) {
-    const newPage = page.create({
-        id,
-        name
-    });
-
+export function addPage(pages: Pages, id: string, name: string) : Page {
+    const newPage = page.create({id, name});
     pages.insertAtEnd([newPage]);
+
+    return newPage;
 }
 
 export function deletePage(page: Page) {

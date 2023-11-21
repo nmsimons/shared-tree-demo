@@ -155,12 +155,14 @@ export function NewPageButton(props: { binder: Binder }): JSX.Element {
     const handleClick = async (e: React.MouseEvent) => {
         e.stopPropagation();
 
+        const newPage = addPage(props.binder.pages, "", '[new page]')
+
         // Initialize Fluid data
-        const { container } = await loadFluidData("", notesContainerSchema);    
+        const { container } = await loadFluidData("", notesContainerSchema);
         const containerId = await container.attach();
         console.log("new container ID: " + containerId);
 
-        addPage(props.binder.pages, containerId, '[new page]')
+        newPage.id = containerId;
     };
 
     return (
