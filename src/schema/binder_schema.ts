@@ -2,6 +2,7 @@ import {
     AllowedUpdateType,
     TypedNode,
     SchemaBuilder,
+    buildTreeConfiguration,
 } from '@fluid-experimental/tree2';
 
 // Include a UUID to guarantee that this schema will be uniquely identifiable
@@ -28,12 +29,11 @@ export const binderSchema = sb.intoSchema(binder);
 
 // Export the tree config appropriate for this schema
 // This is passed into the SharedTree when it is initialized
-export const binderSchemaConfig = {
+export const binderSchemaConfig = buildTreeConfiguration({
     schema: binderSchema,
     initialTree: {
         name: "My Binder",
         pages: {"":[]},
     },
-    
     allowedSchemaModifications: AllowedUpdateType.SchemaCompatible,
-};
+});

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import '../output.css';
 import { IFluidContainer } from 'fluid-framework';
 import { DndProvider } from 'react-dnd';
@@ -12,7 +12,7 @@ import { Binder, Page } from '../schema/binder_schema';
 import { ReactApp } from './ux';
 import { DeleteButton, IconButton } from './buttonux';
 import { addPage, deletePage } from '../utils/app_helpers';
-import { Tree, ITree } from '@fluid-experimental/tree2';
+import { Tree, ITree, TreeView } from '@fluid-experimental/tree2';
 import { notesContainerSchema } from '../infra/containerSchema';
 import { sessionSchemaConfig } from '../schema/session_schema';
 import { appSchemaConfig } from '../schema/app_schema';
@@ -23,60 +23,39 @@ const devtools = initializeDevtools({
 const binderContainerKey = "Binder container"
 const pageContainerKey = "Page container"
 
-export function Binder(props: {
-    binder: Binder
+export function BinderApp(props: {
+    binderTree: TreeView<Binder>;
     container: IFluidContainer;
 }): JSX.Element {    
-    const [selectedContainerId, setSelectedContainerId] = useState("");
     const [rightPaneState, setRightPaneState] = useState<any>();
     const [invalidations, setInvalidations] = useState(0);
 
+    // Register for tree deltas when the component mounts.
+    // Any time the tree changes, the app will update
+    // For more complex apps, this code can be included
+    // on lower level components.
     useEffect(() => {
-        return Tree.on(props.binder, 'afterChange', () => {
-            setInvalidations(invalidations + Math.random());
-        });
-    }, [invalidations]);
-
-    // Register the Binder container with the devtools
-    // Note: This only needs to happen once on page load
-    useEffect(() => {
+        // Register the Binder container with the devtools
+        // Note: This only needs to happen once on page load
         devtools.registerContainerDevtools({
             container: props.container,
             containerKey: binderContainerKey,
         });
+        console.log("how many times?");
+
+        const unsubscribe = Tree.on(props.binderTree.root, 'afterChange', () => {
+            setInvalidations(invalidations + Math.random());
+        });
+        return unsubscribe;
     }, []);
-
-    useEffect(() => {
-        (async () => {
-            if (selectedContainerId != "") {
-                // Initialize Fluid Container
-                const { services, container } = await loadFluidData(selectedContainerId, notesContainerSchema);    
-
-                // Initialize the SharedTree DDSes
-                const sessionTree = (container.initialObjects.sessionData as ITree).schematize(sessionSchemaConfig); 
-                const appTree = (container.initialObjects.appData as ITree).schematize(appSchemaConfig);
-                                
-                const pageState = {appTree, sessionTree, services, container};
-
-                setRightPaneState(pageState);
-
-                devtools.closeContainerDevtools(pageContainerKey);
-                devtools.registerContainerDevtools({
-                    container: container,
-                    containerKey: pageContainerKey,
-                });
-            }
-        })();
-    }, [selectedContainerId]);
 
     let rightPaneView = [];
     if (rightPaneState !== undefined) {
-        console.log("rightPaneState is not undefined!", rightPaneState);
         rightPaneView.push(
         // Render the app - note we attach new containers after render so
         // the app renders instantly on create new flow. The app will be 
         // interactive immediately.    
-        <DndProvider backend={HTML5Backend} key={selectedContainerId}>
+        <DndProvider backend={HTML5Backend} key={rightPaneState.containerId}>
             <ReactApp 
                 appTree={rightPaneState.appTree} 
                 sessionTree={rightPaneState.sessionTree} 
@@ -88,12 +67,31 @@ export function Binder(props: {
     }
 
     const pageClicked = (containerId: string) => {
-        setSelectedContainerId(containerId);
+        (async () => {
+            if (containerId != "") {
+                console.log("loading container: " + containerId);
+
+                // Initialize Fluid Container
+                const { services, container } = await loadFluidData(containerId, notesContainerSchema);    
+
+                // Initialize the SharedTree DDSes
+                const sessionTree = (container.initialObjects.sessionData as ITree).schematize(sessionSchemaConfig); 
+                const appTree = (container.initialObjects.appData as ITree).schematize(appSchemaConfig);
+                            
+                setRightPaneState({appTree, sessionTree, services, container, containerId});
+
+                devtools.closeContainerDevtools(pageContainerKey);
+                devtools.registerContainerDevtools({
+                    container: container,
+                    containerKey: pageContainerKey,
+                });
+            }
+        })();
     }
 
     return (
         <div className="flex flex-row bg-white h-full w-full">
-            <LeftNav root={props.binder} onItemSelect={pageClicked} />
+            <LeftNav root={props.binderTree.root} onItemSelect={pageClicked} />
             <div>{rightPaneView}</div>
         </div>
     );
@@ -158,8 +156,9 @@ export function NewPageButton(props: { binder: Binder }): JSX.Element {
         e.stopPropagation();
 
         // Initialize Fluid data
-        const { services, container } = await loadFluidData("", notesContainerSchema);    
+        const { container } = await loadFluidData("", notesContainerSchema);    
         const containerId = await container.attach();
+        console.log("new container ID: " + containerId);
 
         addPage(props.binder.pages, containerId, '[new page]')
     };
@@ -171,7 +170,7 @@ export function NewPageButton(props: { binder: Binder }): JSX.Element {
             handleClick={(e: React.MouseEvent) => handleClick(e)}
             icon={<NoteRegular />}
         >
-            Add Note
+            Add Page
         </IconButton>
     );
 }

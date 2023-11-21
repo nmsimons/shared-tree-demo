@@ -39,6 +39,10 @@ export function ReactApp(props: {
     const [undoStack, setUndoStack] = useState<Revertible[]>([]);
     const [redoStack, setRedoStack] = useState<Revertible[]>([]);    
 
+    if (props == undefined) {
+        return <>nothing to see here</>;
+    }
+
     useEffect(() => {
         const { undoStack, redoStack } = setupUndoRedoStacks(props.appTree);
         setUndoStack(undoStack);

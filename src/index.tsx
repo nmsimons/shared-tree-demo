@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-key */
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { Binder } from './react/binderux';
+import { BinderApp } from './react/binderux';
 import { loadFluidData } from './infra/fluid';
 import { binderContainerSchema } from './infra/containerSchema';
 import { ITree } from '@fluid-experimental/tree2';
@@ -35,7 +35,7 @@ async function main() {
 
     // Render the app 
     root.render(
-        <Binder binder={binderView.root} container={container} />
+        <BinderApp binderTree={binderView} container={container} />
     );
 }
 
