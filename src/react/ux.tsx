@@ -67,11 +67,11 @@ export function ReactApp(props: {
     // For more complex apps, this code can be included
     // on lower level components.
     useEffect(() => {
-        // Returns the cleanup function to be invoked when the component unmounts.
-        return Tree.on(appRoot, 'afterChange', () => {
+        const unsubscribe = Tree.on(appRoot, 'afterChange', () => {
             setInvalidations(invalidations + Math.random());
         });
-    }, [invalidations]);
+        return unsubscribe;
+    }, []);
 
     useEffect(() => {
         const updateConnectionState = () => {
