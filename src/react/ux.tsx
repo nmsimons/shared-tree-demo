@@ -28,7 +28,7 @@ export function ReactApp(props: {
     appTree: TreeView<App>;
     sessionTree: TreeView<Session>;
     audience: IServiceAudience<IMember>;
-    container: IFluidContainer;    
+    container: IFluidContainer;
 }): JSX.Element {
     const [noteSelection, setNoteSelection] = useState<Note[]>([]);
     const [invalidations, setInvalidations] = useState(0);
@@ -37,13 +37,13 @@ export function ReactApp(props: {
     const [saved, setSaved] = useState(!props.container.isDirty);
     const [fluidMembers, setFluidMembers] = useState<string[]>([]);
     const [undoStack, setUndoStack] = useState<Revertible[]>([]);
-    const [redoStack, setRedoStack] = useState<Revertible[]>([]);    
+    const [redoStack, setRedoStack] = useState<Revertible[]>([]);
 
     useEffect(() => {
         const { undoStack, redoStack } = setupUndoRedoStacks(props.appTree);
         setUndoStack(undoStack);
-        setRedoStack(redoStack);        
-    }, [])
+        setRedoStack(redoStack);
+    }, []);
 
     const undo = useCallback(() => {
         const result = undoStack.pop()?.revert();
@@ -75,7 +75,7 @@ export function ReactApp(props: {
 
     useEffect(() => {
         const updateConnectionState = () => {
-            if (props.container.connectionState === ConnectionState.Connected) {                
+            if (props.container.connectionState === ConnectionState.Connected) {
                 setConnectionState('connected');
             } else if (
                 props.container.connectionState === ConnectionState.Disconnected
@@ -101,17 +101,17 @@ export function ReactApp(props: {
     }, []);
 
     const updateMembers = () => {
-        if (props.audience.getMyself() == undefined) return;        
+        if (props.audience.getMyself() == undefined) return;
         if (props.audience.getMyself()?.userId == undefined) return;
         if (props.audience.getMembers() == undefined) return;
         if (props.container.connectionState !== ConnectionState.Connected) return;
         if (currentUser == undefinedUserId) {
             const user = props.audience.getMyself()?.userId;
-            if (typeof(user) === "string") {
-                setCurrentUser(user);            
+            if (typeof user === 'string') {
+                setCurrentUser(user);
             }
         }
-        setFluidMembers(Array.from(props.audience.getMembers().keys()));                
+        setFluidMembers(Array.from(props.audience.getMembers().keys()));
     };
 
     useEffect(() => {
@@ -122,32 +122,43 @@ export function ReactApp(props: {
     }, []);
 
     return (
-        <div id="main" className="flex flex-col bg-white h-full w-full">
+        <div
+            id="main"
+            className="relative flex flex-col bg-transparent max-h-screen h-screen w-full overflow-hidden overscroll-none"
+        >
             <Header
                 saved={saved}
                 connectionState={connectionState}
                 fluidMembers={fluidMembers}
                 clientId={currentUser}
             />
-            <RootItems
-                app={appRoot}
-                clientId={currentUser}
-                selection={noteSelection}
-                setSelection={setNoteSelection}
-                session={sessionRoot}
-                fluidMembers={fluidMembers}
-            />
-            <Floater>
-                <ButtonGroup>
-                    <NewGroupButton root={appRoot} selection={noteSelection} />
-                    <NewNoteButton root={appRoot} clientId={currentUser} />
-                    <DeleteNotesButton selection={noteSelection} />
-                </ButtonGroup>
-                <ButtonGroup>
-                    <UndoButton undo={undo} />
-                    <RedoButton redo={redo} />
-                </ButtonGroup>
-            </Floater>
+            <div className="relative h-[95%] w-full flex flex-row ">
+                <div className="relative flex flex-none w-72 bg-transparent overflow-y-scroll"></div>
+                <div className="relative flex h-full w-full bg-transparent ">
+                    <RootItems
+                        app={appRoot}
+                        clientId={currentUser}
+                        selection={noteSelection}
+                        setSelection={setNoteSelection}
+                        session={sessionRoot}
+                        fluidMembers={fluidMembers}
+                    />
+                    <Floater>
+                        <ButtonGroup>
+                            <NewGroupButton
+                                root={appRoot}
+                                selection={noteSelection}
+                            />
+                            <NewNoteButton root={appRoot} clientId={currentUser} />
+                            <DeleteNotesButton selection={noteSelection} />
+                        </ButtonGroup>
+                        <ButtonGroup>
+                            <UndoButton undo={undo} />
+                            <RedoButton redo={redo} />
+                        </ButtonGroup>
+                    </Floater>
+                </div>
+            </div>
         </div>
     );
 }
@@ -159,16 +170,13 @@ function Header(props: {
     clientId: string;
 }): JSX.Element {
     return (
-        <>
-            <div className="h-10 w-full"></div>
-            <div className="fixed flex flex-row justify-between bg-black h-10 text-base text-white z-40 w-full">
-                <div className="m-2">shared-tree-demo</div>
-                <div className="m-2">
-                    {props.saved ? 'saved' : 'not saved'} | {props.connectionState} |
-                    users: {props.fluidMembers.length}
-                </div>
+        <div className="h-[5%] flex flex-row justify-between bg-black text-base text-white z-40 w-full">
+            <div className="m-2">shared-tree-demo</div>
+            <div className="m-2">
+                {props.saved ? 'saved' : 'not saved'} | {props.connectionState} |
+                users: {props.fluidMembers.length}
             </div>
-        </>
+        </div>
     );
 }
 
@@ -211,5 +219,10 @@ function RootItems(props: {
         }
     }
 
-    return <div className="flex flex-row flex-wrap gap-4 m-4">{pilesArray}</div>;
+    return (
+        <div className="flex flex-row w-full flex-wrap gap-4 p-4 content-start overflow-y-scroll">
+            {pilesArray}
+            <div className="flex w-full h-24"></div>
+        </div>
+    );
 }
