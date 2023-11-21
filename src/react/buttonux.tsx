@@ -8,17 +8,20 @@ import {
     DeleteRegular,
     RectangleLandscapeRegular,
     ArrowUndoFilled,
-    ArrowRedoFilled
+    ArrowRedoFilled,
 } from '@fluentui/react-icons';
 
-export function NewGroupButton(props: { root: App, selection: Note[] }): JSX.Element {
+export function NewGroupButton(props: {
+    root: App;
+    selection: Note[];
+}): JSX.Element {
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        const group = addGroup(props.root.items, '[new group]')
-        for(const s of props.selection) {
+        const group = addGroup(props.root.items, '[new group]');
+        for (const s of props.selection) {
             moveItem(s, Infinity, group.notes);
         }
-    };    
+    };
     return (
         <IconButton
             color="white"
@@ -32,10 +35,9 @@ export function NewGroupButton(props: { root: App, selection: Note[] }): JSX.Ele
 }
 
 export function NewNoteButton(props: { root: App; clientId: string }): JSX.Element {
-    
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        addNote(props.root.items, '', props.clientId)
+        addNote(props.root.items, '', props.clientId);
     };
 
     return (
@@ -69,7 +71,6 @@ export function DeleteNotesButton(props: { selection: Note[] }): JSX.Element {
 }
 
 export function UndoButton(props: { undo: () => void }): JSX.Element {
-    
     return (
         <IconButton
             color="white"
@@ -83,7 +84,6 @@ export function UndoButton(props: { undo: () => void }): JSX.Element {
 }
 
 export function RedoButton(props: { redo: () => void }): JSX.Element {
-    
     return (
         <IconButton
             color="white"
@@ -96,7 +96,9 @@ export function RedoButton(props: { redo: () => void }): JSX.Element {
     );
 }
 
-export function DeleteButton(props: { handleClick: (value: React.MouseEvent) => void }): JSX.Element {
+export function DeleteButton(props: {
+    handleClick: (value: React.MouseEvent) => void;
+}): JSX.Element {
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         props.handleClick(e);
@@ -158,7 +160,6 @@ function MiniX(): JSX.Element {
     return <DismissFilled />;
 }
 
-
 export function MiniThumb(): JSX.Element {
     return <ThumbLikeFilled />;
 }
@@ -169,17 +170,14 @@ export function ButtonGroup(props: { children: React.ReactNode }): JSX.Element {
 
 export function Floater(props: { children: React.ReactNode }): JSX.Element {
     return (
-        <>
-            <div className="h-24"></div>
-            <div className="transition transform fixed z-100 bottom-0 inset-x-0 pb-2 sm:pb-5 opacity-100 scale-100 translate-y-0 ease-out duration-500 text-white">
-                <div className="max-w-screen-md mx-auto px-2 sm:px-4">
-                    <div className="p-2 rounded-lg bg-black shadow-lg sm:p-3">
-                        <div className="flex flex-row items-center justify-between flex-wrap">                            
-                            {props.children}                            
-                        </div>
+        <div className="transition transform absolute z-100 bottom-0 inset-x-0 pb-2 sm:pb-5 opacity-100 scale-100 translate-y-0 ease-out duration-500 text-white">
+            <div className="max-w-screen-md mx-auto px-2 sm:px-4">
+                <div className="p-2 rounded-lg bg-black shadow-lg sm:p-3">
+                    <div className="flex flex-row items-center justify-between flex-wrap">
+                        {props.children}
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     );
 }
