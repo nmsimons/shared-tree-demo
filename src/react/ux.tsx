@@ -124,7 +124,7 @@ export function ReactApp(props: {
     return (
         <div
             id="main"
-            className="relative flex flex-col bg-transparent max-h-screen h-screen w-full overflow-hidden overscroll-none"
+            className="relative flex flex-col bg-transparent h-screen w-full overflow-hidden overscroll-none"
         >
             <Header
                 saved={saved}
@@ -132,9 +132,9 @@ export function ReactApp(props: {
                 fluidMembers={fluidMembers}
                 clientId={currentUser}
             />
-            <div className="relative h-[95%] w-full flex flex-row ">
+            <div className="relative max-h-full h-full w-full flex flex-row ">
                 <div className="relative flex flex-none w-72 bg-transparent overflow-y-scroll"></div>
-                <div className="relative flex h-full w-full bg-transparent ">
+                <div className="relative flex max-h-full h-full w-full bg-transparent ">
                     <RootItems
                         app={appRoot}
                         clientId={currentUser}
@@ -170,7 +170,7 @@ function Header(props: {
     clientId: string;
 }): JSX.Element {
     return (
-        <div className="h-[5%] flex flex-row justify-between bg-black text-base text-white z-40 w-full">
+        <div className="h-12 flex flex-row justify-between bg-black text-base text-white z-40 w-full">
             <div className="m-2">shared-tree-demo</div>
             <div className="m-2">
                 {props.saved ? 'saved' : 'not saved'} | {props.connectionState} |
