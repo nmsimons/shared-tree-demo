@@ -130,7 +130,7 @@ export function ReactApp(props: {
                 saved={saved}
                 connectionState={connectionState}
                 fluidMembers={fluidMembers}
-                clientId={currentUser}
+                clientId={currentUser}                
             />
             <div className="flex h-[calc(100vh-48px)] flex-row ">
                 <div className="relative h-full flex flex-none w-72 bg-transparent overflow-y-scroll"></div>
@@ -167,11 +167,11 @@ function Header(props: {
     saved: boolean;
     connectionState: string;
     fluidMembers: string[];
-    clientId: string;
+    clientId: string;    
 }): JSX.Element {
     return (
         <div className="h-[48px] flex shrink-0 flex-row items-center justify-between bg-black text-base text-white z-40 w-full">
-            <div className="flex m-2">shared-tree-demo</div>
+            <div className="flex m-2">Brainstorm</div>
             <div className="flex m-2 ">
                 {props.saved ? 'saved' : 'not saved'} | {props.connectionState} |
                 users: {props.fluidMembers.length}
