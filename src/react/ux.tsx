@@ -128,17 +128,17 @@ export function ReactApp(props: {
     return (
         <div
             id="main"
-            className="relative flex flex-col bg-transparent max-h-screen h-screen w-full overflow-hidden overscroll-none"
+            className="flex flex-col bg-transparent h-screen w-full overflow-hidden overscroll-none"
         >
             <Header
                 saved={saved}
                 connectionState={connectionState}
                 fluidMembers={fluidMembers}
-                clientId={currentUser}
+                clientId={currentUser}                
             />
-            <div className="relative h-[95%] w-full flex flex-row ">
-                <div className="relative flex flex-none w-72 bg-transparent overflow-y-scroll"></div>
-                <div className="relative flex h-full w-full bg-transparent ">
+            <div className="flex h-[calc(100vh-48px)] flex-row ">
+                <div className="relative h-full flex flex-none w-72 bg-transparent overflow-y-scroll"></div>
+                <div className="relative flex grow-0 h-full w-full bg-transparent">
                     <RootItems
                         app={appRoot}
                         clientId={currentUser}
@@ -171,12 +171,12 @@ function Header(props: {
     saved: boolean;
     connectionState: string;
     fluidMembers: string[];
-    clientId: string;
+    clientId: string;    
 }): JSX.Element {
     return (
-        <div className="h-[5%] flex flex-row justify-between bg-black text-base text-white z-40 w-full">
-            <div className="m-2">shared-tree-demo</div>
-            <div className="m-2">
+        <div className="h-[48px] flex shrink-0 flex-row items-center justify-between bg-black text-base text-white z-40 w-full">
+            <div className="flex m-2">Brainstorm</div>
+            <div className="flex m-2 ">
                 {props.saved ? 'saved' : 'not saved'} | {props.connectionState} |
                 users: {props.fluidMembers.length}
             </div>
@@ -224,7 +224,7 @@ function RootItems(props: {
     }
 
     return (
-        <div className="flex flex-row w-full flex-wrap gap-4 p-4 content-start overflow-y-scroll">
+        <div className="flex grow-0 flex-row h-full w-full flex-wrap gap-4 p-4 content-start overflow-y-scroll">
             {pilesArray}
             <div className="flex w-full h-24"></div>
         </div>
