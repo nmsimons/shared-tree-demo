@@ -41,7 +41,6 @@ export function BinderApp(props: {
             container: props.container,
             containerKey: binderContainerKey,
         });
-        console.log("how many times?");
 
         const unsubscribe = Tree.on(props.binderTree.root, 'afterChange', () => {
             setInvalidations(invalidations + Math.random());
@@ -69,8 +68,6 @@ export function BinderApp(props: {
     const pageClicked = (containerId: string) => {
         (async () => {
             if (containerId != "") {
-                console.log("loading container: " + containerId);
-
                 // Initialize Fluid Container
                 const { services, container } = await loadFluidData(containerId, notesContainerSchema);    
 
@@ -92,7 +89,7 @@ export function BinderApp(props: {
     return (
         <div className="flex flex-row bg-white h-full w-full">
             <LeftNav root={props.binderTree.root} onItemSelect={pageClicked} />
-            <div>{rightPaneView}</div>
+            <div className='w-full'>{rightPaneView}</div>
         </div>
     );
 }

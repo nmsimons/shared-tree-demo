@@ -39,10 +39,6 @@ export function ReactApp(props: {
     const [undoStack, setUndoStack] = useState<Revertible[]>([]);
     const [redoStack, setRedoStack] = useState<Revertible[]>([]);
 
-    if (props == undefined) {
-        return <>nothing to see here</>;
-    }
-
     useEffect(() => {
         const { undoStack, redoStack } = setupUndoRedoStacks(props.appTree);
         setUndoStack(undoStack);
@@ -137,7 +133,7 @@ export function ReactApp(props: {
                 clientId={currentUser}                
             />
             <div className="flex h-[calc(100vh-48px)] flex-row ">
-                <div className="relative h-full flex flex-none w-72 bg-transparent overflow-y-scroll"></div>
+                <div className="relative h-full flex flex-none w-72 bg-transparent overflow-y-scroll">left</div>
                 <div className="relative flex grow-0 h-full w-full bg-transparent">
                     <RootItems
                         app={appRoot}
