@@ -23,53 +23,141 @@ import {
 import { RevertResult, Revertible, Tree, TreeView } from '@fluid-experimental/tree2';
 import { undefinedUserId } from '../utils/utils';
 import { setupUndoRedoStacks } from '../utils/undo';
+import { Binder } from '../schema/binder_schema';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import { initializeDevtools } from '@fluid-experimental/devtools';
+import { devtoolsLogger } from '../infra/clientProps';
+import { getAppContainer } from '../utils/app_helpers';
+import { AzureContainerServices } from '@fluidframework/azure-client';
+import { LeftNav } from './binderux';
+
+const devtools = initializeDevtools({
+    logger: devtoolsLogger
+});
+const binderContainerKey = "Binder container"
+const pageContainerKey = "Page container"
 
 export function ReactApp(props: {
-    appTree: TreeView<App>;
-    sessionTree: TreeView<Session>;
-    audience: IServiceAudience<IMember>;
+    binderTree: TreeView<Binder>;
     container: IFluidContainer;
-    containerId: string;
 }): JSX.Element {
+
     const [currentUser, setCurrentUser] = useState(undefinedUserId);
-    const [connectionState, setConnectionState] = useState('');
+    const [connectionState, setConnectionState] = useState("");
     const [saved, setSaved] = useState(false);
     const [fluidMembers, setFluidMembers] = useState<string[]>([]);
-    
-    return (
-        <div
-            id="main"
-            className="flex flex-col bg-transparent h-screen w-full overflow-hidden overscroll-none"
-        >
-            <Header
-                saved={saved}
-                connectionState={connectionState}
-                fluidMembers={fluidMembers}
-                clientId={currentUser}
-                containerId={props.containerId}
-            />
-            <div className="flex h-[calc(100vh-48px)] flex-row ">
-                <Nav />
-                <Canvas
-                    appTree={props.appTree}
-                    sessionTree={props.sessionTree}
-                    audience={props.audience}
-                    container={props.container}
+
+    const [canvasState, setCanvasState] = useState<{ appTree: TreeView<App>, sessionTree: TreeView<Session>, services: AzureContainerServices, container: IFluidContainer }>();
+    const [canvasId, setCanvasId] = useState("");
+    const [invalidations, setInvalidations] = useState(0);
+
+    // Register for tree deltas when the component mounts.
+    // Any time the tree changes, the app will update
+    // For more complex apps, this code can be included
+    // on lower level components.
+    useEffect(() => {
+        // Register the Binder container with the devtools
+        // Note: This only needs to happen once on page load
+        devtools.registerContainerDevtools({
+            container: props.container,
+            containerKey: binderContainerKey,
+        });
+
+        // Set initial canvas state        
+
+        const unsubscribe = Tree.on(props.binderTree.root, 'afterChange', () => {
+            setInvalidations(invalidations + Math.random());
+        });
+        return unsubscribe;
+    }, []);
+
+    useEffect(() => {
+        // Make sure the current page is still in the binder
+        // If the current page is new, bail
+        if (canvasId == "") return;        
+        for (const p of props.binderTree.root.pages) {
+            if (p.id == canvasId) {
+                return;
+            }
+        }
+        setCanvasState(undefined);
+    }, [invalidations])
+
+    const loadPage = async (containerId: string): Promise<string> => {
+        if (containerId === canvasId) return "";
+        const app = await getAppContainer(containerId);
+        if (app === undefined) return "";
+        setCanvasState(app);
+        if (containerId === "") {
+            containerId = await app.container.attach();            
+        }
+        setCanvasId(containerId);                
+
+        devtools.closeContainerDevtools(pageContainerKey);
+        devtools.registerContainerDevtools({
+            container: app.container,
+            containerKey: pageContainerKey,
+        });
+                
+        return containerId;
+    };
+
+
+    if (canvasState !== undefined) {
+        return (
+            <div
+                id="main"
+                className="flex flex-col bg-transparent h-screen w-full overflow-hidden overscroll-none"
+            >
+                <Header
+                    saved={saved}
+                    connectionState={connectionState}
                     fluidMembers={fluidMembers}
-                    currentUser={currentUser}
-                    setCurrentUser={setCurrentUser}
-                    setConnectionState={setConnectionState}
-                    setSaved={setSaved}
-                    setFluidMembers={setFluidMembers}
+                    clientId={currentUser}
+                    containerId={canvasId}
                 />
+                <div className="flex h-[calc(100vh-48px)] flex-row ">
+                    <Nav root={props.binderTree.root} onItemSelect={loadPage} />
+                    <DndProvider backend={HTML5Backend} key={canvasId}>
+                        <Canvas
+                            appTree={canvasState.appTree}
+                            sessionTree={canvasState.sessionTree}
+                            audience={canvasState.services.audience}
+                            container={canvasState.container}
+                            fluidMembers={fluidMembers}
+                            currentUser={currentUser}
+                            setCurrentUser={setCurrentUser}
+                            setConnectionState={setConnectionState}
+                            setSaved={setSaved}
+                            setFluidMembers={setFluidMembers}
+                        />
+                    </DndProvider>
+                </div>
             </div>
-        </div>
-    );
+        );
+    } else {
+        return (
+            <div
+                id="main"
+                className="flex flex-col bg-transparent h-screen w-full overflow-hidden overscroll-none"
+            >
+                <EmptyHeader />
+                <div className="flex h-[calc(100vh-48px)] flex-row ">
+                    <Nav root={props.binderTree.root} onItemSelect={loadPage} />
+                    <div></div>
+                </div>
+            </div>
+        );
+    }
 }
 
-function Nav(): JSX.Element {
+function Nav(props: {
+    root: Binder;
+    onItemSelect: (itemId: string) => Promise<string>;
+}): JSX.Element {
     return (
-        <div className="relative h-full flex flex-none w-72 bg-transparent overflow-y-scroll">left</div>
+        <div className="relative h-full flex flex-none w-72 bg-transparent overflow-y-scroll"><LeftNav root={props.root} onItemSelect={props.onItemSelect} /></div>
     )
 }
 
@@ -89,7 +177,7 @@ function Canvas(props: {
     const [invalidations, setInvalidations] = useState(0);
     const [undoStack, setUndoStack] = useState<Revertible[]>([]);
     const [redoStack, setRedoStack] = useState<Revertible[]>([]);
-    
+
     useEffect(() => {
         const { undoStack, redoStack } = setupUndoRedoStacks(props.appTree);
         setUndoStack(undoStack);
@@ -144,6 +232,7 @@ function Canvas(props: {
             }
         };
         updateConnectionState();
+        props.setSaved(!props.container.isDirty);
         props.container.on('connected', updateConnectionState);
         props.container.on('disconnected', updateConnectionState);
         props.container.on('dirty', () => props.setSaved(false));
@@ -210,7 +299,7 @@ function Header(props: {
     fluidMembers: string[];
     clientId: string;
     containerId: string;
-}): JSX.Element {    
+}): JSX.Element {
     return (
         <div className="h-[48px] flex shrink-0 flex-row items-center justify-between bg-black text-base text-white z-40 w-full">
             <div className="flex m-2">Brainstorm: {props.containerId}</div>
@@ -218,6 +307,14 @@ function Header(props: {
                 {props.saved ? 'saved' : 'not saved'} | {props.connectionState} |
                 users: {props.fluidMembers.length}
             </div>
+        </div>
+    );
+}
+
+function EmptyHeader(): JSX.Element {
+    return (
+        <div className="h-[48px] flex shrink-0 flex-row items-center justify-between bg-black text-base text-white z-40 w-full">
+            <div className="flex m-2">Brainstorm</div>
         </div>
     );
 }

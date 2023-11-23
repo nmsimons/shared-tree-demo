@@ -12,7 +12,7 @@ import {
     appSchemaConfig,
 } from '../schema/app_schema';
 import { Guid } from 'guid-typescript';
-import { Page, Pages, page } from '../schema/binder_schema';
+import { Page, Pages, page, pages } from '../schema/binder_schema';
 import { AzureContainerServices } from '@fluidframework/azure-client';
 import { IFluidContainer } from 'fluid-framework';
 import { Session, sessionSchemaConfig } from '../schema/session_schema';
@@ -152,17 +152,9 @@ export function toggleVote(note: Note, user: string) {
     }
 }
 
-
 // Helpers for the left nav
-
-export function initializeApplication(pages: Pages) {
-    return true;
-}
-
 export const getAppContainer = async (containerId: string) => {
-
-    if (containerId === "") return;
-
+    
     // Initialize Fluid Container
     const { services, container } = await loadFluidData(containerId, notesContainerSchema);
 
@@ -170,17 +162,18 @@ export const getAppContainer = async (containerId: string) => {
     const sessionTree = (container.initialObjects.sessionData as ITree).schematize(sessionSchemaConfig);
     const appTree = (container.initialObjects.appData as ITree).schematize(appSchemaConfig);
 
-    return { appTree, sessionTree, services, container, containerId }
+    return { appTree, sessionTree, services, container }
 }
 
 export function addPage(pages: Pages, id: string, name: string): Page {
     const newPage = page.create({ id, name });
     pages.insertAtEnd([newPage]);
-
     return newPage;
 }
 
 export function deletePage(page: Page) {
-    const parent = Tree.parent(page) as Pages;
-    if (parent) parent.removeAt(Tree.key(page) as number);
+    const parent = Tree.parent(page);
+    if (Tree.is(parent, pages)) {
+        if (parent) parent.removeAt(Tree.key(page) as number);
+    }
 }
