@@ -11,11 +11,12 @@ import { devtoolsLogger } from '../infra/clientProps';
 import { Binder, Page } from '../schema/binder_schema';
 import { ReactApp } from './ux';
 import { DeleteButton, IconButton } from './buttonux';
-import { addPage, deletePage } from '../utils/app_helpers';
+import { addPage, deletePage, getAppContainer } from '../utils/app_helpers';
 import { Tree, ITree, TreeView } from '@fluid-experimental/tree2';
 import { notesContainerSchema } from '../infra/containerSchema';
-import { sessionSchemaConfig } from '../schema/session_schema';
-import { appSchemaConfig } from '../schema/app_schema';
+import { Session, sessionSchemaConfig } from '../schema/session_schema';
+import { App, appSchemaConfig } from '../schema/app_schema';
+import { AzureContainerServices } from '@fluidframework/azure-client';
 
 const devtools = initializeDevtools({
     logger: devtoolsLogger
@@ -26,8 +27,8 @@ const pageContainerKey = "Page container"
 export function BinderApp(props: {
     binderTree: TreeView<Binder>;
     container: IFluidContainer;
-}): JSX.Element {    
-    const [rightPaneState, setRightPaneState] = useState<any>();
+}): JSX.Element {
+    const [canvasState, setCanvasState] = useState<{ appTree: TreeView<App>, sessionTree: TreeView<Session>, services: AzureContainerServices, container: IFluidContainer, containerId: string }>();
     const [invalidations, setInvalidations] = useState(0);
 
     // Register for tree deltas when the component mounts.
@@ -41,6 +42,8 @@ export function BinderApp(props: {
             container: props.container,
             containerKey: binderContainerKey,
         });
+        
+        // Set initial canvas state        
 
         const unsubscribe = Tree.on(props.binderTree.root, 'afterChange', () => {
             setInvalidations(invalidations + Math.random());
@@ -48,41 +51,45 @@ export function BinderApp(props: {
         return unsubscribe;
     }, []);
 
-    let rightPaneView = [];
-    if (rightPaneState !== undefined) {
-        rightPaneView.push(
-        // Render the app - note we attach new containers after render so
-        // the app renders instantly on create new flow. The app will be 
-        // interactive immediately.    
-        <DndProvider backend={HTML5Backend} key={rightPaneState.containerId}>
-            <ReactApp 
-                appTree={rightPaneState.appTree} 
-                sessionTree={rightPaneState.sessionTree} 
-                audience={rightPaneState.services.audience} 
-                container={rightPaneState.container} 
+    useEffect(() => {
+        if (canvasState !== undefined) {
+            <DndProvider backend={HTML5Backend} key={canvasState.containerId}>
+                <ReactApp
+                    appTree={canvasState.appTree}
+                    sessionTree={canvasState.sessionTree}
+                    audience={canvasState.services.audience}
+                    container={canvasState.container}
                 />
-        </DndProvider>
+            </DndProvider>
+        }
+    }, [canvasState])
+
+    const rightPaneView = [];
+    if (canvasState !== undefined) {
+        rightPaneView.push(
+            // Render the app - note we attach new containers after render so
+            // the app renders instantly on create new flow. The app will be 
+            // interactive immediately.    
+            <DndProvider backend={HTML5Backend} key={canvasState.containerId}>
+                <ReactApp
+                    appTree={canvasState.appTree}
+                    sessionTree={canvasState.sessionTree}
+                    audience={canvasState.services.audience}
+                    container={canvasState.container}
+                />
+            </DndProvider>
         );
     }
 
     const pageClicked = (containerId: string) => {
         (async () => {
-            if (containerId != "") {
-                // Initialize Fluid Container
-                const { services, container } = await loadFluidData(containerId, notesContainerSchema);    
-
-                // Initialize the SharedTree DDSes
-                const sessionTree = (container.initialObjects.sessionData as ITree).schematize(sessionSchemaConfig); 
-                const appTree = (container.initialObjects.appData as ITree).schematize(appSchemaConfig);
-                            
-                setRightPaneState({appTree, sessionTree, services, container, containerId});
-
-                devtools.closeContainerDevtools(pageContainerKey);
-                devtools.registerContainerDevtools({
-                    container: container,
-                    containerKey: pageContainerKey,
-                });
-            }
+            const app = await getAppContainer(containerId);
+            setCanvasState(app);
+            devtools.closeContainerDevtools(pageContainerKey);
+            devtools.registerContainerDevtools({
+                container: app.container,
+                containerKey: pageContainerKey,
+            });
         })();
     }
 
@@ -108,7 +115,7 @@ function LeftNav(props: {
         <div className="flex flex-col bg-blue-50 h-full w-5">
             <BinderName binder={props.root} />
             <div className="flex flex-col flex-wrap gap-4 m-4">{pageArray}</div>
-            <NewPageButton binder={props.root}  />
+            <NewPageButton binder={props.root} />
         </div>
     );
 }
@@ -124,10 +131,10 @@ function BinderName(props: { binder: Binder }): JSX.Element {
     );
 }
 
-function PageView(props: { page: Page , onItemSelect: (containerId: string) => void}): JSX.Element {
+function PageView(props: { page: Page, onItemSelect: (containerId: string) => void }): JSX.Element {
     return (
-        <div className="flex flex-row bg-blue h-full w-5" 
-            onClick={(e) => {props.onItemSelect(props.page.id)}}
+        <div className="flex flex-row bg-blue h-full w-5"
+            onClick={(e) => { props.onItemSelect(props.page.id) }}
         >
             <input
                 className="flex-1 block mb-2 text-lg font-bold text-black bg-transparent"

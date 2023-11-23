@@ -30,15 +30,64 @@ export function ReactApp(props: {
     audience: IServiceAudience<IMember>;
     container: IFluidContainer;
 }): JSX.Element {
-    const [noteSelection, setNoteSelection] = useState<Note[]>([]);
-    const [invalidations, setInvalidations] = useState(0);
     const [currentUser, setCurrentUser] = useState(undefinedUserId);
     const [connectionState, setConnectionState] = useState('');
     const [saved, setSaved] = useState(!props.container.isDirty);
     const [fluidMembers, setFluidMembers] = useState<string[]>([]);
+
+    return (
+        <div
+            id="main"
+            className="flex flex-col bg-transparent h-screen w-full overflow-hidden overscroll-none"
+        >
+            <Header
+                saved={saved}
+                connectionState={connectionState}
+                fluidMembers={fluidMembers}
+                clientId={currentUser}
+            />
+            <div className="flex h-[calc(100vh-48px)] flex-row ">
+                <Nav />
+                <Canvas
+                    appTree={props.appTree}
+                    sessionTree={props.sessionTree}
+                    audience={props.audience}
+                    container={props.container}
+                    fluidMembers={fluidMembers}
+                    currentUser={currentUser}
+                    setCurrentUser={() => setCurrentUser}
+                    setConnectionState={() => setConnectionState}
+                    setSaved={() => setSaved}
+                    setFluidMembers={() => setFluidMembers}
+                />
+            </div>
+        </div>
+    );
+}
+
+function Nav(): JSX.Element {
+    return (
+        <div className="relative h-full flex flex-none w-72 bg-transparent overflow-y-scroll">left</div>
+    )
+}
+
+function Canvas(props: {
+    appTree: TreeView<App>;
+    sessionTree: TreeView<Session>;
+    audience: IServiceAudience<IMember>;
+    container: IFluidContainer;
+    fluidMembers: string[];
+    currentUser: string;
+    setCurrentUser: (arg: string) => void;
+    setConnectionState: (arg: string) => void;
+    setSaved: (arg: boolean) => void;
+    setFluidMembers: (arg: string[]) => void;
+}): JSX.Element {
+    const [noteSelection, setNoteSelection] = useState<Note[]>([]);
+    const [invalidations, setInvalidations] = useState(0);
     const [undoStack, setUndoStack] = useState<Revertible[]>([]);
     const [redoStack, setRedoStack] = useState<Revertible[]>([]);
-
+    
     useEffect(() => {
         const { undoStack, redoStack } = setupUndoRedoStacks(props.appTree);
         setUndoStack(undoStack);
@@ -76,27 +125,27 @@ export function ReactApp(props: {
     useEffect(() => {
         const updateConnectionState = () => {
             if (props.container.connectionState === ConnectionState.Connected) {
-                setConnectionState('connected');
+                props.setConnectionState('connected');
             } else if (
                 props.container.connectionState === ConnectionState.Disconnected
             ) {
-                setConnectionState('disconnected');
+                props.setConnectionState('disconnected');
             } else if (
                 props.container.connectionState ===
                 ConnectionState.EstablishingConnection
             ) {
-                setConnectionState('connecting');
+                props.setConnectionState('connecting');
             } else if (
                 props.container.connectionState === ConnectionState.CatchingUp
             ) {
-                setConnectionState('catching up');
+                props.setConnectionState('catching up');
             }
         };
         updateConnectionState();
         props.container.on('connected', updateConnectionState);
         props.container.on('disconnected', updateConnectionState);
-        props.container.on('dirty', () => setSaved(false));
-        props.container.on('saved', () => setSaved(true));
+        props.container.on('dirty', () => props.setSaved(false));
+        props.container.on('saved', () => props.setSaved(true));
         props.container.on('disposed', updateConnectionState);
     }, []);
 
@@ -105,13 +154,13 @@ export function ReactApp(props: {
         if (props.audience.getMyself()?.userId == undefined) return;
         if (props.audience.getMembers() == undefined) return;
         if (props.container.connectionState !== ConnectionState.Connected) return;
-        if (currentUser == undefinedUserId) {
+        if (props.currentUser == undefinedUserId) {
             const user = props.audience.getMyself()?.userId;
             if (typeof user === 'string') {
-                setCurrentUser(user);
+                props.setCurrentUser(user);
             }
         }
-        setFluidMembers(Array.from(props.audience.getMembers().keys()));
+        props.setFluidMembers(Array.from(props.audience.getMembers().keys()));
     };
 
     useEffect(() => {
@@ -122,53 +171,46 @@ export function ReactApp(props: {
     }, []);
 
     return (
-        <div
-            id="main"
-            className="flex flex-col bg-transparent h-screen w-full overflow-hidden overscroll-none"
-        >
-            <Header
-                saved={saved}
-                connectionState={connectionState}
-                fluidMembers={fluidMembers}
-                clientId={currentUser}                
+        <div className="relative flex grow-0 h-full w-full bg-transparent">
+            <RootItems
+                app={appRoot}
+                clientId={props.currentUser}
+                selection={noteSelection}
+                setSelection={setNoteSelection}
+                session={sessionRoot}
+                fluidMembers={props.fluidMembers}
             />
-            <div className="flex h-[calc(100vh-48px)] flex-row ">
-                <div className="relative h-full flex flex-none w-72 bg-transparent overflow-y-scroll">left</div>
-                <div className="relative flex grow-0 h-full w-full bg-transparent">
-                    <RootItems
-                        app={appRoot}
-                        clientId={currentUser}
+            <Floater>
+                <ButtonGroup>
+                    <NewGroupButton
+                        root={appRoot}
                         selection={noteSelection}
-                        setSelection={setNoteSelection}
-                        session={sessionRoot}
-                        fluidMembers={fluidMembers}
                     />
-                    <Floater>
-                        <ButtonGroup>
-                            <NewGroupButton
-                                root={appRoot}
-                                selection={noteSelection}
-                            />
-                            <NewNoteButton root={appRoot} clientId={currentUser} />
-                            <DeleteNotesButton selection={noteSelection} />
-                        </ButtonGroup>
-                        <ButtonGroup>
-                            <UndoButton undo={undo} />
-                            <RedoButton redo={redo} />
-                        </ButtonGroup>
-                    </Floater>
-                </div>
-            </div>
+                    <NewNoteButton root={appRoot} clientId={props.currentUser} />
+                    <DeleteNotesButton selection={noteSelection} />
+                </ButtonGroup>
+                <ButtonGroup>
+                    <UndoButton undo={undo} />
+                    <RedoButton redo={redo} />
+                </ButtonGroup>
+            </Floater>
         </div>
-    );
+    )
 }
 
 function Header(props: {
     saved: boolean;
     connectionState: string;
     fluidMembers: string[];
-    clientId: string;    
+    clientId: string;
 }): JSX.Element {
+
+
+    useEffect(() => {
+        console.log(props.connectionState);
+    }, [props.connectionState])
+
+
     return (
         <div className="h-[48px] flex shrink-0 flex-row items-center justify-between bg-black text-base text-white z-40 w-full">
             <div className="flex m-2">Brainstorm</div>
