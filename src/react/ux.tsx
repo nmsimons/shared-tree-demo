@@ -29,12 +29,13 @@ export function ReactApp(props: {
     sessionTree: TreeView<Session>;
     audience: IServiceAudience<IMember>;
     container: IFluidContainer;
+    containerId: string;
 }): JSX.Element {
     const [currentUser, setCurrentUser] = useState(undefinedUserId);
     const [connectionState, setConnectionState] = useState('');
-    const [saved, setSaved] = useState(!props.container.isDirty);
+    const [saved, setSaved] = useState(false);
     const [fluidMembers, setFluidMembers] = useState<string[]>([]);
-
+    
     return (
         <div
             id="main"
@@ -45,6 +46,7 @@ export function ReactApp(props: {
                 connectionState={connectionState}
                 fluidMembers={fluidMembers}
                 clientId={currentUser}
+                containerId={props.containerId}
             />
             <div className="flex h-[calc(100vh-48px)] flex-row ">
                 <Nav />
@@ -55,10 +57,10 @@ export function ReactApp(props: {
                     container={props.container}
                     fluidMembers={fluidMembers}
                     currentUser={currentUser}
-                    setCurrentUser={() => setCurrentUser}
-                    setConnectionState={() => setConnectionState}
-                    setSaved={() => setSaved}
-                    setFluidMembers={() => setFluidMembers}
+                    setCurrentUser={setCurrentUser}
+                    setConnectionState={setConnectionState}
+                    setSaved={setSaved}
+                    setFluidMembers={setFluidMembers}
                 />
             </div>
         </div>
@@ -147,6 +149,10 @@ function Canvas(props: {
         props.container.on('dirty', () => props.setSaved(false));
         props.container.on('saved', () => props.setSaved(true));
         props.container.on('disposed', updateConnectionState);
+        return () => {
+            props.container.disconnect();
+            props.container.dispose();
+        }
     }, []);
 
     const updateMembers = () => {
@@ -203,17 +209,11 @@ function Header(props: {
     connectionState: string;
     fluidMembers: string[];
     clientId: string;
-}): JSX.Element {
-
-
-    useEffect(() => {
-        console.log(props.connectionState);
-    }, [props.connectionState])
-
-
+    containerId: string;
+}): JSX.Element {    
     return (
         <div className="h-[48px] flex shrink-0 flex-row items-center justify-between bg-black text-base text-white z-40 w-full">
-            <div className="flex m-2">Brainstorm</div>
+            <div className="flex m-2">Brainstorm: {props.containerId}</div>
             <div className="flex m-2 ">
                 {props.saved ? 'saved' : 'not saved'} | {props.connectionState} |
                 users: {props.fluidMembers.length}

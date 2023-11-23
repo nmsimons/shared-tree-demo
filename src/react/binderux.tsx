@@ -30,6 +30,7 @@ export function BinderApp(props: {
 }): JSX.Element {
     const [canvasState, setCanvasState] = useState<{ appTree: TreeView<App>, sessionTree: TreeView<Session>, services: AzureContainerServices, container: IFluidContainer, containerId: string }>();
     const [invalidations, setInvalidations] = useState(0);
+    const [rightPaneView, setRightPaneView] = useState<JSX.Element>();
 
     // Register for tree deltas when the component mounts.
     // Any time the tree changes, the app will update
@@ -49,41 +50,33 @@ export function BinderApp(props: {
             setInvalidations(invalidations + Math.random());
         });
         return unsubscribe;
-    }, []);
+    }, []);    
 
     useEffect(() => {
-        if (canvasState !== undefined) {
-            <DndProvider backend={HTML5Backend} key={canvasState.containerId}>
-                <ReactApp
-                    appTree={canvasState.appTree}
-                    sessionTree={canvasState.sessionTree}
-                    audience={canvasState.services.audience}
-                    container={canvasState.container}
-                />
-            </DndProvider>
+        if (canvasState !== undefined) {            
+            setRightPaneView(
+                // Render the app - note we attach new containers after render so
+                // the app renders instantly on create new flow. The app will be 
+                // interactive immediately.    
+                <DndProvider backend={HTML5Backend} key={canvasState.containerId}>
+                    <ReactApp
+                        appTree={canvasState.appTree}
+                        sessionTree={canvasState.sessionTree}
+                        audience={canvasState.services.audience}
+                        container={canvasState.container}
+                        containerId={canvasState.containerId}
+                    />
+                </DndProvider>
+            );
         }
-    }, [canvasState])
-
-    const rightPaneView = [];
-    if (canvasState !== undefined) {
-        rightPaneView.push(
-            // Render the app - note we attach new containers after render so
-            // the app renders instantly on create new flow. The app will be 
-            // interactive immediately.    
-            <DndProvider backend={HTML5Backend} key={canvasState.containerId}>
-                <ReactApp
-                    appTree={canvasState.appTree}
-                    sessionTree={canvasState.sessionTree}
-                    audience={canvasState.services.audience}
-                    container={canvasState.container}
-                />
-            </DndProvider>
-        );
-    }
-
-    const pageClicked = (containerId: string) => {
+    }, [canvasState])    
+    
+    const loadPage = (containerId: string) => {
         (async () => {
+            if (containerId === canvasState?.containerId) return;
             const app = await getAppContainer(containerId);
+            if (app === undefined) return;
+                        
             setCanvasState(app);
             devtools.closeContainerDevtools(pageContainerKey);
             devtools.registerContainerDevtools({
@@ -95,7 +88,7 @@ export function BinderApp(props: {
 
     return (
         <div className="flex flex-row bg-white h-full w-full">
-            <LeftNav root={props.binderTree.root} onItemSelect={pageClicked} />
+            <LeftNav root={props.binderTree.root} onItemSelect={loadPage} />
             <div className='w-full'>{rightPaneView}</div>
         </div>
     );

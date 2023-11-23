@@ -160,6 +160,9 @@ export function initializeApplication(pages: Pages) {
 }
 
 export const getAppContainer = async (containerId: string) => {
+
+    if (containerId === "") return;
+
     // Initialize Fluid Container
     const { services, container } = await loadFluidData(containerId, notesContainerSchema);
 
