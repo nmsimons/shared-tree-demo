@@ -4,6 +4,7 @@ import { App, Note, note, group } from '../schema/app_schema';
 import { Session } from '../schema/session_schema';
 import '../output.css';
 import {
+    AttachState,
     ConnectionState,
     IFluidContainer,
     IMember,
@@ -89,17 +90,17 @@ export function ReactApp(props: {
         const app = await getAppContainer(containerId);
         if (app === undefined) return "";
         setCanvasState(app);
+        setCanvasId(containerId);
         if (containerId === "") {
-            containerId = await app.container.attach();            
+            containerId = await app.container.attach();
+            setCanvasId(containerId);            
         }
-        setCanvasId(containerId);                
-
         devtools.closeContainerDevtools(pageContainerKey);
         devtools.registerContainerDevtools({
             container: app.container,
             containerKey: pageContainerKey,
         });
-                
+
         return containerId;
     };
 
@@ -239,8 +240,10 @@ function Canvas(props: {
         props.container.on('saved', () => props.setSaved(true));
         props.container.on('disposed', updateConnectionState);
         return () => {
-            props.container.disconnect();
-            props.container.dispose();
+            if (props.container.connectionState == ConnectionState.Connected) {
+                props.container.disconnect();
+                props.container.dispose();
+            }
         }
     }, []);
 
