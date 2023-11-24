@@ -27,7 +27,7 @@ export function LeftNav(props: {
 
 function PageView(props: { page: Page, onItemSelect: (containerId: string) => void, selected: boolean }): JSX.Element {
     return (
-        <div className={"relative flex flex-row w-64 h-9 justify-spread items-baseline p-1 border-2 border-solid border-black rounded" + ((props.selected) ? ' bg-gray-200' : ' bg-transparent')}
+        <div className={"relative flex flex-row w-64 h-9 justify-spread items-baseline p-1 border-2 border-solid border-black rounded" + ((props.selected) ? ' bg-gray-300' : ' bg-transparent')}
             onClick={(e) => { props.onItemSelect(props.page.id) }}
         >
             <input
@@ -59,7 +59,7 @@ export function NewPageButton(props: { binder: Binder, onItemSelect: (containerI
     };
 
     return (
-        <div className='flex grow mt-2 w-full'>
+        <div className='flex justify-center items-center grow-0 mt-6 h-9 w-full bg-black rounded'>
             <IconButton
                 color="text-white"
                 background="bg-black"
