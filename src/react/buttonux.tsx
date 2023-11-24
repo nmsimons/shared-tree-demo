@@ -133,7 +133,7 @@ export function IconButton(props: {
                 props.color +
                 ' ' +
                 props.background +
-                ' hover:bg-gray-600 hover:text-white font-bold px-2 py-1 rounded inline-flex items-center h-6 grow'
+                ' hover:bg-gray-600 hover:text-white font-bold px-2 py-1 rounded inline-flex items-center h-6 grow-0'
             }
             onClick={(e) => handleClick(e)}
         >

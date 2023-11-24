@@ -1,4 +1,4 @@
-import { ITree, Tree, TreeStatus, TreeView } from '@fluid-experimental/tree2';
+import { ITree, Tree, TreeStatus } from '@fluid-experimental/tree2';
 import {
     App,
     Note,
@@ -13,9 +13,7 @@ import {
 } from '../schema/app_schema';
 import { Guid } from 'guid-typescript';
 import { Page, Pages, page, pages } from '../schema/binder_schema';
-import { AzureContainerServices } from '@fluidframework/azure-client';
-import { IFluidContainer } from 'fluid-framework';
-import { Session, sessionSchemaConfig } from '../schema/session_schema';
+import { sessionSchemaConfig } from '../schema/session_schema';
 import { loadFluidData } from '../infra/fluid';
 import { notesContainerSchema } from '../infra/containerSchema';
 
@@ -154,7 +152,7 @@ export function toggleVote(note: Note, user: string) {
 
 // Helpers for the left nav
 export const getAppContainer = async (containerId: string) => {
-    
+
     // Initialize Fluid Container
     const { services, container } = await loadFluidData(containerId, notesContainerSchema);
 

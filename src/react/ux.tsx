@@ -4,7 +4,6 @@ import { App, Note, note, group } from '../schema/app_schema';
 import { Session } from '../schema/session_schema';
 import '../output.css';
 import {
-    AttachState,
     ConnectionState,
     IFluidContainer,
     IMember,
@@ -24,7 +23,7 @@ import {
 import { RevertResult, Revertible, Tree, TreeView } from '@fluid-experimental/tree2';
 import { undefinedUserId } from '../utils/utils';
 import { setupUndoRedoStacks } from '../utils/undo';
-import { Binder } from '../schema/binder_schema';
+import { Binder, Page } from '../schema/binder_schema';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { initializeDevtools } from '@fluid-experimental/devtools';
@@ -52,7 +51,7 @@ export function ReactApp(props: {
     const [canvasState, setCanvasState] = useState<{ appTree: TreeView<App>, sessionTree: TreeView<Session>, services: AzureContainerServices, container: IFluidContainer }>();
     const [canvasId, setCanvasId] = useState("");
     const [invalidations, setInvalidations] = useState(0);
-
+    
     // Register for tree deltas when the component mounts.
     // Any time the tree changes, the app will update
     // For more complex apps, this code can be included
@@ -78,7 +77,7 @@ export function ReactApp(props: {
         // If the current page is new, bail
         if (canvasId == "") return;        
         for (const p of props.binderTree.root.pages) {
-            if (p.id == canvasId) {
+            if (p.id == canvasId) {                
                 return;
             }
         }
@@ -86,7 +85,7 @@ export function ReactApp(props: {
     }, [invalidations])
 
     const loadPage = async (containerId: string): Promise<string> => {
-        if (containerId === canvasId) return "";
+        if (containerId === canvasId && containerId !== "") return "";
         const app = await getAppContainer(containerId);
         if (app === undefined) return "";
         setCanvasState(app);
@@ -119,7 +118,7 @@ export function ReactApp(props: {
                     containerId={canvasId}
                 />
                 <div className="flex h-[calc(100vh-48px)] flex-row ">
-                    <Nav root={props.binderTree.root} onItemSelect={loadPage} />
+                    <Nav root={props.binderTree.root} onItemSelect={loadPage} selectedPage={canvasId} />
                     <DndProvider backend={HTML5Backend} key={canvasId}>
                         <Canvas
                             appTree={canvasState.appTree}
@@ -145,7 +144,7 @@ export function ReactApp(props: {
             >
                 <EmptyHeader />
                 <div className="flex h-[calc(100vh-48px)] flex-row ">
-                    <Nav root={props.binderTree.root} onItemSelect={loadPage} />
+                    <Nav root={props.binderTree.root} onItemSelect={loadPage} selectedPage={canvasId} />
                     <div></div>
                 </div>
             </div>
@@ -156,9 +155,10 @@ export function ReactApp(props: {
 function Nav(props: {
     root: Binder;
     onItemSelect: (itemId: string) => Promise<string>;
+    selectedPage: string;
 }): JSX.Element {
     return (
-        <div className="relative h-full flex flex-none w-72 bg-transparent overflow-y-scroll"><LeftNav root={props.root} onItemSelect={props.onItemSelect} /></div>
+        <div className="relative h-full flex flex-none w-72 bg-transparent overflow-y-scroll"><LeftNav root={props.root} onItemSelect={props.onItemSelect} selectedPage={props.selectedPage} /></div>
     )
 }
 
