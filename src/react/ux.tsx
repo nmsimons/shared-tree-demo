@@ -23,12 +23,12 @@ import {
 import { RevertResult, Revertible, Tree, TreeView } from '@fluid-experimental/tree2';
 import { undefinedUserId } from '../utils/utils';
 import { setupUndoRedoStacks } from '../utils/undo';
-import { Binder, Page } from '../schema/binder_schema';
+import { Binder } from '../schema/binder_schema';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { initializeDevtools } from '@fluid-experimental/devtools';
 import { devtoolsLogger } from '../infra/clientProps';
-import { getAppContainer } from '../utils/app_helpers';
+import { getAppContainer } from '../utils/binder_helpers';
 import { AzureContainerServices } from '@fluidframework/azure-client';
 import { LeftNav } from './binderux';
 

@@ -4,7 +4,7 @@ import '../output.css';
 import { NoteRegular } from "@fluentui/react-icons";
 import { Binder, Page } from '../schema/binder_schema';
 import { DeleteButton, IconButton } from './buttonux';
-import { addPage, deletePage } from '../utils/app_helpers';
+import { addPage, deletePage } from '../utils/binder_helpers';
 
 export function LeftNav(props: {
     root: Binder;
@@ -18,7 +18,7 @@ export function LeftNav(props: {
         );
     }
     return (
-        <div className="flex flex-col gap-2 m-2 w-full overflow-x-hidden">
+        <div className="flex flex-col gap-2 w-full p-1">
             {pageArray}
             <NewPageButton binder={props.root} onItemSelect={props.onItemSelect} />
         </div>
@@ -27,7 +27,7 @@ export function LeftNav(props: {
 
 function PageView(props: { page: Page, onItemSelect: (containerId: string) => void, selected: boolean }): JSX.Element {
     return (
-        <div className={"relative flex flex-row w-64 h-9 justify-spread items-baseline p-1 border-2 border-solid border-black rounded" + ((props.selected) ? ' bg-gray-300' : ' bg-transparent')}
+        <div className={"relative flex flex-row w-full h-9 justify-spread items-baseline border-2 border-solid border-black rounded p-1" + ((props.selected) ? ' bg-gray-300' : ' bg-transparent')}
             onClick={(e) => { props.onItemSelect(props.page.id) }}
         >
             <input
