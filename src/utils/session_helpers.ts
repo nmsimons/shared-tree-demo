@@ -103,6 +103,7 @@ export const updateRemoteNoteSelection = (
     }
 
     if (action == selectAction.SINGLE) {
+        console.log(clientId);
         for (const c of session.clients) {
             if (c.clientId === clientId) {
                 if (c.selected.length > 0) c.selected.removeRange(0);

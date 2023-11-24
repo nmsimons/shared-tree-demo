@@ -46,8 +46,7 @@ export function ReactApp(props: {
                 fluidMembers={fluidMembers}
                 clientId={currentUser}
             />
-            <div className="flex h-[calc(100vh-48px)] flex-row ">
-                <Nav />
+            <div className="flex h-[calc(100vh-48px)] flex-row ">                
                 <Canvas
                     appTree={props.appTree}
                     sessionTree={props.sessionTree}
@@ -63,12 +62,6 @@ export function ReactApp(props: {
             </div>
         </div>
     );
-}
-
-function Nav(): JSX.Element {
-    return (
-        <div className="relative h-full flex flex-none w-72 bg-transparent overflow-y-scroll">left</div>
-    )
 }
 
 function Canvas(props: {
@@ -142,6 +135,7 @@ function Canvas(props: {
             }
         };
         updateConnectionState();
+        props.setSaved(!props.container.isDirty);
         props.container.on('connected', updateConnectionState);
         props.container.on('disconnected', updateConnectionState);
         props.container.on('dirty', () => props.setSaved(false));
