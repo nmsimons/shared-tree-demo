@@ -10,9 +10,11 @@ export function LeftNav(props: {
     root: Binder;
     onItemSelect: (itemId: string) => Promise<string>;
     selectedPage: string;
+    setPageName: (arg: string) => void;
 }): JSX.Element {
     const pageArray = [];
     for (const i of props.root.pages) {
+        if (i.id == props.selectedPage) props.setPageName(i.name);
         pageArray.push(
             <PageView key={i.id} page={i} onItemSelect={props.onItemSelect} selected={i.id == props.selectedPage} />
         );

@@ -50,6 +50,7 @@ export function ReactApp(props: {
 
     const [canvasState, setCanvasState] = useState<{ appTree: TreeView<App>, sessionTree: TreeView<Session>, services: AzureContainerServices, container: IFluidContainer }>();
     const [canvasId, setCanvasId] = useState("");
+    const [canvasName, setCanvasName] = useState("");
     const [invalidations, setInvalidations] = useState(0);
     
     // Register for tree deltas when the component mounts.
@@ -116,9 +117,10 @@ export function ReactApp(props: {
                     fluidMembers={fluidMembers}
                     clientId={currentUser}
                     containerId={canvasId}
+                    pageName={canvasName}
                 />
                 <div className="flex h-[calc(100vh-48px)] flex-row ">
-                    <Nav root={props.binderTree.root} onItemSelect={loadPage} selectedPage={canvasId} />
+                    <Nav root={props.binderTree.root} onItemSelect={loadPage} selectedPage={canvasId} setCanvasName={setCanvasName} />
                     <DndProvider backend={HTML5Backend} key={canvasId}>
                         <Canvas
                             appTree={canvasState.appTree}
@@ -144,7 +146,7 @@ export function ReactApp(props: {
             >
                 <EmptyHeader />
                 <div className="flex h-[calc(100vh-48px)] flex-row ">
-                    <Nav root={props.binderTree.root} onItemSelect={loadPage} selectedPage={canvasId} />
+                    <Nav root={props.binderTree.root} onItemSelect={loadPage} selectedPage={canvasId} setCanvasName={setCanvasName} />
                     <div></div>
                 </div>
             </div>
@@ -156,9 +158,10 @@ function Nav(props: {
     root: Binder;
     onItemSelect: (itemId: string) => Promise<string>;
     selectedPage: string;
+    setCanvasName: (arg: string) => void;
 }): JSX.Element {
     return (
-        <div className="relative h-full flex flex-none w-72 bg-transparent overflow-y-scroll"><LeftNav root={props.root} onItemSelect={props.onItemSelect} selectedPage={props.selectedPage} /></div>
+        <div className="relative h-full flex flex-none w-72 bg-transparent overflow-y-scroll"><LeftNav root={props.root} onItemSelect={props.onItemSelect} selectedPage={props.selectedPage} setPageName={props.setCanvasName} /></div>
     )
 }
 
@@ -302,10 +305,11 @@ function Header(props: {
     fluidMembers: string[];
     clientId: string;
     containerId: string;
+    pageName: string;
 }): JSX.Element {
     return (
         <div className="h-[48px] flex shrink-0 flex-row items-center justify-between bg-black text-base text-white z-40 w-full">
-            <div className="flex m-2">Brainstorm: {props.containerId}</div>
+            <div className="flex m-2">Brainstorm: {props.containerId} - {props.pageName}</div>
             <div className="flex m-2 ">
                 {props.saved ? 'saved' : 'not saved'} | {props.connectionState} |
                 users: {props.fluidMembers.length}
