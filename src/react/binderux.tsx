@@ -17,7 +17,7 @@ export function LeftNav(props: {
 
     const pageArray = [];
     for (const i of props.root.pages) {
-        if (i.id == props.selectedPage) selectedPage = i.id;
+        if (i.id == props.selectedPage) selectedPage = i.name;
         pageArray.push(
             <PageView key={i.id} page={i} onItemSelect={props.onItemSelect} selected={i.id == props.selectedPage} />
         );
