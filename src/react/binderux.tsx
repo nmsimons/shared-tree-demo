@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import '../output.css';
 import { NoteRegular } from "@fluentui/react-icons";
 import { Binder, Page } from '../schema/binder_schema';
@@ -12,16 +12,24 @@ export function LeftNav(props: {
     selectedPage: string;
     setPageName: (arg: string) => void;
 }): JSX.Element {
+
+    let selectedPage = "";    
+
     const pageArray = [];
     for (const i of props.root.pages) {
-        if (i.id == props.selectedPage) props.setPageName(i.name);
+        if (i.id == props.selectedPage) selectedPage = i.id;
         pageArray.push(
             <PageView key={i.id} page={i} onItemSelect={props.onItemSelect} selected={i.id == props.selectedPage} />
         );
     }
+
+    useEffect(() => {
+        props.setPageName(selectedPage);
+    });
+
     return (
         <div className="flex flex-col gap-2 w-full p-1">
-            {pageArray}
+            {pageArray}            
             <NewPageButton binder={props.root} onItemSelect={props.onItemSelect} />
         </div>
     );
