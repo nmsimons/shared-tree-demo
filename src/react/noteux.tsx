@@ -113,11 +113,15 @@ function NoteView(props: {
     useEffect(() => {
         // Returns the cleanup function to be invoked when the component unmounts.
         const unsubscribe = Tree.on(props.session, 'afterChange', () => {
-            test();
+            
             setInvalidations(invalidations + Math.random());
         });
         return unsubscribe;
     }, []);
+
+    useEffect(() => {
+        test();
+    }, [invalidations]);
     
     useEffect(() => {
         test();
