@@ -24,9 +24,7 @@ import { Session } from '../schema/session_schema';
 
 export function NoteContainer(props: {
     group: Group;
-    clientId: string;
-    selection: Note[];
-    setSelection: (value: Note[]) => void;
+    clientId: string;   
     session: Session;
     fluidMembers: string[];
 }): JSX.Element {
@@ -37,9 +35,7 @@ export function NoteContainer(props: {
                 key={n.id}
                 note={n}
                 clientId={props.clientId}
-                notes={props.group.notes}
-                selection={props.selection}
-                setSelection={props.setSelection}
+                notes={props.group.notes}                
                 session={props.session}
                 fluidMembers={props.fluidMembers}
             />
@@ -56,9 +52,7 @@ export function NoteContainer(props: {
 export function RootNoteWrapper(props: {
     note: Note;
     clientId: string;
-    notes: Notes | Items;
-    selection: Note[];
-    setSelection: (value: Note[]) => void;
+    notes: Notes | Items;    
     session: Session;
     fluidMembers: string[];
 }): JSX.Element {
@@ -72,9 +66,7 @@ export function RootNoteWrapper(props: {
 function NoteView(props: {
     note: Note;
     clientId: string;
-    notes: Notes | Items;
-    selection: Note[];
-    setSelection: (value: Note[]) => void;
+    notes: Notes | Items;    
     session: Session;
     fluidMembers: string[];
 }): JSX.Element {
@@ -110,9 +102,7 @@ function NoteView(props: {
             props.note,
             action,
             props.session,
-            props.clientId,
-            props.selection,
-            props.setSelection
+            props.clientId,            
         );
     };
 

@@ -75,8 +75,7 @@ function Canvas(props: {
     setConnectionState: (arg: string) => void;
     setSaved: (arg: boolean) => void;
     setFluidMembers: (arg: string[]) => void;
-}): JSX.Element {
-    const [noteSelection, setNoteSelection] = useState<Note[]>([]);
+}): JSX.Element {    
     const [invalidations, setInvalidations] = useState(0);
     const [undoStack, setUndoStack] = useState<Revertible[]>([]);
     const [redoStack, setRedoStack] = useState<Revertible[]>([]);
@@ -168,9 +167,7 @@ function Canvas(props: {
         <div className="relative flex grow-0 h-full w-full bg-transparent">
             <RootItems
                 app={appRoot}
-                clientId={props.currentUser}
-                selection={noteSelection}
-                setSelection={setNoteSelection}
+                clientId={props.currentUser}                
                 session={sessionRoot}
                 fluidMembers={props.fluidMembers}
             />
@@ -178,10 +175,11 @@ function Canvas(props: {
                 <ButtonGroup>
                     <NewGroupButton
                         root={appRoot}
-                        selection={noteSelection}
+                        session={sessionRoot}
+                        clientId={props.currentUser}                        
                     />
                     <NewNoteButton root={appRoot} clientId={props.currentUser} />
-                    <DeleteNotesButton selection={noteSelection} />
+                    <DeleteNotesButton session={sessionRoot} app={appRoot} clientId={props.currentUser} />
                 </ButtonGroup>
                 <ButtonGroup>
                     <UndoButton undo={undo} />
@@ -211,9 +209,7 @@ function Header(props: {
 
 function RootItems(props: {
     app: App;
-    clientId: string;
-    selection: Note[];
-    setSelection: (value: Note[]) => void;
+    clientId: string;    
     session: Session;
     fluidMembers: string[];
 }): JSX.Element {
@@ -225,9 +221,7 @@ function RootItems(props: {
                     key={i.id}
                     group={i}
                     clientId={props.clientId}
-                    app={props.app}
-                    selection={props.selection}
-                    setSelection={props.setSelection}
+                    app={props.app}                    
                     session={props.session}
                     fluidMembers={props.fluidMembers}
                 />
@@ -238,9 +232,7 @@ function RootItems(props: {
                     key={i.id}
                     note={i}
                     clientId={props.clientId}
-                    notes={props.app.items}
-                    selection={props.selection}
-                    setSelection={props.setSelection}
+                    notes={props.app.items}                    
                     session={props.session}
                     fluidMembers={props.fluidMembers}
                 />

@@ -144,4 +144,18 @@ export function toggleVote(note: Note, user: string) {
         note.lastChanged = new Date().getTime();
     }
 }
-    
+
+export const findNote = (items: Items | Notes, id: string): Note | undefined => {
+    for (const i of items) {
+        if (Tree.is(i, note)) {
+            if (i.id === id) return i;
+        }
+        if (Tree.is(i, group)) {
+            const n = findNote(i.notes, id);
+            if (Tree.is(n, note)) {
+                return n;
+            }
+        }
+    }
+    return undefined
+}    
