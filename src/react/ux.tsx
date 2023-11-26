@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useCallback, useEffect, useState } from 'react';
-import { App, Note, note, group } from '../schema/app_schema';
+import { App, note, group } from '../schema/app_schema';
 import { Session } from '../schema/session_schema';
 import '../output.css';
 import {
