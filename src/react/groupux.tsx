@@ -1,5 +1,5 @@
 import React from 'react';
-import { App, Group, Note, group, note } from '../schema/app_schema';
+import { App, Group, group, note } from '../schema/app_schema';
 import { deleteGroup, moveItem } from '../utils/app_helpers';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 import { NoteContainer } from './noteux';
@@ -11,9 +11,7 @@ import { Tree } from '@fluid-experimental/tree2';
 export function GroupView(props: {
     group: Group;
     clientId: string;
-    app: App;
-    selection: Note[];
-    setSelection: (value: Note[]) => void;
+    app: App;    
     session: Session;
     fluidMembers: string[];
 }): JSX.Element {
@@ -82,9 +80,7 @@ export function GroupView(props: {
                 <GroupToolbar pile={props.group} app={props.app} />
                 <NoteContainer
                     group={props.group}
-                    clientId={props.clientId}
-                    selection={props.selection}
-                    setSelection={props.setSelection}
+                    clientId={props.clientId}                    
                     session={props.session}
                     fluidMembers={props.fluidMembers}
                 />

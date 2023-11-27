@@ -2,38 +2,6 @@ import { Note } from '../schema/app_schema';
 import { Session, client, Client } from '../schema/session_schema';
 import { selectAction, undefinedUserId } from './utils';
 
-export const updateLocalNoteSelection = (
-    item: Note,
-    selection: Note[],
-    setSelection: (value: Note[]) => void,
-    action: selectAction
-) => {
-    // Since selection is going to change
-    // create a new selection array
-    const newNoteSelection: Note[] = [];
-
-    // Persist existing selection since this is
-    // a multi select or a remove
-    if (action != selectAction.SINGLE) {
-        newNoteSelection.push(...selection);
-    }
-
-    // Handle removed items and bail
-    if (action == selectAction.REMOVE) {
-        for (const obj of selection) {
-            if (obj === item) {
-                newNoteSelection.splice(newNoteSelection.indexOf(obj), 1);
-            }
-        }
-        setSelection(newNoteSelection);
-        return;
-    }
-
-    // Select the item and put it in the selection array
-    newNoteSelection.push(item);
-    setSelection(newNoteSelection);
-};
-
 export const testRemoteNoteSelection = (
     item: Note,
     session: Session,
@@ -69,16 +37,10 @@ export const updateRemoteNoteSelection = (
     item: Note,
     action: selectAction,
     session: Session,
-    clientId: string,
-    localSelection: Note[],
-    setLocalSelection: (value: Note[]) => void
+    clientId: string,    
 ) => {
 
-    if (clientId == undefinedUserId) return;
-
-    // Update local state so that we have a local list of selected items we
-    // can easily operate on (e.g., delete them)
-    updateLocalNoteSelection(item, localSelection, setLocalSelection, action);
+    if (clientId == undefinedUserId) return;    
 
     // Handle removed items and bail
     if (action == selectAction.REMOVE) {
@@ -103,6 +65,7 @@ export const updateRemoteNoteSelection = (
     }
 
     if (action == selectAction.SINGLE) {
+        console.log(clientId);
         for (const c of session.clients) {
             if (c.clientId === clientId) {
                 if (c.selected.length > 0) c.selected.removeRange(0);
@@ -119,6 +82,15 @@ export const updateRemoteNoteSelection = (
 
     session.clients.insertAtEnd([s]);
 };
+
+export const getSelectedNotes = (session: Session, clientId: string): string[] => {
+    for (const c of session.clients) {
+        if (c.clientId == clientId) {
+            return c.selected.concat();
+        }
+    }
+    return [];
+}
 
 export const cleanSessionData = (session: Session, fluidMembers: string[]) => {
     const deleteMe: Client[] = [];

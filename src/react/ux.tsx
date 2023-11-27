@@ -16,7 +16,7 @@ import { devtoolsLogger } from '../infra/clientProps';
 import { getAppContainer } from '../utils/binder_helpers';
 import { AzureContainerServices } from '@fluidframework/azure-client';
 import { LeftNav } from './binderux';
-import { Header, Canvas } from './canvasux';
+import { Canvas } from './canvasux';
 
 const devtools = initializeDevtools({
     logger: devtoolsLogger
@@ -159,4 +159,21 @@ function EmptyHeader(): JSX.Element {
     );
 }
 
-
+export function Header(props: {
+    saved: boolean;
+    connectionState: string;
+    fluidMembers: string[];
+    clientId: string;
+    containerId: string;
+    pageName: string;
+}): JSX.Element {
+    return (
+        <div className="h-[48px] flex shrink-0 flex-row items-center justify-between bg-black text-base text-white z-40 w-full">
+            <div className="flex m-2">Brainstorm: {props.containerId} - {props.pageName}</div>
+            <div className="flex m-2 ">
+                {props.saved ? 'saved' : 'not saved'} | {props.connectionState} |
+                users: {props.fluidMembers.length}
+            </div>
+        </div>
+    );
+}

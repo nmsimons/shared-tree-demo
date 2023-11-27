@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { App, Note, note, group } from '../schema/app_schema';
+import { App, note, group } from '../schema/app_schema';
 import { Session } from '../schema/session_schema';
 import {
     ConnectionState,
@@ -34,7 +34,6 @@ export function Canvas(props: {
     setSaved: (arg: boolean) => void;
     setFluidMembers: (arg: string[]) => void;
 }): JSX.Element {
-    const [noteSelection, setNoteSelection] = useState<Note[]>([]);
     const [invalidations, setInvalidations] = useState(0);
     const [undoStack, setUndoStack] = useState<Revertible[]>([]);
     const [redoStack, setRedoStack] = useState<Revertible[]>([]);
@@ -93,12 +92,6 @@ export function Canvas(props: {
         props.container.on('dirty', () => props.setSaved(false));
         props.container.on('saved', () => props.setSaved(true));
         props.container.on('disposed', updateConnectionState);
-        return () => {
-            if (props.container.connectionState == ConnectionState.Connected) {
-                props.container.disconnect();
-                props.container.dispose();
-            }
-        };
     }, []);
 
     const updateMembers = () => {
@@ -127,17 +120,16 @@ export function Canvas(props: {
             <RootItems
                 app={appRoot}
                 clientId={props.currentUser}
-                selection={noteSelection}
-                setSelection={setNoteSelection}
                 session={sessionRoot}
                 fluidMembers={props.fluidMembers} />
             <Floater>
                 <ButtonGroup>
                     <NewGroupButton
                         root={appRoot}
-                        selection={noteSelection} />
+                        session={sessionRoot}
+                        clientId={props.currentUser} />
                     <NewNoteButton root={appRoot} clientId={props.currentUser} />
-                    <DeleteNotesButton selection={noteSelection} />
+                    <DeleteNotesButton session={sessionRoot} app={appRoot} clientId={props.currentUser} />
                 </ButtonGroup>
                 <ButtonGroup>
                     <UndoButton undo={undo} />
@@ -147,29 +139,10 @@ export function Canvas(props: {
         </div>
     );
 }
-export function Header(props: {
-    saved: boolean;
-    connectionState: string;
-    fluidMembers: string[];
-    clientId: string;
-    containerId: string;
-    pageName: string;
-}): JSX.Element {
-    return (
-        <div className="h-[48px] flex shrink-0 flex-row items-center justify-between bg-black text-base text-white z-40 w-full">
-            <div className="flex m-2">Brainstorm: {props.containerId} - {props.pageName}</div>
-            <div className="flex m-2 ">
-                {props.saved ? 'saved' : 'not saved'} | {props.connectionState} |
-                users: {props.fluidMembers.length}
-            </div>
-        </div>
-    );
-}
+
 function RootItems(props: {
     app: App;
     clientId: string;
-    selection: Note[];
-    setSelection: (value: Note[]) => void;
     session: Session;
     fluidMembers: string[];
 }): JSX.Element {
@@ -182,8 +155,6 @@ function RootItems(props: {
                     group={i}
                     clientId={props.clientId}
                     app={props.app}
-                    selection={props.selection}
-                    setSelection={props.setSelection}
                     session={props.session}
                     fluidMembers={props.fluidMembers} />
             );
@@ -194,8 +165,6 @@ function RootItems(props: {
                     note={i}
                     clientId={props.clientId}
                     notes={props.app.items}
-                    selection={props.selection}
-                    setSelection={props.setSelection}
                     session={props.session}
                     fluidMembers={props.fluidMembers} />
             );

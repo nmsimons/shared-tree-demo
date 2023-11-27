@@ -8,7 +8,7 @@ import {
     Notes,
     Items,
     items,
-    notes,
+    notes,    
 } from '../schema/app_schema';
 import { Guid } from 'guid-typescript';
 
@@ -62,7 +62,7 @@ export function moveItem(
         return;
 
     const source = Tree.parent(item);
-
+    
     // Use Tree.is to narrow the type of source to the items schema
     // If source uses the items schema, it can receive both a note
     // and a group
@@ -72,7 +72,7 @@ export function moveItem(
             destination.moveToEnd(index, source);
         } else {
             destination.moveToIndex(destinationIndex, index, source);
-        }
+        }        
     }
 
     // Use Tree.is to narrow the type of source to the notes schema
@@ -85,7 +85,7 @@ export function moveItem(
         } else {
             destination.moveToIndex(destinationIndex, index, source);
         }
-    }
+    }   
 }
 
 // Add a new group (container for notes) to the SharedTree.
@@ -97,7 +97,7 @@ export function addGroup(items: Items, name: string): Group {
     });
 
     items.insertAtEnd([newGroup]);
-    return newGroup;
+    return newGroup; 
 }
 
 // Function that deletes a group and moves the notes in that group
@@ -106,13 +106,13 @@ export function deleteGroup(group: Group, app: App) {
     // Test for the presence of notes and move them to the root
     // in the same position as the group
     if (group.notes.length !== 0) {
-        const index = app.items.indexOf(group);
+        const index = app.items.indexOf(group);       
         app.items.moveRangeToIndex(
-            index,
+            index,            
             0,
-            group.notes.length,
+            group.notes.length,            
             group.notes
-        );
+        );        
     }
 
     // Delete the now empty group
@@ -129,9 +129,9 @@ export function deleteNote(note: Note) {
     // Use type narrowing to ensure that parent is one of the two
     // types of allowed lists for a note and not undefined
     if (Tree.is(parent, notes) || Tree.is(parent, items)) {
-        const index = parent.indexOf(note);
-        parent.removeAt(index);
-    }
+        const index = parent.indexOf(note);        
+        parent.removeAt(index);        
+    }    
 }
 
 export function toggleVote(note: Note, user: string) {
@@ -145,3 +145,17 @@ export function toggleVote(note: Note, user: string) {
     }
 }
 
+export const findNote = (items: Items | Notes, id: string): Note | undefined => {
+    for (const i of items) {
+        if (Tree.is(i, note)) {
+            if (i.id === id) return i;
+        }
+        if (Tree.is(i, group)) {
+            const n = findNote(i.notes, id);
+            if (Tree.is(n, note)) {
+                return n;
+            }
+        }
+    }
+    return undefined
+}    

@@ -1,6 +1,6 @@
 import React from 'react';
-import { App, Note } from '../schema/app_schema';
-import { addNote, addGroup, deleteNote, moveItem } from '../utils/app_helpers';
+import { App, note } from '../schema/app_schema';
+import { addNote, addGroup, deleteNote, moveItem, findNote } from '../utils/app_helpers';
 import {
     ThumbLikeFilled,
     DismissFilled,
@@ -10,16 +10,27 @@ import {
     ArrowUndoFilled,
     ArrowRedoFilled,
 } from '@fluentui/react-icons';
+import { Session } from '../schema/session_schema';
+import { getSelectedNotes } from '../utils/session_helpers';
+import { Tree } from '@fluid-experimental/tree2';
 
 export function NewGroupButton(props: {
     root: App;
-    selection: Note[];
+    session: Session;
+    clientId: string    
 }): JSX.Element {
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         const group = addGroup(props.root.items, '[new group]');
-        for (const s of props.selection) {
-            moveItem(s, Infinity, group.notes);
+
+        const ids = getSelectedNotes(props.session, props.clientId);
+
+        for (const id of ids) 
+        {
+            const n = findNote(props.root.items, id)
+            if (Tree.is(n, note)) {
+                moveItem(n, Infinity, group.notes);
+            }            
         }
     };
     return (
@@ -52,10 +63,14 @@ export function NewNoteButton(props: { root: App; clientId: string }): JSX.Eleme
     );
 }
 
-export function DeleteNotesButton(props: { selection: Note[] }): JSX.Element {
+export function DeleteNotesButton(props: { session: Session, app: App, clientId: string }): JSX.Element {
     const handleClick = () => {
-        for (const n of props.selection) {
-            deleteNote(n);
+        const ids = getSelectedNotes(props.session, props.clientId);
+        for (const i of ids) {
+            const n = findNote(props.app.items, i);
+            if (Tree.is(n, note)) {
+                deleteNote(n);
+            }
         }
     };
     return (
@@ -133,7 +148,7 @@ export function IconButton(props: {
                 props.color +
                 ' ' +
                 props.background +
-                ' hover:bg-gray-600 hover:text-white font-bold px-2 py-1 rounded inline-flex items-center h-6 grow-0'
+                ' hover:bg-gray-600 hover:text-white font-bold px-2 py-1 rounded inline-flex items-center h-6 grow'
             }
             onClick={(e) => handleClick(e)}
         >

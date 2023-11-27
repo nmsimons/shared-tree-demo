@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect } from 'react';
 import '../output.css';
 import { NoteRegular } from "@fluentui/react-icons";
 import { Binder, Page } from '../schema/binder_schema';
