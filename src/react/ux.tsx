@@ -10,7 +10,7 @@ import {
 } from 'fluid-framework';
 import { TreeView } from '@fluid-experimental/tree2';
 import { undefinedUserId } from '../utils/utils';
-import { Header, Canvas } from './canvasux';
+import { Canvas } from './canvasux';
 
 export function ReactApp(props: {
     appTree: TreeView<App>;
@@ -21,7 +21,7 @@ export function ReactApp(props: {
     const [currentUser, setCurrentUser] = useState(undefinedUserId);
     const [connectionState, setConnectionState] = useState('');
     const [saved, setSaved] = useState(false);
-    const [fluidMembers, setFluidMembers] = useState<string[]>([]);
+    const [fluidMembers, setFluidMembers] = useState<string[]>([]);    
     
     return (
         <div
@@ -29,11 +29,11 @@ export function ReactApp(props: {
             className="flex flex-col bg-transparent h-screen w-full overflow-hidden overscroll-none"
         >
             <Header
-                saved={saved}
-                connectionState={connectionState}
-                fluidMembers={fluidMembers}
-                clientId={currentUser}
-            />
+                    saved={saved}
+                    connectionState={connectionState}
+                    fluidMembers={fluidMembers}
+                    clientId={currentUser}                                   
+                />
             <div className="flex h-[calc(100vh-48px)] flex-row ">                
                 <Canvas
                     appTree={props.appTree}
@@ -51,3 +51,21 @@ export function ReactApp(props: {
         </div>
     );
 }
+
+export function Header(props: {
+    saved: boolean;
+    connectionState: string;
+    fluidMembers: string[];
+    clientId: string;    
+}): JSX.Element {
+    return (
+        <div className="h-[48px] flex shrink-0 flex-row items-center justify-between bg-black text-base text-white z-40 w-full">
+            <div className="flex m-2">Brainstorm</div>
+            <div className="flex m-2 ">
+                {props.saved ? 'saved' : 'not saved'} | {props.connectionState} |
+                users: {props.fluidMembers.length}
+            </div>
+        </div>
+    );
+}
+

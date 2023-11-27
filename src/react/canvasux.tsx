@@ -140,23 +140,6 @@ export function Canvas(props: {
     );
 }
 
-export function Header(props: {
-    saved: boolean;
-    connectionState: string;
-    fluidMembers: string[];
-    clientId: string;
-}): JSX.Element {
-    return (
-        <div className="h-[48px] flex shrink-0 flex-row items-center justify-between bg-black text-base text-white z-40 w-full">
-            <div className="flex m-2">Brainstorm</div>
-            <div className="flex m-2 ">
-                {props.saved ? 'saved' : 'not saved'} | {props.connectionState} |
-                users: {props.fluidMembers.length}
-            </div>
-        </div>
-    );
-}
-
 function RootItems(props: {
     app: App;
     clientId: string;
