@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client';
 import { loadFluidData } from './infra/fluid';
 import { binderContainerSchema } from './infra/containerSchema';
 import { ITree } from '@fluid-experimental/tree2';
-import { binderSchemaConfig } from './schema/binder_schema';
+import { binderTreeCongfiguration } from './schema/binder_schema';
 import { ReactApp } from './react/ux';
 
 async function main() {
@@ -22,7 +22,7 @@ async function main() {
 
     // Initilize the Fluid Binder data
     const { container } = await loadFluidData(containerId, binderContainerSchema);
-    const binderView = (container.initialObjects.binderData as ITree).schematize(binderSchemaConfig);
+    const binderView = (container.initialObjects.binderData as ITree).schematize(binderTreeCongfiguration);
     
     // If the app is in a `createNew` state - no containerId, and the container is detached, we attach the container.
     // This uploads the container to the service and connects to the collaboration session.

@@ -1,5 +1,5 @@
 import React from 'react';
-import { App, Group, group, note } from '../schema/app_schema';
+import { App, Group, Note } from '../schema/app_schema';
 import { deleteGroup, moveItem } from '../utils/app_helpers';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 import { NoteContainer } from './noteux';
@@ -41,7 +41,7 @@ export function GroupView(props: {
             }
 
             const droppedItem = item
-            if (Tree.is(droppedItem, group) || Tree.is(droppedItem, note)) {
+            if ((droppedItem instanceof Group) || (droppedItem instanceof Note)) {
                 moveItem(
                     droppedItem,
                     props.app.items.indexOf(props.group),

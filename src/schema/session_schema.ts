@@ -1,8 +1,7 @@
 import {
-    AllowedUpdateType,
-    TypedNode,
-    SchemaBuilder,
-    buildTreeConfiguration,
+    TreeConfiguration,
+    SchemaFactory,
+    NodeFromSchema
 } from '@fluid-experimental/tree2';
 
 // Schema is defined using a builder object that generates a schema that is passed into the
@@ -12,30 +11,23 @@ import {
 // as TypeScript types to make it easier to write the app in a type-safe manner.
 
 // Include a UUID to guarantee that this schema will be uniquely identifiable
-const sb = new SchemaBuilder({ scope: 'fc1db2e8-0000-11ee-be56-0242ac120002' });
+const sb = new SchemaFactory('fc1db2e8-0000-11ee-be56-0242ac120002');
 
-export const client = sb.object('state', {
+export class Client extends sb.object('Client', {
     clientId: sb.string,
     selected: sb.list(sb.string),
-})
+}) {}
 
 // Define a root type.
-export const session = sb.object('session', {
-    clients: sb.list(client),
-});
-
-// Export the types defined here as TypeScript types.
-export type Client = TypedNode<typeof client>;
-export type Session = TypedNode<typeof session>;
-
-export const sessionSchema = sb.intoSchema(session);
+export class Session extends sb.object('Session', {
+    clients: sb.list(Client),
+}) {}
 
 // Export the tree config appropriate for this schema
 // This is passed into the SharedTree when it is initialized
-export const sessionSchemaConfig = buildTreeConfiguration({
-    schema: sessionSchema,
-    initialTree: {
-        clients: {"": []},
-    },
-    allowedSchemaModifications: AllowedUpdateType.SchemaCompatible,
-});
+export const sessionTreeConfiguration = new TreeConfiguration(
+    Session,
+    () => ({
+        clients: [],
+    })    
+);

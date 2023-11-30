@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { App, note, group } from '../schema/app_schema';
+import { App, Note, Group } from '../schema/app_schema';
 import { Session } from '../schema/session_schema';
 import {
     ConnectionState,
@@ -148,7 +148,7 @@ function RootItems(props: {
 }): JSX.Element {
     const pilesArray = [];
     for (const i of props.app.items) {
-        if (Tree.is(i, group)) {
+        if (i instanceof Group) {
             pilesArray.push(
                 <GroupView
                     key={i.id}
@@ -158,7 +158,7 @@ function RootItems(props: {
                     session={props.session}
                     fluidMembers={props.fluidMembers} />
             );
-        } else if (Tree.is(i, note)) {
+        } else if (i instanceof Note) {
             pilesArray.push(
                 <RootNoteWrapper
                     key={i.id}
