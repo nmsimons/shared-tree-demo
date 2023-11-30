@@ -9,8 +9,8 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { initializeDevtools } from '@fluid-experimental/devtools';
 import { devtoolsLogger } from './infra/clientProps';
 import { ITree } from '@fluid-experimental/tree2';
-import { appSchemaConfig } from './schema/app_schema';
-import { sessionSchemaConfig } from './schema/session_schema';
+import { appTreeConfiguration } from './schema/app_schema';
+import { sessionTreeConfiguration } from './schema/session_schema';
 
 async function main() {
     
@@ -29,8 +29,8 @@ async function main() {
     const { services, container } = await loadFluidData(containerId, notesContainerSchema);    
 
     // Initialize the SharedTree DDSes
-    const sessionTree = (container.initialObjects.sessionData as ITree).schematize(sessionSchemaConfig); 
-    const appTree = (container.initialObjects.appData as ITree).schematize(appSchemaConfig);
+    const sessionTree = (container.initialObjects.sessionData as ITree).schematize(sessionTreeConfiguration); 
+    const appTree = (container.initialObjects.appData as ITree).schematize(appTreeConfiguration);
     
     // Initialize debugging tools
     initializeDevtools({

@@ -3,7 +3,6 @@ const path = require('path');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const CopyPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
@@ -23,24 +22,7 @@ module.exports = {
                 test: /\.ts$|tsx/,
                 use: 'ts-loader',
                 exclude: /node_modules/,
-            },
-            {
-                test: /\.scss$/,
-                use: [
-                    // { loader: 'style-loader' },
-                    MiniCssExtractPlugin.loader,
-                    {
-                        loader: 'css-loader',
-                    },
-                    {
-                        loader: 'sass-loader',
-                        options: {
-                            sourceMap: true,
-                            // options...
-                        },
-                    },
-                ],
-            },
+            },            
             {
                 test: /\.css$/,
                 use: [

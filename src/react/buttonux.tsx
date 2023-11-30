@@ -1,5 +1,5 @@
 import React from 'react';
-import { App, note } from '../schema/app_schema';
+import { App, Note } from '../schema/app_schema';
 import { addNote, addGroup, deleteNote, moveItem, findNote } from '../utils/app_helpers';
 import {
     ThumbLikeFilled,
@@ -28,7 +28,7 @@ export function NewGroupButton(props: {
         for (const id of ids) 
         {
             const n = findNote(props.root.items, id)
-            if (Tree.is(n, note)) {
+            if (n instanceof Note) {
                 moveItem(n, Infinity, group.notes);
             }            
         }
@@ -68,7 +68,7 @@ export function DeleteNotesButton(props: { session: Session, app: App, clientId:
         const ids = getSelectedNotes(props.session, props.clientId);
         for (const i of ids) {
             const n = findNote(props.app.items, i);
-            if (Tree.is(n, note)) {
+            if (n instanceof Note) {
                 deleteNote(n);
             }
         }

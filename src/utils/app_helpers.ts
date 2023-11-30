@@ -2,13 +2,9 @@ import { Tree, TreeStatus } from '@fluid-experimental/tree2';
 import {
     App,
     Note,
-    Group,
-    note,
-    group,
+    Group,    
     Notes,
-    Items,
-    items,
-    notes,    
+    Items   
 } from '../schema/app_schema';
 import { Guid } from 'guid-typescript';
 
@@ -23,7 +19,7 @@ export function addNote(
 
     // Define the note to add to the SharedTree - this must conform to
     // the schema definition of a note
-    const newNote = note.create({
+    const newNote = new Note({
         id: Guid.create().toString(),
         text,
         author,
@@ -35,7 +31,7 @@ export function addNote(
     // Insert the note into the SharedTree. This code always inserts the note at the end of the
     // notes sequence in the provided pile object. As this function can insert multiple items,
     // the note is passed in an array.
-    notes.insertAtEnd([newNote]);
+    notes.insertAtEnd(newNote);
 }
 
 // Update the note text and also update the timestamp in the note
@@ -66,7 +62,7 @@ export function moveItem(
     // Use Tree.is to narrow the type of source to the items schema
     // If source uses the items schema, it can receive both a note
     // and a group
-    if (Tree.is(source, items)) {
+    if (Tree.is(source, Items)) {
         const index = source.indexOf(item);
         if (destinationIndex == Infinity) {
             destination.moveToEnd(index, source);
@@ -78,7 +74,7 @@ export function moveItem(
     // Use Tree.is to narrow the type of source to the notes schema
     // If source uses the notes schema, it can only receive a note
     // so we also narrow the type of item to the note schema
-    if (Tree.is(source, notes) && Tree.is(item, note)) {
+    if (Tree.is(source, Notes) && (item instanceof Note)) {
         const index = source.indexOf(item);
         if (destinationIndex == Infinity) {
             destination.moveToEnd(index, source);
@@ -90,13 +86,13 @@ export function moveItem(
 
 // Add a new group (container for notes) to the SharedTree.
 export function addGroup(items: Items, name: string): Group {
-    const newGroup = group.create({
+    const newGroup = new Group({
         id: Guid.create().toString(),
         name,
         notes: [],
     });
 
-    items.insertAtEnd([newGroup]);
+    items.insertAtEnd(newGroup);
     return newGroup; 
 }
 
@@ -116,8 +112,8 @@ export function deleteGroup(group: Group, app: App) {
     }
 
     // Delete the now empty group
-    const parent = Tree.parent(group);
-    if (Tree.is(parent, items)) {
+    const parent = Tree.parent(group) as Items;
+    if (Tree.is(parent, Items)) {
         const i = parent.indexOf(group);
         parent.removeAt(i);
     }
@@ -128,7 +124,7 @@ export function deleteNote(note: Note) {
     const parent = Tree.parent(note)
     // Use type narrowing to ensure that parent is one of the two
     // types of allowed lists for a note and not undefined
-    if (Tree.is(parent, notes) || Tree.is(parent, items)) {
+    if (Tree.is(parent, Notes) || Tree.is(parent, Items)) {
         const index = parent.indexOf(note);        
         parent.removeAt(index);        
     }    
@@ -140,19 +136,19 @@ export function toggleVote(note: Note, user: string) {
         note.votes.removeAt(index);
         note.lastChanged = new Date().getTime();
     } else {
-        note.votes.insertAtEnd([user]);
+        note.votes.insertAtEnd(user);
         note.lastChanged = new Date().getTime();
     }
 }
 
 export const findNote = (items: Items | Notes, id: string): Note | undefined => {
     for (const i of items) {
-        if (Tree.is(i, note)) {
+        if (i instanceof Note) {
             if (i.id === id) return i;
         }
-        if (Tree.is(i, group)) {
+        if (i instanceof Group) {
             const n = findNote(i.notes, id);
-            if (Tree.is(n, note)) {
+            if (n instanceof Note) {
                 return n;
             }
         }

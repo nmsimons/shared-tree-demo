@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Note, Group, Notes, Items, note, items, group, notes } from '../schema/app_schema';
+import { Note, Group, Notes, Items } from '../schema/app_schema';
 import {
     addNote,
     toggleVote,
@@ -170,15 +170,15 @@ function NoteView(props: {
             canDrop: !!monitor.canDrop(),
         }),
         canDrop: (item) => {
-            if (Tree.is(item, note)) return true;
-            if (Tree.is(props.notes, items)) {
+            if (item instanceof Note) return true;
+            if (Tree.is(props.notes, Items)) {
                 return true;
             }
             return false;
         },
         drop: (item) => {
             const droppedItem = item
-            if (Tree.is(droppedItem, group) || Tree.is(droppedItem, note)) {
+            if (droppedItem instanceof Group || droppedItem instanceof Note) {
                 moveItem(droppedItem, props.notes.indexOf(props.note), props.notes);
             }            
             return;
@@ -298,9 +298,9 @@ function AddNoteButton(props: { group: Group; clientId: string }): JSX.Element {
         }),
         drop: (item) => {
             const droppedItem = item
-            if (Tree.is(droppedItem, note)) {
+            if (droppedItem instanceof Note) {
                 const parent = Tree.parent(droppedItem);                
-                if (Tree.is(parent, notes) || Tree.is(parent, items)) {
+                if (Tree.is(parent, Notes) || Tree.is(parent, Items)) {
                     const index = parent.indexOf(droppedItem);
                     props.group.notes.moveToEnd(index, parent);
                 }

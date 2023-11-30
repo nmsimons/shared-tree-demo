@@ -1,5 +1,5 @@
 import { Note } from '../schema/app_schema';
-import { Session, client, Client } from '../schema/session_schema';
+import { Session, Client } from '../schema/session_schema';
 import { selectAction, undefinedUserId } from './utils';
 
 export const testRemoteNoteSelection = (
@@ -58,7 +58,7 @@ export const updateRemoteNoteSelection = (
         for (const c of session.clients) {
             if (c.clientId === clientId) {
                 const i = c.selected.indexOf(item.id);
-                if (i == -1) c.selected.insertAtEnd([item.id]);
+                if (i == -1) c.selected.insertAtEnd(item.id);
                 return;
             }
         }
@@ -69,18 +69,18 @@ export const updateRemoteNoteSelection = (
         for (const c of session.clients) {
             if (c.clientId === clientId) {
                 if (c.selected.length > 0) c.selected.removeRange(0);
-                c.selected.insertAtStart([item.id]);
+                c.selected.insertAtStart(item.id);
                 return;
             }
         }
     }
 
-    const s = client.create({
+    const s = new Client({
         clientId: clientId,
         selected: [item.id],
     });
 
-    session.clients.insertAtEnd([s]);
+    session.clients.insertAtEnd(s);
 };
 
 export const getSelectedNotes = (session: Session, clientId: string): string[] => {
