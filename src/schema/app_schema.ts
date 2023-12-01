@@ -15,6 +15,8 @@ const sf = new SchemaFactory('fc1db2e8-0a00-11ee-be56-0242ac120002');
 // Define the schema for the note object. This schema includes an id to make
 // building the React app simpler, several fields that use primitive types, and a sequence
 // of user ids to track which users have voted on this note.
+// Some of the helper functions for working with the data contained in this object
+// are included in this class definition.
 export class Note extends sf.object('Note', {
     id: sf.string,
     text: sf.string,
