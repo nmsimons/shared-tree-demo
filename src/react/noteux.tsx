@@ -1,11 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Note, Group, Notes, Items } from '../schema/app_schema';
-import {
-    addNote,
-    toggleVote,
+import {    
     deleteNote,
     moveItem,
-    updateNoteText,
 } from '../utils/app_helpers';
 import {
     dragType,
@@ -272,7 +269,7 @@ function NoteTextArea(props: { note: Note; update: (value: selectAction) => void
             className="p-2 bg-transparent h-full w-full resize-none z-50"
             value={props.note.text}
             onClick={(e) => handleClick(e)}
-            onChange={(e) => updateNoteText(props.note, e.target.value)}
+            onChange={(e) => props.note.updateText(e.target.value)}
         />
     );
 }
@@ -318,7 +315,7 @@ function AddNoteButton(props: { group: Group; clientId: string }): JSX.Element {
 
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        addNote(props.group.notes, '', props.clientId);
+        props.group.newNote(props.clientId);
     };
 
     const hoverEffectStyle = 'absolute top-0 left-0 border-l-4 border-dashed h-48 ';
@@ -371,7 +368,7 @@ function LikeButton(props: { note: Note; clientId: string }): JSX.Element {
             <IconButton
                 color={setColor()}
                 background={setBackground()}
-                handleClick={() => toggleVote(props.note, props.clientId)}
+                handleClick={() => props.note.toggleVote(props.clientId)}
                 icon={MiniThumb()}
             >
                 {props.note.votes.length}

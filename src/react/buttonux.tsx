@@ -1,6 +1,6 @@
 import React from 'react';
 import { App, Note } from '../schema/app_schema';
-import { addNote, addGroup, deleteNote, moveItem, findNote } from '../utils/app_helpers';
+import { deleteNote, moveItem, findNote } from '../utils/app_helpers';
 import {
     ThumbLikeFilled,
     DismissFilled,
@@ -12,7 +12,6 @@ import {
 } from '@fluentui/react-icons';
 import { Session } from '../schema/session_schema';
 import { getSelectedNotes } from '../utils/session_helpers';
-import { Tree } from '@fluid-experimental/tree2';
 
 export function NewGroupButton(props: {
     root: App;
@@ -21,7 +20,7 @@ export function NewGroupButton(props: {
 }): JSX.Element {
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        const group = addGroup(props.root.items, '[new group]');
+        const group = props.root.newGroup('[new group]');
 
         const ids = getSelectedNotes(props.session, props.clientId);
 
@@ -48,7 +47,7 @@ export function NewGroupButton(props: {
 export function NewNoteButton(props: { root: App; clientId: string }): JSX.Element {
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        addNote(props.root.items, '', props.clientId);
+        props.root.newNote(props.clientId);
     };
 
     return (

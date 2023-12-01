@@ -1,61 +1,96 @@
 import {
     TreeConfiguration,
     SchemaFactory,
-    NodeFromSchema
+    NodeFromSchema,
 } from '@fluid-experimental/tree2';
+import { addNote } from '../utils/app_helpers';
+import { Guid } from 'guid-typescript';
 
-// Schema is defined using a builder object that generates a schema that is passed into the
-// SharedTree data structure when it is intialized. The following code
-// defines a set of types that are used to
-// build the schema and, in the case of user-defined types, can be exported
-// as TypeScript types to make it easier to write the app in a type-safe manner.
+// Schema is defined using a factory object that generates classes for objects as well
+// as list and map nodes.
 
 // Include a UUID to guarantee that this schema will be uniquely identifiable
-const sb = new SchemaFactory('fc1db2e8-0a00-11ee-be56-0242ac120002');
+const sf = new SchemaFactory('fc1db2e8-0a00-11ee-be56-0242ac120002');
 
 // Define the schema for the note object. This schema includes an id to make
 // building the React app simpler, several fields that use primitive types, and a sequence
 // of user ids to track which users have voted on this note.
-export class Note extends sb.object('Note', {
-    id: sb.string,
-    text: sb.string,
-    author: sb.string,
-    votes: sb.list(sb.string),
-    created: sb.number,
-    lastChanged: sb.number,        
-}) {}
+export class Note extends sf.object('Note', {
+    id: sf.string,
+    text: sf.string,
+    author: sf.string,
+    votes: sf.list(sf.string),
+    created: sf.number,
+    lastChanged: sf.number,
+}) {
+    // Update the note text and also update the timestamp in the note
+    public updateText(text: string) {
+        this.lastChanged = new Date().getTime();
+        this.text = text;
+    }
+
+    public toggleVote(user: string) {
+        const index = this.votes.indexOf(user);
+        if (index > -1) {
+            this.votes.removeAt(index);
+            this.lastChanged = new Date().getTime();
+        } else {
+            this.votes.insertAtEnd(user);
+            this.lastChanged = new Date().getTime();
+        }
+    }
+}
 
 // Schema for a list of Notes. This could be defined inline
 // but it is convenient to define it as its own schema
 // so that it can be used as a type in other parts of the app
-export const Notes = sb.list(Note);
+export const Notes = sf.list(Note);
+export type Notes = NodeFromSchema<typeof Notes>;
 
 // Define the schema for the container of notes. This type includes a sequence of notes.
-export class Group extends sb.object('Group', {
-    id: sb.string,
-    name: sb.string,
+export class Group extends sf.object('Group', {
+    id: sf.string,
+    name: sf.string,
     notes: Notes,
-}) {}
+}) {
+    public newNote(author: string) {
+        addNote(this.notes, '', author);
+    }
+}
 
 // Schema for a list of Notes and Groups. This could be defined inline
 // but it is convenient to define it as its own schema
 // so that it can be used as a type in other parts of the app
-export const Items = sb.list([Group, Note]);
+export const Items = sf.list([Group, Note]);
+export type Items = NodeFromSchema<typeof Items>;
 
 // Define a root type.
-export class App extends sb.object('App', {
+export class App extends sf.object('App', {
     items: Items,
-}) {}
+}) {
+    public newNote(author: string) {
+        addNote(this.items, '', author);
+    }
 
-// Export the types defined here as TypeScript types.
-export type Notes = NodeFromSchema<typeof Notes>;
-export type Items = NodeFromSchema<typeof Items>;
+    // Add a new group (container for notes) to the SharedTree.
+    public newGroup(name: string): Group {
+        const group = new Group({
+            id: Guid.create().toString(),
+            name,
+            notes: [],
+        });
+
+        this.items.insertAtEnd(group);
+        return group;
+    }
+}
 
 // Export the tree config appropriate for this schema
 // This is passed into the SharedTree when it is initialized
 export const appTreeConfiguration = new TreeConfiguration(
-    App,
+    App, // root node
     () => ({
+        // initial tree
         items: [],
-    })    
+    })
 );

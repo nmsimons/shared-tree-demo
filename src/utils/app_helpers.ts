@@ -34,12 +34,6 @@ export function addNote(
     notes.insertAtEnd(newNote);
 }
 
-// Update the note text and also update the timestamp in the note
-export function updateNoteText(note: Note, text: string) {
-    note.lastChanged = new Date().getTime();
-    note.text = text;
-}
-
 // Move a note from one position in a sequence to another position in the same sequence or
 // in a different sequence. The index being passed here is the desired index after the move.
 export function moveItem(
@@ -57,7 +51,7 @@ export function moveItem(
     )
         return;
 
-    const source = Tree.parent(item);
+    const source = Tree.parent(item);    
     
     // Use Tree.is to narrow the type of source to the items schema
     // If source uses the items schema, it can receive both a note
@@ -82,18 +76,6 @@ export function moveItem(
             destination.moveToIndex(destinationIndex, index, source);
         }
     }   
-}
-
-// Add a new group (container for notes) to the SharedTree.
-export function addGroup(items: Items, name: string): Group {
-    const newGroup = new Group({
-        id: Guid.create().toString(),
-        name,
-        notes: [],
-    });
-
-    items.insertAtEnd(newGroup);
-    return newGroup; 
 }
 
 // Function that deletes a group and moves the notes in that group
@@ -128,17 +110,6 @@ export function deleteNote(note: Note) {
         const index = parent.indexOf(note);        
         parent.removeAt(index);        
     }    
-}
-
-export function toggleVote(note: Note, user: string) {
-    const index = note.votes.indexOf(user);
-    if (index > -1) {
-        note.votes.removeAt(index);
-        note.lastChanged = new Date().getTime();
-    } else {
-        note.votes.insertAtEnd(user);
-        note.lastChanged = new Date().getTime();
-    }
 }
 
 export const findNote = (items: Items | Notes, id: string): Note | undefined => {
