@@ -1,7 +1,6 @@
 import {
     TreeConfiguration,
     SchemaFactory,
-    NodeFromSchema,
 } from '@fluid-experimental/tree2';
 import { addNote } from '../utils/app_helpers';
 import { Guid } from 'guid-typescript';
@@ -46,8 +45,7 @@ export class Note extends sf.object('Note', {
 // Schema for a list of Notes. This could be defined inline
 // but it is convenient to define it as its own schema
 // so that it can be used as a type in other parts of the app
-export const Notes = sf.list(Note);
-export type Notes = NodeFromSchema<typeof Notes>;
+export class Notes extends sf.list('Notes', Note) {}
 
 // Define the schema for the container of notes. This type includes a sequence of notes.
 export class Group extends sf.object('Group', {
@@ -63,8 +61,7 @@ export class Group extends sf.object('Group', {
 // Schema for a list of Notes and Groups. This could be defined inline
 // but it is convenient to define it as its own schema
 // so that it can be used as a type in other parts of the app
-export const Items = sf.list([Group, Note]);
-export type Items = NodeFromSchema<typeof Items>;
+export class Items extends sf.list('Items', [Group, Note]) {}
 
 // Define a root type.
 export class App extends sf.object('App', {

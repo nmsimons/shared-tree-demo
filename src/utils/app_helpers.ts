@@ -55,10 +55,10 @@ export function moveItem(
 
     const source = Tree.parent(item);    
     
-    // Use Tree.is to narrow the type of source to the items schema
+    // Use instanceof to narrow the type of source to the items schema
     // If source uses the items schema, it can receive both a note
     // and a group
-    if (Tree.is(source, Items)) {
+    if (source instanceof Items) {
         const index = source.indexOf(item);
         if (destinationIndex == Infinity) {
             destination.moveToEnd(index, source);
@@ -67,10 +67,10 @@ export function moveItem(
         }        
     }
 
-    // Use Tree.is to narrow the type of source to the notes schema
+    // Use instanceof to narrow the type of source to the notes schema
     // If source uses the notes schema, it can only receive a note
     // so we also narrow the type of item to the note schema
-    if (Tree.is(source, Notes) && (item instanceof Note)) {
+    if (source instanceof Notes && item instanceof Note) {
         const index = source.indexOf(item);
         if (destinationIndex == Infinity) {
             destination.moveToEnd(index, source);
@@ -96,8 +96,8 @@ export function deleteGroup(group: Group, app: App) {
     }
 
     // Delete the now empty group
-    const parent = Tree.parent(group) as Items;
-    if (Tree.is(parent, Items)) {
+    const parent = Tree.parent(group);
+    if (parent instanceof Items) {
         const i = parent.indexOf(group);
         parent.removeAt(i);
     }
