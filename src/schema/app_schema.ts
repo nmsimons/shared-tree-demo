@@ -49,7 +49,7 @@ export class Notes extends sf.list('Notes', Note) {
     }
 }
 
-// Define the schema for the container of notes. This type includes a sequence of notes.
+// Define the schema for the container of notes.
 export class Group extends sf.object('Group', {
     id: sf.string,
     name: sf.string,
