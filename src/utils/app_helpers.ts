@@ -10,6 +10,8 @@ import { Guid } from 'guid-typescript';
 
 // Takes a destination list, content string, and author data and adds a new
 // note to the SharedTree with that data.
+// This function is called from methods in the Items and Notes classes
+// defined in the app_schema.ts file.
 export function addNote(
     notes: Notes | Items,
     text: string,
@@ -34,12 +36,6 @@ export function addNote(
     notes.insertAtEnd(newNote);
 }
 
-// Update the note text and also update the timestamp in the note
-export function updateNoteText(note: Note, text: string) {
-    note.lastChanged = new Date().getTime();
-    note.text = text;
-}
-
 // Move a note from one position in a sequence to another position in the same sequence or
 // in a different sequence. The index being passed here is the desired index after the move.
 export function moveItem(
@@ -57,12 +53,12 @@ export function moveItem(
     )
         return;
 
-    const source = Tree.parent(item);
+    const source = Tree.parent(item);    
     
-    // Use Tree.is to narrow the type of source to the items schema
+    // Use instanceof to narrow the type of source to the items schema
     // If source uses the items schema, it can receive both a note
     // and a group
-    if (Tree.is(source, Items)) {
+    if (source instanceof Items) {
         const index = source.indexOf(item);
         if (destinationIndex == Infinity) {
             destination.moveToEnd(index, source);
@@ -71,10 +67,10 @@ export function moveItem(
         }        
     }
 
-    // Use Tree.is to narrow the type of source to the notes schema
+    // Use instanceof to narrow the type of source to the notes schema
     // If source uses the notes schema, it can only receive a note
     // so we also narrow the type of item to the note schema
-    if (Tree.is(source, Notes) && (item instanceof Note)) {
+    if (source instanceof Notes && item instanceof Note) {
         const index = source.indexOf(item);
         if (destinationIndex == Infinity) {
             destination.moveToEnd(index, source);
@@ -82,18 +78,6 @@ export function moveItem(
             destination.moveToIndex(destinationIndex, index, source);
         }
     }   
-}
-
-// Add a new group (container for notes) to the SharedTree.
-export function addGroup(items: Items, name: string): Group {
-    const newGroup = new Group({
-        id: Guid.create().toString(),
-        name,
-        notes: [],
-    });
-
-    items.insertAtEnd(newGroup);
-    return newGroup; 
 }
 
 // Function that deletes a group and moves the notes in that group
@@ -112,8 +96,8 @@ export function deleteGroup(group: Group, app: App) {
     }
 
     // Delete the now empty group
-    const parent = Tree.parent(group) as Items;
-    if (Tree.is(parent, Items)) {
+    const parent = Tree.parent(group);
+    if (parent instanceof Items) {
         const i = parent.indexOf(group);
         parent.removeAt(i);
     }
@@ -128,17 +112,6 @@ export function deleteNote(note: Note) {
         const index = parent.indexOf(note);        
         parent.removeAt(index);        
     }    
-}
-
-export function toggleVote(note: Note, user: string) {
-    const index = note.votes.indexOf(user);
-    if (index > -1) {
-        note.votes.removeAt(index);
-        note.lastChanged = new Date().getTime();
-    } else {
-        note.votes.insertAtEnd(user);
-        note.lastChanged = new Date().getTime();
-    }
 }
 
 export const findNote = (items: Items | Notes, id: string): Note | undefined => {

@@ -5,7 +5,7 @@ import { ContainerSchema } from 'fluid-framework';
 // that we want to create dynamically and any
 // initial DataObjects we want created when the container is first created.
 
-export class MySharedTree {
+export class SharedTree {
     public static getFactory(): SharedTreeFactory {
         return new SharedTreeFactory();
     }
@@ -13,8 +13,8 @@ export class MySharedTree {
 
 export const notesContainerSchema: ContainerSchema = {
     initialObjects: {
-        appData: MySharedTree,
-        sessionData: MySharedTree,
+        appData: SharedTree,
+        sessionData: SharedTree,
     },
 };
 
