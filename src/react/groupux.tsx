@@ -6,7 +6,6 @@ import { NoteContainer } from './noteux';
 import { DeleteButton } from './buttonux';
 import { dragType } from '../utils/utils';
 import { Session } from '../schema/session_schema';
-import { Tree } from '@fluid-experimental/tree2';
 
 export function GroupView(props: {
     group: Group;

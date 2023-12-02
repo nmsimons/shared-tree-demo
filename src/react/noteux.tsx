@@ -315,7 +315,7 @@ function AddNoteButton(props: { group: Group; clientId: string }): JSX.Element {
 
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        props.group.newNote(props.clientId);
+        props.group.notes.newNote(props.clientId);
     };
 
     const hoverEffectStyle = 'absolute top-0 left-0 border-l-4 border-dashed h-48 ';

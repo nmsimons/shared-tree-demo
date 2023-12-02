@@ -45,30 +45,25 @@ export class Note extends sf.object('Note', {
 // Schema for a list of Notes. This could be defined inline
 // but it is convenient to define it as its own schema
 // so that it can be used as a type in other parts of the app
-export class Notes extends sf.list('Notes', Note) {}
+export class Notes extends sf.list('Notes', Note) {
+    public newNote(author: string) {
+        addNote(this, '', author);
+    }
+}
 
 // Define the schema for the container of notes. This type includes a sequence of notes.
 export class Group extends sf.object('Group', {
     id: sf.string,
     name: sf.string,
     notes: Notes,
-}) {
-    public newNote(author: string) {
-        addNote(this.notes, '', author);
-    }
-}
+}) {}
 
 // Schema for a list of Notes and Groups. This could be defined inline
 // but it is convenient to define it as its own schema
 // so that it can be used as a type in other parts of the app
-export class Items extends sf.list('Items', [Group, Note]) {}
-
-// Define a root type.
-export class App extends sf.object('App', {
-    items: Items,
-}) {
+export class Items extends sf.list('Items', [Group, Note]) {
     public newNote(author: string) {
-        addNote(this.items, '', author);
+        addNote(this, '', author);
     }
 
     // Add a new group (container for notes) to the SharedTree.
@@ -79,10 +74,15 @@ export class App extends sf.object('App', {
             notes: [],
         });
 
-        this.items.insertAtEnd(group);
+        this.insertAtEnd(group);
         return group;
     }
 }
+
+// Define a root type.
+export class App extends sf.object('App', {
+    items: Items,
+}) {}
 
 // Export the tree config appropriate for this schema
 // This is passed into the SharedTree when it is initialized

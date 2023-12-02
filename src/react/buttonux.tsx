@@ -20,7 +20,7 @@ export function NewGroupButton(props: {
 }): JSX.Element {
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        const group = props.root.newGroup('[new group]');
+        const group = props.root.items.newGroup('[new group]');
 
         const ids = getSelectedNotes(props.session, props.clientId);
 
@@ -47,7 +47,7 @@ export function NewGroupButton(props: {
 export function NewNoteButton(props: { root: App; clientId: string }): JSX.Element {
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        props.root.newNote(props.clientId);
+        props.root.items.newNote(props.clientId);
     };
 
     return (
