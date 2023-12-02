@@ -20,6 +20,6 @@ export const notesContainerSchema: ContainerSchema = {
 
 export const binderContainerSchema: ContainerSchema = {
     initialObjects: {
-        binderData: MySharedTree,
+        binderData: SharedTree,
     },
 };

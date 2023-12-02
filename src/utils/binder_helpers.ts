@@ -25,8 +25,8 @@ export function addPage(pages: Pages, id: string, name: string): Page {
 }
 
 export function deletePage(page: Page) {
-    const parent = Tree.parent(page); // shouldn't cast here but this works around a bug temporarilly
-    if (Tree.is(parent, Pages)) {
+    const parent = Tree.parent(page);
+    if (parent instanceof Pages) {
         if (parent) parent.removeAt(Tree.key(page) as number);
     }
 }

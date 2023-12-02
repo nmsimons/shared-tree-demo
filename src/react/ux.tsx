@@ -49,9 +49,7 @@ export function ReactApp(props: {
         devtools.registerContainerDevtools({
             container: props.container,
             containerKey: binderContainerKey,
-        });
-
-        // Set initial canvas state        
+        });       
 
         const unsubscribe = Tree.on(props.binderTree.root, 'afterChange', () => {
             setInvalidations(invalidations + Math.random());

@@ -1,7 +1,6 @@
 import {
     TreeConfiguration,
-    SchemaFactory,
-    NodeFromSchema
+    SchemaFactory,    
 } from '@fluid-experimental/tree2';
 
 // Include a UUID to guarantee that this schema will be uniquely identifiable
@@ -12,15 +11,12 @@ export class Page extends sb.object('Page', {
     name: sb.string,
 }) {}
 
-export const Pages = sb.list(Page);
+export class Pages extends sb.list('Pages', Page) {}
 
 export class Binder extends sb.object('Binder', {
     name: sb.string,
     pages: Pages,
 }) {}
-
-// Export the types defined here as TypeScript types.
-export type Pages = NodeFromSchema<typeof Pages>;
 
 // Export the tree config appropriate for this schema
 // This is passed into the SharedTree when it is initialized
