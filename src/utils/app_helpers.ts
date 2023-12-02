@@ -10,6 +10,8 @@ import { Guid } from 'guid-typescript';
 
 // Takes a destination list, content string, and author data and adds a new
 // note to the SharedTree with that data.
+// This function is called from methods in the Group and App classes
+// defined in the app_schema.ts file.
 export function addNote(
     notes: Notes | Items,
     text: string,
