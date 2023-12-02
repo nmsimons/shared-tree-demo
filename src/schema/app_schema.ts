@@ -42,9 +42,7 @@ export class Note extends sf.object('Note', {
     }
 }
 
-// Schema for a list of Notes. This could be defined inline
-// but it is convenient to define it as its own schema
-// so that it can be used as a type in other parts of the app
+// Schema for a list of Notes. 
 export class Notes extends sf.list('Notes', Note) {
     public newNote(author: string) {
         addNote(this, '', author);
@@ -58,9 +56,7 @@ export class Group extends sf.object('Group', {
     notes: Notes,
 }) {}
 
-// Schema for a list of Notes and Groups. This could be defined inline
-// but it is convenient to define it as its own schema
-// so that it can be used as a type in other parts of the app
+// Schema for a list of Notes and Groups. 
 export class Items extends sf.list('Items', [Group, Note]) {
     public newNote(author: string) {
         addNote(this, '', author);
