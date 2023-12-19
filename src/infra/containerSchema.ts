@@ -1,4 +1,4 @@
-import { SharedTree } from '@fluid-experimental/tree2';
+import { SharedTree } from '@fluidframework/tree';
 import { ContainerSchema } from 'fluid-framework';
 
 // Define the schema of our Container. This includes the DDSes/DataObjects

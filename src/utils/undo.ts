@@ -2,7 +2,7 @@ import {
     Revertible,
     RevertibleKind,
     TreeView,
-} from '@fluid-experimental/tree2';
+} from '@fluidframework/tree';
 
 export function setupUndoRedoStacks<T>(tree: TreeView <T>): {
     undoStack: Revertible[];

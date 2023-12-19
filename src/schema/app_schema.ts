@@ -1,7 +1,7 @@
 import {
     TreeConfiguration,
     SchemaFactory,
-} from '@fluid-experimental/tree2';
+} from '@fluidframework/tree';
 import { addNote } from '../utils/app_helpers';
 import { Guid } from 'guid-typescript';
 
@@ -20,7 +20,7 @@ export class Note extends sf.object('Note', {
     id: sf.string,
     text: sf.string,
     author: sf.string,
-    votes: sf.list(sf.string),
+    votes: sf.array(sf.string),
     created: sf.number,
     lastChanged: sf.number,
 }) {
@@ -43,7 +43,7 @@ export class Note extends sf.object('Note', {
 }
 
 // Schema for a list of Notes. 
-export class Notes extends sf.list('Notes', Note) {
+export class Notes extends sf.array('Notes', Note) {
     public newNote(author: string) {
         addNote(this, '', author);
     }
@@ -57,7 +57,7 @@ export class Group extends sf.object('Group', {
 }) {}
 
 // Schema for a list of Notes and Groups. 
-export class Items extends sf.list('Items', [Group, Note]) {
+export class Items extends sf.array('Items', [Group, Note]) {
     public newNote(author: string) {
         addNote(this, '', author);
     }

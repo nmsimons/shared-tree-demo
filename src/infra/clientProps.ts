@@ -5,10 +5,10 @@ import {
 } from '@fluidframework/azure-client';
 import { InsecureTokenProvider } from '@fluidframework/test-runtime-utils';
 import { AzureFunctionTokenProvider, azureUser, user } from './tokenProvider';
-import { DevtoolsLogger } from "@fluid-experimental/devtools";
+import { createDevtoolsLogger } from "@fluidframework/devtools";
 
 // Instantiate the logger
-export const devtoolsLogger = new DevtoolsLogger();
+export const devtoolsLogger = createDevtoolsLogger();
 
 const useAzure = process.env.FLUID_CLIENT === 'azure';
 if (!useAzure) {

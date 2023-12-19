@@ -6,9 +6,9 @@ import { notesContainerSchema } from './infra/containerSchema';
 import { ReactApp } from './react/ux';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { initializeDevtools } from '@fluid-experimental/devtools';
+import { initializeDevtools } from '@fluidframework/devtools';
 import { devtoolsLogger } from './infra/clientProps';
-import { ITree } from '@fluid-experimental/tree2';
+import { ITree } from '@fluidframework/tree';
 import { appTreeConfiguration } from './schema/app_schema';
 import { sessionTreeConfiguration } from './schema/session_schema';
 

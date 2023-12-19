@@ -18,7 +18,7 @@ import {
     RedoButton,
     ButtonGroup
 } from './buttonux';
-import { RevertResult, Revertible, Tree, TreeView } from '@fluid-experimental/tree2';
+import { RevertResult, Revertible, Tree, TreeView } from '@fluidframework/tree';
 import { undefinedUserId } from '../utils/utils';
 import { setupUndoRedoStacks } from '../utils/undo';
 
