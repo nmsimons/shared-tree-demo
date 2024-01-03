@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { App, Note, Group } from '../schema/app_schema';
 import { Session } from '../schema/session_schema';
 import {
@@ -13,14 +13,11 @@ import {
     Floater,
     NewGroupButton,
     NewNoteButton,
-    DeleteNotesButton,
-    UndoButton,
-    RedoButton,
+    DeleteNotesButton,    
     ButtonGroup
 } from './buttonux';
-import { RevertResult, Revertible, Tree, TreeView } from '@fluidframework/tree';
+import { Tree, TreeView } from '@fluidframework/tree';
 import { undefinedUserId } from '../utils/utils';
-import { setupUndoRedoStacks } from '../utils/undo';
 
 export function Canvas(props: {
     appTree: TreeView<App>;
@@ -35,29 +32,7 @@ export function Canvas(props: {
     setFluidMembers: (arg: string[]) => void;
 }): JSX.Element {
     const [invalidations, setInvalidations] = useState(0);
-    const [undoStack, setUndoStack] = useState<Revertible[]>([]);
-    const [redoStack, setRedoStack] = useState<Revertible[]>([]);
-
-    useEffect(() => {
-        const { undoStack, redoStack } = setupUndoRedoStacks(props.appTree);
-        setUndoStack(undoStack);
-        setRedoStack(redoStack);
-    }, []);
-
-    const undo = useCallback(() => {
-        const result = undoStack.pop()?.revert();
-        if (result === RevertResult.Failure) {
-            //console.log('undo failed');
-        }
-    }, [undoStack]);
-
-    const redo = useCallback(() => {
-        const result = redoStack.pop()?.revert();
-        if (result === RevertResult.Failure) {
-            //console.log('redo failed');
-        }
-    }, [redoStack]);
-
+  
     const appRoot = props.appTree.root;
     const sessionRoot = props.sessionTree.root;
 
@@ -130,11 +105,7 @@ export function Canvas(props: {
                         clientId={props.currentUser} />
                     <NewNoteButton root={appRoot} clientId={props.currentUser} />
                     <DeleteNotesButton session={sessionRoot} app={appRoot} clientId={props.currentUser} />
-                </ButtonGroup>
-                <ButtonGroup>
-                    <UndoButton undo={undo} />
-                    <RedoButton redo={redo} />
-                </ButtonGroup>
+                </ButtonGroup>                
             </Floater>
         </div>
     );
