@@ -63,7 +63,7 @@ async function main() {
         containerId = await container.attach();
 
         // The newly attached container is given a unique ID that can be used to access the container in another session
-        location.hash = containerId;
+        history.replaceState(undefined, "", "#" + containerId);
     }
 }
 
