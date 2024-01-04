@@ -251,9 +251,7 @@ function NoteTextArea(props: { note: Note; update: (value: selectAction) => void
     // The text field updates the Fluid data model on every keystroke in this demo.
     // This works well with small strings but doesn't scale to very large strings.
     // A Future iteration of SharedTree will include support for collaborative strings
-    // that make real-time collaboration on this type of data efficient and simple.
-    // If you need real-time typing before this happens, you can use the SharedString
-    // data structure and embed that in a SharedTree using a Fluid Handle.
+    // that make real-time collaboration on this type of data efficient and simple.    
 
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
