@@ -7,8 +7,8 @@ import {
     IFluidContainer,
     IMember,
     IServiceAudience,
+    TreeView
 } from 'fluid-framework';
-import { TreeView } from '@fluidframework/tree';
 import { undefinedUserId } from '../utils/utils';
 import { Canvas } from './canvasux';
 

@@ -5,7 +5,9 @@ import {
     ConnectionState,
     IFluidContainer,
     IMember,
-    IServiceAudience
+    IServiceAudience,
+    Tree,
+    TreeView,
 } from 'fluid-framework';
 import { GroupView } from './groupux';
 import { RootNoteWrapper } from './noteux';
@@ -13,10 +15,9 @@ import {
     Floater,
     NewGroupButton,
     NewNoteButton,
-    DeleteNotesButton,    
-    ButtonGroup
+    DeleteNotesButton,
+    ButtonGroup,
 } from './buttonux';
-import { Tree, TreeView } from '@fluidframework/tree';
 import { undefinedUserId } from '../utils/utils';
 
 export function Canvas(props: {
@@ -32,7 +33,7 @@ export function Canvas(props: {
     setFluidMembers: (arg: string[]) => void;
 }): JSX.Element {
     const [invalidations, setInvalidations] = useState(0);
-  
+
     const appRoot = props.appTree.root;
     const sessionRoot = props.sessionTree.root;
 
@@ -51,12 +52,18 @@ export function Canvas(props: {
         const updateConnectionState = () => {
             if (props.container.connectionState === ConnectionState.Connected) {
                 props.setConnectionState('connected');
-            } else if (props.container.connectionState === ConnectionState.Disconnected) {
+            } else if (
+                props.container.connectionState === ConnectionState.Disconnected
+            ) {
                 props.setConnectionState('disconnected');
-            } else if (props.container.connectionState ===
-                ConnectionState.EstablishingConnection) {
+            } else if (
+                props.container.connectionState ===
+                ConnectionState.EstablishingConnection
+            ) {
                 props.setConnectionState('connecting');
-            } else if (props.container.connectionState === ConnectionState.CatchingUp) {
+            } else if (
+                props.container.connectionState === ConnectionState.CatchingUp
+            ) {
                 props.setConnectionState('catching up');
             }
         };
@@ -96,16 +103,22 @@ export function Canvas(props: {
                 app={appRoot}
                 clientId={props.currentUser}
                 session={sessionRoot}
-                fluidMembers={props.fluidMembers} />
+                fluidMembers={props.fluidMembers}
+            />
             <Floater>
                 <ButtonGroup>
                     <NewGroupButton
                         root={appRoot}
                         session={sessionRoot}
-                        clientId={props.currentUser} />
+                        clientId={props.currentUser}
+                    />
                     <NewNoteButton root={appRoot} clientId={props.currentUser} />
-                    <DeleteNotesButton session={sessionRoot} app={appRoot} clientId={props.currentUser} />
-                </ButtonGroup>                
+                    <DeleteNotesButton
+                        session={sessionRoot}
+                        app={appRoot}
+                        clientId={props.currentUser}
+                    />
+                </ButtonGroup>
             </Floater>
         </div>
     );
@@ -127,7 +140,8 @@ function RootItems(props: {
                     clientId={props.clientId}
                     app={props.app}
                     session={props.session}
-                    fluidMembers={props.fluidMembers} />
+                    fluidMembers={props.fluidMembers}
+                />
             );
         } else if (i instanceof Note) {
             pilesArray.push(
@@ -137,7 +151,8 @@ function RootItems(props: {
                     clientId={props.clientId}
                     notes={props.app.items}
                     session={props.session}
-                    fluidMembers={props.fluidMembers} />
+                    fluidMembers={props.fluidMembers}
+                />
             );
         }
     }

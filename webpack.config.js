@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
@@ -47,6 +46,7 @@ module.exports = {
         // This line is VERY important for VS Code debugging to attach properly
         // Tamper with it at your own risks
         devtoolModuleFilenameTemplate: '[absolute-resource-path]',
+        clean: true,
     },
     plugins: [
         // No need to write a index.html
@@ -61,9 +61,7 @@ module.exports = {
         // Extract CSS to separate file
         new MiniCssExtractPlugin({
             filename: 'css/mystyles.css',
-        }),
-        // Do not accumulate files in ./dist
-        new CleanWebpackPlugin(),
+        }),        
     ],
     devServer: {
         // keep port in sync with VS Code launch.json

@@ -1,7 +1,7 @@
 import {
     TreeConfiguration,
     SchemaFactory,
-} from '@fluidframework/tree';
+} from 'fluid-framework';
 import { addNote } from '../utils/app_helpers';
 import { Guid } from 'guid-typescript';
 

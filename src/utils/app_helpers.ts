@@ -1,4 +1,4 @@
-import { Tree, TreeStatus } from '@fluidframework/tree';
+import { Tree, TreeStatus } from 'fluid-framework';
 import {
     App,
     Note,

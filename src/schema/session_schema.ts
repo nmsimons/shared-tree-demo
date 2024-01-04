@@ -1,7 +1,7 @@
 import {
     TreeConfiguration,
     SchemaFactory,    
-} from '@fluidframework/tree';
+} from 'fluid-framework';
 
 // Include a UUID to guarantee that this schema will be uniquely identifiable
 const sf = new SchemaFactory('fc1db2e8-0000-11ee-be56-0242ac120002');

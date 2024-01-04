@@ -8,11 +8,11 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { initializeDevtools } from '@fluidframework/devtools';
 import { devtoolsLogger } from './infra/clientProps';
-import { ITree } from '@fluidframework/tree';
+import { ITree } from 'fluid-framework';
 import { appTreeConfiguration } from './schema/app_schema';
 import { sessionTreeConfiguration } from './schema/session_schema';
 
-async function main() {
+async function start() {
     
     // create the root element for React
     const app = document.createElement('div');
@@ -67,4 +67,4 @@ async function main() {
     }
 }
 
-export default main();
+start().catch((error) => console.error(error));
