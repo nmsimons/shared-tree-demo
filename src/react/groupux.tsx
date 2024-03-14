@@ -10,7 +10,7 @@ import { Session } from '../schema/session_schema';
 export function GroupView(props: {
     group: Group;
     clientId: string;
-    app: App;    
+    app: App;
     session: Session;
     fluidMembers: string[];
 }): JSX.Element {
@@ -39,15 +39,15 @@ export function GroupView(props: {
                 return;
             }
 
-            const droppedItem = item
-            if ((droppedItem instanceof Group) || (droppedItem instanceof Note)) {
+            const droppedItem = item;
+            if (droppedItem instanceof Group || droppedItem instanceof Note) {
                 moveItem(
                     droppedItem,
                     props.app.items.indexOf(props.group),
                     props.app.items
                 );
             }
-            
+
             return;
         },
     }));
@@ -79,7 +79,7 @@ export function GroupView(props: {
                 <GroupToolbar pile={props.group} app={props.app} />
                 <NoteContainer
                     group={props.group}
-                    clientId={props.clientId}                    
+                    clientId={props.clientId}
                     session={props.session}
                     fluidMembers={props.fluidMembers}
                 />

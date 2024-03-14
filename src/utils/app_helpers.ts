@@ -1,22 +1,12 @@
 import { Tree, TreeStatus } from 'fluid-framework';
-import {
-    App,
-    Note,
-    Group,    
-    Notes,
-    Items   
-} from '../schema/app_schema';
+import { App, Note, Group, Notes, Items } from '../schema/app_schema';
 import { Guid } from 'guid-typescript';
 
 // Takes a destination list, content string, and author data and adds a new
 // note to the SharedTree with that data.
 // This function is called from methods in the Items and Notes classes
 // defined in the app_schema.ts file.
-export function addNote(
-    notes: Notes | Items,
-    text: string,
-    author: string
-) {
+export function addNote(notes: Notes | Items, text: string, author: string) {
     const timeStamp = new Date().getTime();
 
     // Define the note to add to the SharedTree - this must conform to
@@ -53,8 +43,8 @@ export function moveItem(
     )
         return;
 
-    const source = Tree.parent(item);    
-    
+    const source = Tree.parent(item);
+
     // Use instanceof to narrow the type of source to the items schema
     // If source uses the items schema, it can receive both a note
     // and a group
@@ -64,7 +54,7 @@ export function moveItem(
             destination.moveToEnd(index, source);
         } else {
             destination.moveToIndex(destinationIndex, index, source);
-        }        
+        }
     }
 
     // Use instanceof to narrow the type of source to the notes schema
@@ -77,7 +67,7 @@ export function moveItem(
         } else {
             destination.moveToIndex(destinationIndex, index, source);
         }
-    }   
+    }
 }
 
 // Function that deletes a group and moves the notes in that group
@@ -86,13 +76,8 @@ export function deleteGroup(group: Group, app: App) {
     // Test for the presence of notes and move them to the root
     // in the same position as the group
     if (group.notes.length !== 0) {
-        const index = app.items.indexOf(group);       
-        app.items.moveRangeToIndex(
-            index,            
-            0,
-            group.notes.length,            
-            group.notes
-        );        
+        const index = app.items.indexOf(group);
+        app.items.moveRangeToIndex(index, 0, group.notes.length, group.notes);
     }
 
     // Delete the now empty group
@@ -105,13 +90,13 @@ export function deleteGroup(group: Group, app: App) {
 
 // Function to delete a note.
 export function deleteNote(note: Note) {
-    const parent = Tree.parent(note)
+    const parent = Tree.parent(note);
     // Use type narrowing to ensure that parent is one of the two
     // types of allowed lists for a note and not undefined
     if (Tree.is(parent, Notes) || Tree.is(parent, Items)) {
-        const index = parent.indexOf(note);        
-        parent.removeAt(index);        
-    }    
+        const index = parent.indexOf(note);
+        parent.removeAt(index);
+    }
 }
 
 export const findNote = (items: Items | Notes, id: string): Note | undefined => {
@@ -126,5 +111,5 @@ export const findNote = (items: Items | Notes, id: string): Note | undefined => 
             }
         }
     }
-    return undefined
-}    
+    return undefined;
+};
