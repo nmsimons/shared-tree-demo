@@ -1,4 +1,4 @@
-import { fail } from 'fluid-framework';
+import { TreeView, fail } from 'fluid-framework';
 import { createAzureOpenAILanguageModel } from 'typechat/dist/model';
 import { App } from '../schema/app_schema';
 
@@ -14,9 +14,7 @@ export function getPrompter(
 
     const model = createAzureOpenAILanguageModel(apiKey, endpoint);
     return async (prompt: string) => {
-        const result = await model.complete(
-            prePrompt && `${prePrompt}\nHere is a user prompt:\n${prompt}`
-        );
+        const result = await model.complete(`${prePrompt}\n${prompt}`);
         return result.success ? result.data : undefined;
     };
 }
@@ -98,7 +96,7 @@ For the input "This is a meeting where managers will decide which application fe
 
 You should only ever generate one single block of JSON at a time that satisfies the "App" schema, excluding the fields marked with gpt_omit.
 The JSON block you generate should not have any other text around it. It should start with an open curly brace and end with a closed curly brace.
-YOUR OUTPUT TO A USER PROMPT MUST BE A VALID JSON BLOCK AND NOTHING ELSE.`;
+YOUR OUTPUT TO A USER PROMPT MUST BE A VALID JSON BLOCK AND NOTHING ELSE.\nHere is a user prompt:`;
 
     const prompter = getPrompter(prePrompt);
     return async (prompt: string): Promise<App | undefined> => {
@@ -132,5 +130,39 @@ YOUR OUTPUT TO A USER PROMPT MUST BE A VALID JSON BLOCK AND NOTHING ELSE.`;
         } catch {
             return undefined;
         }
+    };
+}
+
+export function getSummaryForBoard(): (treeView: TreeView<App>) => Promise<string> {
+    return async (treeView: TreeView<App>): Promise<string> => {
+        const replacer = (key: any, value: any) => {
+            if (typeof value === 'object' && value !== null) {
+                if (Symbol.iterator in value) {
+                    // Convert iterables to arrays
+                    return [...value];
+                }
+                return value;
+            }
+            // Return the value unchanged if not an object
+            return value;
+        };
+        const items = JSON.stringify(treeView.root.items, replacer);
+        const prePrompt = `You are a service named Copilot tasked with creating summaries from provided data. Given a JSON object representing items on the Microsoft whiteboard app(do not mention we are looking at a whiteboard, the user will know what it is), your goal is to distill this information into a succinct paragraph. The summary should highlight the keyinformation found in the data, making it accessible and valuable to the user. Focus on the essence of these items, presenting them in a way, without referring to the data structure or the context of a whiteboard. Output should be a simple, clear string that conveys the collective significance of the items described.
+    
+    Here is the data you need to summarize:
+    
+    \`\`\`json
+    ${items}
+    \`\`\`
+    
+    Your summary should offer a clear overview specifying the format or context in which they are presented."`;
+
+        const prompter = getPrompter(prePrompt);
+        console.log(prompt);
+        const result = await prompter("");
+        if (result === undefined) {
+            return 'GPT failed to generate valid summary.';
+        }
+        return result;
     };
 }

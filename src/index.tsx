@@ -12,7 +12,7 @@ import { devtoolsLogger } from './infra/clientProps';
 import { ITree, TreeView } from 'fluid-framework';
 import { App, Group, Note, appTreeConfiguration } from './schema/app_schema';
 import { sessionTreeConfiguration } from './schema/session_schema';
-import { getNewContentPrompter } from './utils/gpt_helpers';
+import { getNewContentPrompter, getSummaryForBoard } from './utils/gpt_helpers';
 
 const populationString = '__POPULATE_GPT__';
 
@@ -46,6 +46,13 @@ async function insertTemplateFromPrompt(
     }
 
     alert('GPT failed to generate valid initial content.');
+}
+
+async function summarizeBoard(treeView: TreeView<App>) {
+    const prompter = getSummaryForBoard();
+    const gptContent = await prompter(treeView);
+    console.log(gptContent);
+    alert(gptContent);
 }
 
 function populate(
@@ -145,6 +152,7 @@ async function start() {
                         }
                     )
                 }
+                summarizeBoard={() => summarizeBoard(appTree)}
             />
         </DndProvider>
     );
