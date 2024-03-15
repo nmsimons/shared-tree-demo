@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
-    AzureRemoteConnectionConfig, AzureClientProps,
-    AzureLocalConnectionConfig
+    AzureRemoteConnectionConfig,
+    AzureClientProps,
+    AzureLocalConnectionConfig,
 } from '@fluidframework/azure-client';
 import { InsecureTokenProvider } from '@fluidframework/test-runtime-utils';
 import { AzureFunctionTokenProvider, azureUser, user } from './tokenProvider';
-import { createDevtoolsLogger } from "@fluidframework/devtools";
+import { createDevtoolsLogger } from '@fluidframework/devtools';
 
 // Instantiate the logger
 export const devtoolsLogger = createDevtoolsLogger();
@@ -31,7 +32,8 @@ const localConnectionConfig: AzureLocalConnectionConfig = {
     endpoint: 'http://localhost:7070',
 };
 
-const connectionConfig: AzureRemoteConnectionConfig | AzureLocalConnectionConfig = useAzure ? remoteConnectionConfig : localConnectionConfig;
+const connectionConfig: AzureRemoteConnectionConfig | AzureLocalConnectionConfig =
+    useAzure ? remoteConnectionConfig : localConnectionConfig;
 export const clientProps: AzureClientProps = {
     connection: connectionConfig,
     logger: devtoolsLogger,

@@ -1,7 +1,4 @@
-import {
-    TreeConfiguration,
-    SchemaFactory,    
-} from 'fluid-framework';
+import { TreeConfiguration, SchemaFactory } from 'fluid-framework';
 
 // Include a UUID to guarantee that this schema will be uniquely identifiable
 const sf = new SchemaFactory('fc1db2e8-0000-11ee-be56-0242ac120002');
@@ -18,9 +15,6 @@ export class Session extends sf.object('Session', {
 
 // Export the tree config appropriate for this schema
 // This is passed into the SharedTree when it is initialized
-export const sessionTreeConfiguration = new TreeConfiguration(
-    Session,
-    () => ({
-        clients: [],
-    })    
-);
+export const sessionTreeConfiguration = new TreeConfiguration(Session, () => ({
+    clients: [],
+}));

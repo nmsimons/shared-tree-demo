@@ -17,6 +17,7 @@ import {
     NewNoteButton,
     DeleteNotesButton,
     ButtonGroup,
+    ShowPromptButton,
 } from './buttonux';
 import { undefinedUserId } from '../utils/utils';
 
@@ -31,6 +32,7 @@ export function Canvas(props: {
     setConnectionState: (arg: string) => void;
     setSaved: (arg: boolean) => void;
     setFluidMembers: (arg: string[]) => void;
+    showPrompt: (arg: boolean) => void;
 }): JSX.Element {
     const [invalidations, setInvalidations] = useState(0);
 
@@ -118,6 +120,9 @@ export function Canvas(props: {
                         app={appRoot}
                         clientId={props.currentUser}
                     />
+                </ButtonGroup>
+                <ButtonGroup>
+                    <ShowPromptButton show={props.showPrompt} />
                 </ButtonGroup>
             </Floater>
         </div>
