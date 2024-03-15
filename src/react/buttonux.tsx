@@ -9,6 +9,7 @@ import {
     RectangleLandscapeRegular,
     ArrowUndoFilled,
     ArrowRedoFilled,
+    StarFilled
 } from '@fluentui/react-icons';
 import { Session } from '../schema/session_schema';
 import { getSelectedNotes } from '../utils/session_helpers';
@@ -83,6 +84,19 @@ export function DeleteNotesButton(props: {
             icon={<DeleteRegular />}
         >
             Delete Note
+        </IconButton>
+    );
+}
+
+export function ShowPromptButton(props: { show: (arg: boolean) => void }): JSX.Element {
+    return (
+        <IconButton
+            color="white"
+            background="black"
+            handleClick={() => props.show(true)}
+            icon={<StarFilled />}
+        >
+            Get Started...
         </IconButton>
     );
 }
