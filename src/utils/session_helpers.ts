@@ -10,7 +10,6 @@ export const testRemoteNoteSelection = (
     setSelected: (value: boolean) => void,
     fluidMembers: string[]
 ) => {
-
     if (clientId == undefinedUserId) return;
 
     let selected = false;
@@ -37,10 +36,9 @@ export const updateRemoteNoteSelection = (
     item: Note,
     action: selectAction,
     session: Session,
-    clientId: string,    
+    clientId: string
 ) => {
-
-    if (clientId == undefinedUserId) return;    
+    if (clientId == undefinedUserId) return;
 
     // Handle removed items and bail
     if (action == selectAction.REMOVE) {
@@ -90,7 +88,7 @@ export const getSelectedNotes = (session: Session, clientId: string): string[] =
         }
     }
     return [];
-}
+};
 
 export const cleanSessionData = (session: Session, fluidMembers: string[]) => {
     const deleteMe: Client[] = [];

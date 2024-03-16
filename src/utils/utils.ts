@@ -2,7 +2,7 @@ import { Note } from '../schema/app_schema';
 import { Guid } from 'guid-typescript';
 import { IInsecureUser } from '@fluidframework/test-runtime-utils';
 
-export const undefinedUserId = "[UNDEFINED]"
+export const undefinedUserId = '[UNDEFINED]';
 
 export function getRotation(note: Note) {
     const i = hashCode(note.id);
@@ -28,7 +28,7 @@ function hashCode(str: string): number {
 }
 
 export const generateTestUser = (): IInsecureUser => {
-    const userId = localStorage.getItem('testUserId')    
+    const userId = localStorage.getItem('testUserId');
     const user = {
         id: userId ? userId : Guid.create().toString(),
         name: '[TEST USER NAME]',
@@ -47,4 +47,3 @@ export enum selectAction {
     REMOVE,
     SINGLE,
 }
-

@@ -7,7 +7,7 @@ import {
     IFluidContainer,
     IMember,
     IServiceAudience,
-    TreeView
+    TreeView,
 } from 'fluid-framework';
 import { undefinedUserId } from '../utils/utils';
 import { Canvas } from './canvasux';
@@ -17,24 +17,28 @@ export function ReactApp(props: {
     sessionTree: TreeView<Session>;
     audience: IServiceAudience<IMember>;
     container: IFluidContainer;
+    insertTemplate: (prompt: string) => Promise<void>;
+    summarizeBoard: () => Promise<void>;
 }): JSX.Element {
     const [currentUser, setCurrentUser] = useState(undefinedUserId);
     const [connectionState, setConnectionState] = useState('');
     const [saved, setSaved] = useState(false);
-    const [fluidMembers, setFluidMembers] = useState<string[]>([]);    
-    
+    const [fluidMembers, setFluidMembers] = useState<string[]>([]);
+
     return (
         <div
             id="main"
             className="flex flex-col bg-transparent h-screen w-full overflow-hidden overscroll-none"
         >
             <Header
-                    saved={saved}
-                    connectionState={connectionState}
-                    fluidMembers={fluidMembers}
-                    clientId={currentUser}                                   
-                />
-            <div className="flex h-[calc(100vh-48px)] flex-row ">                
+                saved={saved}
+                connectionState={connectionState}
+                fluidMembers={fluidMembers}
+                clientId={currentUser}
+                insertTemplate={props.insertTemplate}
+                summarizeBoard={props.summarizeBoard}
+            />
+            <div className="flex h-[calc(100vh-48px)] flex-row ">
                 <Canvas
                     appTree={props.appTree}
                     sessionTree={props.sessionTree}
@@ -56,16 +60,61 @@ export function Header(props: {
     saved: boolean;
     connectionState: string;
     fluidMembers: string[];
-    clientId: string;    
+    clientId: string;
+    insertTemplate: (prompt: string) => Promise<void>;
+    summarizeBoard: () => Promise<void>;
 }): JSX.Element {
-    return (
-        <div className="h-[48px] flex shrink-0 flex-row items-center justify-between bg-black text-base text-white z-40 w-full">
-            <div className="flex m-2">Brainstorm</div>
+    const [templatePrompt, setTemplatePrompt] = useState(
+        'Help me brainstorm new features to add to my digital Whiteboard application'
+    );
+    const [isLoadingTemplate, setIsLoadingTemplate] = useState(false);
+    const [isLoadingSummary, setIsLoadingSummary] = useState(false);
+
+    const black =
+        'h-[48px] flex shrink-0 flex-row items-center justify-between bg-black text-base text-white z-40 w-full';
+    const red =
+        'h-[48px] flex shrink-0 flex-row items-center justify-between bg-green-600 text-base text-white z-40 w-full';
+    
+        const headerClass = isLoadingTemplate || isLoadingSummary ? red : black;
+        const headerMessage = isLoadingTemplate ? 'LOADING TEMPLATE... Yes it takes a while...' : isLoadingSummary ? 'SUMMARIZING...' : 'Brainstorm';
+        return (
+        <div className={headerClass}>
+            <div className="flex m-2">{headerMessage}</div>
             <div className="flex m-2 ">
                 {props.saved ? 'saved' : 'not saved'} | {props.connectionState} |
                 users: {props.fluidMembers.length}
             </div>
+            <input
+                className="flex m-2 text-black"
+                value={templatePrompt}
+                id="insertTemplateInput"
+                aria-label="Describe the template to be inserted"
+                onChange={(e) => {
+                    setTemplatePrompt(e.target.value);
+                }}
+            />
+            <button
+                id="insertTemplateButton"
+                onClick={() => {
+                    setIsLoadingTemplate(true);
+                    props
+                        .insertTemplate(templatePrompt)
+                        .then(() => setIsLoadingTemplate(false));
+                }}
+            >
+                Generate Template
+            </button>
+            <button
+                id="summarizeBoardButton"
+                onClick={() => {
+                    setIsLoadingSummary(true);
+                    props
+                        .summarizeBoard()
+                        .then(() => setIsLoadingSummary(false));
+                }}
+            >
+                Summarize Board
+            </button>
         </div>
     );
 }
-
