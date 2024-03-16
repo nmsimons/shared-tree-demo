@@ -135,19 +135,17 @@ YOUR OUTPUT TO A USER PROMPT MUST BE A VALID JSON BLOCK AND NOTHING ELSE.\nHere 
 
 export function getSummaryForBoard(): (treeView: TreeView<App>) => Promise<string> {
     return async (treeView: TreeView<App>): Promise<string> => {
-        const replacer = (key: any, value: any) => {
+        const replacer = (_: any, value: any) => {
             if (typeof value === 'object' && value !== null) {
                 if (Symbol.iterator in value) {
-                    // Convert iterables to arrays
                     return [...value];
                 }
                 return value;
             }
-            // Return the value unchanged if not an object
             return value;
         };
         const items = JSON.stringify(treeView.root.items, replacer);
-        const prePrompt = `You are a service named Copilot tasked with creating summaries from provided data. Given a JSON object representing items on the Microsoft whiteboard app(do not mention we are looking at a whiteboard, the user will know what it is), your goal is to distill this information into a succinct paragraph. The summary should highlight the keyinformation found in the data, making it accessible and valuable to the user. Focus on the essence of these items, presenting them in a way, without referring to the data structure or the context of a whiteboard. Output should be a simple, clear string that conveys the collective significance of the items described.
+        const prePrompt = `You are a service named Copilot tasked with creating summaries from provided Microsoft Whiteboard data. Given a JSON object representing items on the whiteboard app, your goal is to distill this information into a succinct paragraph. The summary should highlight the key and valuable information found in the data. Focus on the essence of these items, presenting them in a way, without referring to the data structure or the context of a whiteboard or where the data is coming from. Output should be a string.
     
     Here is the data you need to summarize:
     
@@ -155,7 +153,7 @@ export function getSummaryForBoard(): (treeView: TreeView<App>) => Promise<strin
     ${items}
     \`\`\`
     
-    Your summary should offer a clear overview specifying the format or context in which they are presented."`;
+    Your summary should offer a clear overview without specifying the format or context in which they are presented."`;
 
         const prompter = getPrompter(prePrompt);
         console.log(prompt);
