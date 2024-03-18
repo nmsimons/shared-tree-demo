@@ -123,9 +123,10 @@ export default function Prompt(props: {
                             id="insertTemplateButton"
                             onClick={() => {
                                 setIsLoadingTemplate(true);
-                                props
-                                    .insertTemplate(templatePrompt)
-                                    .then(() => setIsLoadingTemplate(false));
+                                props.insertTemplate(templatePrompt).then(() => {
+                                    setIsLoadingTemplate(false);
+                                    props.setIsOpen(false);
+                                });
                             }}
                         >
                             Get me started
