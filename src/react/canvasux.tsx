@@ -18,6 +18,7 @@ import {
     DeleteNotesButton,
     ButtonGroup,
     ShowPromptButton,
+    SummarizeButton,
 } from './buttonux';
 import { undefinedUserId } from '../utils/utils';
 
@@ -33,6 +34,7 @@ export function Canvas(props: {
     setSaved: (arg: boolean) => void;
     setFluidMembers: (arg: string[]) => void;
     showPrompt: (arg: boolean) => void;
+    summarizeBoard: () => void;
 }): JSX.Element {
     const [invalidations, setInvalidations] = useState(0);
 
@@ -123,6 +125,7 @@ export function Canvas(props: {
                 </ButtonGroup>
                 <ButtonGroup>
                     <ShowPromptButton show={props.showPrompt} />
+                    <SummarizeButton summarize={props.summarizeBoard} />
                 </ButtonGroup>
             </Floater>
         </div>

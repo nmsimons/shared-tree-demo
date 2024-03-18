@@ -1,4 +1,4 @@
-import { fail } from 'fluid-framework';
+import { TreeView, fail } from 'fluid-framework';
 import { createAzureOpenAILanguageModel } from 'typechat/dist/model';
 import { App } from '../schema/app_schema';
 
@@ -132,5 +132,28 @@ YOUR OUTPUT TO A USER PROMPT MUST BE A VALID JSON BLOCK AND NOTHING ELSE.`;
         } catch {
             return undefined;
         }
+    };
+}
+
+export function getSummaryForBoard(): (treeView: TreeView<App>) => Promise<string> {
+    return async (treeView: TreeView<App>): Promise<string> => {
+        const replacer = (_: any, value: any) => {
+            if (typeof value === 'object' && value !== null) {
+                if (Symbol.iterator in value) {
+                    return [...value];
+                }
+                return value;
+            }
+            return value;
+        };
+        const items = JSON.stringify(treeView.root.items, replacer);
+        const prePrompt =
+            'You are a service named Copilot tasked with creating descriptive textual summaries of data from a brainstorming application. A user gives you a JSON object representing items in the app and your goal is to distill this information into a succinct paragraph. The summary should highlight the key and valuable information found in the data. Focus on the essence of these items, describing them without referring to the structure of the data or where the data is coming from. Your output should be a string.';
+        const prompter = getPrompter(prePrompt);
+        const result = await prompter(items);
+        if (result === undefined) {
+            return 'GPT failed to generate valid summary.';
+        }
+        return result;
     };
 }

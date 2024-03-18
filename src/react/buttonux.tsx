@@ -9,7 +9,8 @@ import {
     RectangleLandscapeRegular,
     ArrowUndoFilled,
     ArrowRedoFilled,
-    StarFilled
+    StarFilled,
+    EyeFilled,
 } from '@fluentui/react-icons';
 import { Session } from '../schema/session_schema';
 import { getSelectedNotes } from '../utils/session_helpers';
@@ -88,7 +89,9 @@ export function DeleteNotesButton(props: {
     );
 }
 
-export function ShowPromptButton(props: { show: (arg: boolean) => void }): JSX.Element {
+export function ShowPromptButton(props: {
+    show: (arg: boolean) => void;
+}): JSX.Element {
     return (
         <IconButton
             color="white"
@@ -97,6 +100,19 @@ export function ShowPromptButton(props: { show: (arg: boolean) => void }): JSX.E
             icon={<StarFilled />}
         >
             Get Started...
+        </IconButton>
+    );
+}
+
+export function SummarizeButton(props: { summarize: () => void }): JSX.Element {
+    return (
+        <IconButton
+            color="white"
+            background="black"
+            handleClick={props.summarize}
+            icon={<EyeFilled />}
+        >
+            Summarize
         </IconButton>
     );
 }

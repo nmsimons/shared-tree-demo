@@ -12,7 +12,7 @@ import { devtoolsLogger } from './infra/clientProps';
 import { ITree, TreeView } from 'fluid-framework';
 import { App, Group, Note, appTreeConfiguration } from './schema/app_schema';
 import { sessionTreeConfiguration } from './schema/session_schema';
-import { getNewContentPrompter } from './utils/gpt_helpers';
+import { getNewContentPrompter, getSummaryForBoard } from './utils/gpt_helpers';
 
 const populationString = '__POPULATE_GPT__';
 
@@ -83,6 +83,12 @@ function populate(
     }
 }
 
+async function summarizeBoard(treeView: TreeView<App>) {
+    const prompter = getSummaryForBoard();
+    const gptContent = await prompter(treeView);
+    alert(gptContent);
+}
+
 async function start() {
     // create the root element for React
     const app = document.createElement('div');
@@ -145,6 +151,7 @@ async function start() {
                         }
                     )
                 }
+                summarizeBoard={() => summarizeBoard(appTree)}
             />
         </DndProvider>
     );

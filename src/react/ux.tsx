@@ -19,12 +19,13 @@ export function ReactApp(props: {
     audience: IServiceAudience<IMember>;
     container: IFluidContainer;
     insertTemplate: (prompt: string) => Promise<void>;
+    summarizeBoard: () => Promise<void>;
 }): JSX.Element {
     const [currentUser, setCurrentUser] = useState(undefinedUserId);
     const [connectionState, setConnectionState] = useState('');
     const [saved, setSaved] = useState(false);
     const [fluidMembers, setFluidMembers] = useState<string[]>([]);
-    const [isOpen, setIsOpen] = useState(false);
+    const [isPromptOpen, setIsPromptOpen] = useState(false);
 
     return (
         <>
@@ -50,14 +51,15 @@ export function ReactApp(props: {
                         setConnectionState={setConnectionState}
                         setSaved={setSaved}
                         setFluidMembers={setFluidMembers}
-                        showPrompt={setIsOpen}
+                        showPrompt={setIsPromptOpen}
+                        summarizeBoard={props.summarizeBoard}
                     />
                 </div>
             </div>
             <Prompt
                 insertTemplate={props.insertTemplate}
-                isOpen={isOpen}
-                setIsOpen={setIsOpen}
+                isOpen={isPromptOpen}
+                setIsOpen={setIsPromptOpen}
             />
         </>
     );
