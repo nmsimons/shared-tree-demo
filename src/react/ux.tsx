@@ -80,45 +80,6 @@ export function Header(props: {
     );
 }
 
-export function OldPrompt(props: {
-    insertTemplate: (prompt: string) => Promise<void>;
-}): JSX.Element {
-    const [templatePrompt, setTemplatePrompt] = useState(
-        'Help me brainstorm new features to add to my digital Whiteboard application'
-    );
-    const [isLoadingTemplate, setIsLoadingTemplate] = useState(false);
-
-    return (
-        <div className="">
-            <div className="flex m-2">
-                {isLoadingTemplate
-                    ? 'LOADING TEMPLATE... Yes it takes a while...'
-                    : 'Brainstorm'}
-            </div>
-            <input
-                className="flex m-2 text-black"
-                value={templatePrompt}
-                id="insertTemplateInput"
-                aria-label="Describe the template to be inserted"
-                onChange={(e) => {
-                    setTemplatePrompt(e.target.value);
-                }}
-            />
-            <button
-                id="insertTemplateButton"
-                onClick={() => {
-                    setIsLoadingTemplate(true);
-                    props
-                        .insertTemplate(templatePrompt)
-                        .then(() => setIsLoadingTemplate(false));
-                }}
-            >
-                Generate Template
-            </button>
-        </div>
-    );
-}
-
 export default function Prompt(props: {
     isOpen: boolean;
     setIsOpen: (arg: boolean) => void;
@@ -140,7 +101,7 @@ export default function Prompt(props: {
                 </Dialog.Title>
                 <Dialog.Description>
                     {isLoadingTemplate
-                        ? 'LOADING TEMPLATE... Yes it takes a while...'
+                        ? 'Generating template...'
                         : 'Populate your board with ideas based on this prompt.'}
                 </Dialog.Description>
                 <div className={isLoadingTemplate ? 'invisible' : ''}>
@@ -174,7 +135,7 @@ export default function Prompt(props: {
                             Close
                         </button>
                     </div>
-                </div>                
+                </div>
             </Dialog.Panel>
         </Dialog>
     );
